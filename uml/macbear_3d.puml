@@ -51,10 +51,16 @@ class "macbear_3d::src::util::constants.dart::M3Constants" {
   {static} +Matrix3 rotXNeg90
   {static} +Matrix3 rotXPos90
   {static} +Matrix4 biasMatrix
+  {static} +M3Material mtrDefault
+  {static} +M3Material mtrMetal
+  {static} +M3Material mtrWood
+  {static} +M3Material mtrPlastic
+  {static} +M3Material mtrGlass
 }
 
 "macbear_3d::src::util::constants.dart::M3Constants" o-- "vector_math::vector_math.dart::Matrix3"
 "macbear_3d::src::util::constants.dart::M3Constants" o-- "vector_math::vector_math.dart::Matrix4"
+"macbear_3d::src::util::constants.dart::M3Constants" o-- "macbear_3d::src::texture::material.dart::M3Material"
 
 class "macbear_3d::src::util::constants.dart::M3Axis" {
   +int index
@@ -469,7 +475,7 @@ class "macbear_3d::src::geom::geom.dart::M3TextGeom" {
 "macbear_3d::src::geom::geom.dart::M3Geom" <|-- "macbear_3d::src::geom::geom.dart::M3TextGeom"
 
 class "macbear_3d::src::geom::geom.dart::M3Contour" {
-  +List<_ContourInfo> infos
+  +List<M3ContourInfo> infos
   +List<List<Vector2>> normalizedOuters
   +List<List<Vector2>> normalizedHoles
   +List<int> outerOrigIndices
@@ -479,14 +485,14 @@ class "macbear_3d::src::geom::geom.dart::M3Contour" {
   {static} -bool _isContourInside()
 }
 
-class "macbear_3d::src::geom::geom.dart::_ContourInfo" {
+class "macbear_3d::src::geom::geom.dart::M3ContourInfo" {
   +List<Vector2> points
   +double area
   +int index
-  +_ContourInfo? parent
+  +M3ContourInfo? parent
 }
 
-"macbear_3d::src::geom::geom.dart::_ContourInfo" o-- "macbear_3d::src::geom::geom.dart::_ContourInfo"
+"macbear_3d::src::geom::geom.dart::M3ContourInfo" o-- "macbear_3d::src::geom::geom.dart::M3ContourInfo"
 
 class "macbear_3d::src::geom::geom.dart::M3GltfGeom" {
   {static} -int _glMode()
@@ -576,7 +582,7 @@ class "macbear_3d::src::program::program.dart::M3Program" {
   -WebGLShader _shaderFrag
   +Program program
   +UniformLocation uniformProjection
-  +UniformLocation uniformModelview
+  +UniformLocation uniformModel
   +UniformLocation uniformMVP
   +UniformLocation uniformTexMatrix
   +UniformLocation uniformSamplerDiffuse
@@ -595,11 +601,12 @@ class "macbear_3d::src::program::program.dart::M3Program" {
   +void initLocation()
   +void dispose()
   +void setProjectionMatrix()
-  +void setModelViewMatrix()
+  +void setModelMatrix()
   +void setMVPMatrix()
   +void applyCamera()
   +void setMatrices()
   +void setMaterial()
+  +void setSkinning()
   +void disableAttribute()
 }
 
@@ -679,30 +686,17 @@ class "macbear_3d::src::texture::material.dart::M3Material" {
   +Vector4 diffuse
   +Vector3 specular
   +double shininess
+  +double reflection
   +M3Texture texDiffuse
   +Matrix3 texMatrix
+  +M3Material clone()
+  +void copyFrom()
 }
 
 "macbear_3d::src::texture::material.dart::M3Material" o-- "vector_math::vector_math.dart::Vector4"
 "macbear_3d::src::texture::material.dart::M3Material" o-- "vector_math::vector_math.dart::Vector3"
 "macbear_3d::src::texture::material.dart::M3Material" o-- "macbear_3d::src::texture::texture.dart::M3Texture"
 "macbear_3d::src::texture::material.dart::M3Material" o-- "vector_math::vector_math.dart::Matrix3"
-
-class "macbear_3d::src::texture::text_texture.dart::M3TextTexture" {
-  +String text
-  -String _fontFamily
-  -double _fontSize
-  +Color color
-  {static} +dynamic createFixed()
-  +dynamic updateText()
-  -dynamic _updateTexture()
-  {static} +dynamic createFromText()
-  -dynamic _makeLabelImage()
-  -dynamic _createTextureFromLabel()
-}
-
-"macbear_3d::src::texture::text_texture.dart::M3TextTexture" o-- "dart::ui::Color"
-"macbear_3d::src::texture::texture.dart::M3Texture" <|-- "macbear_3d::src::texture::text_texture.dart::M3TextTexture"
 
 class "macbear_3d::src::texture::texture.dart::M3Texture" {
   {static} -List<int> _cubeMapFaceTargets
@@ -728,10 +722,29 @@ class "macbear_3d::src::texture::texture.dart::M3Texture" {
   {static} +dynamic loadCubemap()
   {static} +dynamic createFromBytes()
   -dynamic _loadTarget()
+  -dynamic _loadTargetFromImage()
+  {static} +dynamic createWoodTexture()
+  {static} -dynamic _generateWoodImage()
 }
 
 "macbear_3d::src::texture::texture.dart::M3Texture" o-- "flutter_angle::shared::classes.dart::WebGLTexture"
 "macbear_3d::src::texture::texture.dart::M3Texture" o-- "flutter_angle::desktop::wrapper.dart::RenderingContext"
+
+class "macbear_3d::src::texture::texture.dart::M3TextTexture" {
+  +String text
+  -String _fontFamily
+  -double _fontSize
+  +Color color
+  {static} +dynamic createFixed()
+  +dynamic updateText()
+  -dynamic _updateTexture()
+  {static} +dynamic createFromText()
+  -dynamic _makeLabelImage()
+  -dynamic _createTextureFromLabel()
+}
+
+"macbear_3d::src::texture::texture.dart::M3TextTexture" o-- "dart::ui::Color"
+"macbear_3d::src::texture::texture.dart::M3Texture" <|-- "macbear_3d::src::texture::texture.dart::M3TextTexture"
 
 abstract class "macbear_3d::src::texture::ktx_info.dart::M3GL" {
   {static} +int COMPRESSED_RGBA_ASTC_4x4_KHR
@@ -873,6 +886,7 @@ abstract class "macbear_3d::src::scene::scene.dart::M3Scene" {
   +void savePhysicsStates()
   +void update()
   +void render()
+  +void renderReflection()
   +void renderHelper()
   +void render2D()
 }
@@ -1019,7 +1033,6 @@ class "macbear_3d::src::engine::app_engine.dart::M3AppEngine" {
   +Ticker ticker
   -Duration _lastElapsed
   +double timeScale
-  +int frameCounter
   -bool _updating
   -int _fpsFrameCount
   -int _fpsLastTime
@@ -1110,11 +1123,21 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
   {static} -M3Shape2D? _triangle
   {static} -M3Text2D? _text2D
   {static} -M3Rectangle2D? _rectUnit
+  {static} +M3Program? programSimple
+  {static} +M3Program? programSkybox
+  {static} +M3Program? programRectangle
+  {static} +M3ProgramEye? programSkyboxReflect
+  {static} +M3ProgramLighting? programSimpleLighting
+  {static} +M3ProgramLighting? programTexture
+  {static} +M3ProgramShadowmap? programShadowmap
+  {static} +M3ProgramShadowCSM? programShadowCSM
+  {static} -String _skinNormal
   {static} +M3Text2D text2D
   {static} +M3Shape2D line
   {static} +M3Shape2D triangle
   {static} +M3Rectangle2D rectUnit
   {static} +dynamic init()
+  {static} +void setLightingProgram()
   {static} +void dispose()
 }
 
@@ -1127,6 +1150,11 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::shape_2d.dart::M3Shape2D"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::sprite_2d.dart::M3Text2D"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::shape_2d.dart::M3Rectangle2D"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3Program"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3ProgramEye"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3ProgramLighting"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3ProgramShadowmap"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3ProgramShadowCSM"
 
 class "macbear_3d::src::engine::resource_manager.dart::M3ResourceManager" {
   +Map<String, M3Geom> geoms
@@ -1138,6 +1166,30 @@ class "macbear_3d::src::engine::resource_manager.dart::M3ResourceManager" {
   +dynamic loadFont()
   +dynamic loadBuffer()
 }
+
+class "macbear_3d::src::engine::render_engine.dart::M3RenderEngine" {
+  +RenderingContext gl
+  +Framebuffer defaultFBO
+  -M3ShadowMap? _shadowMap
+  -M3Projection _projection2D
+  +M3RenderOptions options
+  +M3RenderStats stats
+  +M3ShadowMap? shadowMap
+  +void dispose()
+  +void getExtensions()
+  +void createShadowMap()
+  +void bindDefaultFramebuffer()
+  +void setViewport()
+  +void renderScene()
+  +void render2D()
+}
+
+"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "flutter_angle::desktop::wrapper.dart::RenderingContext"
+"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "flutter_angle::shared::classes.dart::Framebuffer"
+"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::engine::shadow_map.dart::M3ShadowMap"
+"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::scene::camera.dart::M3Projection"
+"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::engine::render_engine.dart::M3RenderOptions"
+"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::engine::render_engine.dart::M3RenderStats"
 
 class "macbear_3d::src::engine::render_engine.dart::M3RenderOptions" {
   +M3DebugOptions debug
@@ -1156,9 +1208,11 @@ class "macbear_3d::src::engine::render_engine.dart::M3DebugOptions" {
 }
 
 class "macbear_3d::src::engine::render_engine.dart::M3ShaderOptions" {
+  -bool _perPixel
+  -bool _cartoon
+  +bool pcf
   +bool perPixel
   +bool cartoon
-  +bool pcf
 }
 
 class "macbear_3d::src::engine::render_engine.dart::M3RenderStats" {
@@ -1167,45 +1221,10 @@ class "macbear_3d::src::engine::render_engine.dart::M3RenderStats" {
   +int triangles
   +int entities
   +int culling
+  +int reflection
   +void reset()
+  +String toString()
 }
-
-class "macbear_3d::src::engine::render_engine.dart::M3RenderEngine" {
-  +RenderingContext gl
-  +Framebuffer defaultFBO
-  +M3Program? programSimple
-  +M3Program? programRectangle
-  +M3ProgramLighting? programSimpleLighting
-  +M3ProgramLighting? programTexture
-  +M3ProgramShadowmap? programShadowmap
-  +M3ProgramShadowCSM? programShadowCSM
-  +M3Program? programSkybox
-  -M3ShadowMap? _shadowMap
-  -M3Projection _projection2D
-  +M3RenderOptions options
-  +M3RenderStats stats
-  +M3ShadowMap? shadowMap
-  +void dispose()
-  +void getExtensions()
-  +dynamic initProgram()
-  +void setLightingProgram()
-  +void createShadowMap()
-  +void bindDefaultFramebuffer()
-  +void setViewport()
-  +void renderScene()
-  +void render2D()
-}
-
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "flutter_angle::desktop::wrapper.dart::RenderingContext"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "flutter_angle::shared::classes.dart::Framebuffer"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::program::program.dart::M3Program"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::program::program.dart::M3ProgramLighting"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::program::program.dart::M3ProgramShadowmap"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::program::program.dart::M3ProgramShadowCSM"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::engine::shadow_map.dart::M3ShadowMap"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::scene::camera.dart::M3Projection"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::engine::render_engine.dart::M3RenderOptions"
-"macbear_3d::src::engine::render_engine.dart::M3RenderEngine" o-- "macbear_3d::src::engine::render_engine.dart::M3RenderStats"
 
 class "macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" {
   -M3Rectangle2D _rect

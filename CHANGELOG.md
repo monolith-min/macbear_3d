@@ -1,3 +1,8 @@
+## 0.5.0
+
+* Add:
+  * **Reflection**: Added cubemap-based reflection (`renderReflection`).
+
 ## 0.4.0
 
 * Add:
