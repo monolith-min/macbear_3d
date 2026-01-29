@@ -109,18 +109,7 @@ abstract class M3Scene {
       final mesh = entity.mesh!;
       prog.setMatrices(camera, entity.matrix);
       prog.setMaterial(mesh.mtr, entity.color);
-
-      // Skinned Mesh support
-      if (mesh.skin != null) {
-        gl.uniform1i(prog.uniformBoneCount, mesh.skin!.boneCount);
-        final boneArray = Float32List(mesh.skin!.boneCount * 16);
-        for (int i = 0; i < mesh.skin!.boneCount; i++) {
-          boneArray.setAll(i * 16, mesh.skin!.boneMatrices[i].storage);
-        }
-        gl.uniformMatrix4fv(prog.uniformBoneMatrixArray, false, boneArray);
-      } else {
-        gl.uniform1i(prog.uniformBoneCount, 0);
-      }
+      prog.setSkinning(mesh.skin);
 
       mesh.geom.draw(prog, bSolid: bSolid);
 
@@ -132,9 +121,49 @@ abstract class M3Scene {
     }
   }
 
+  void renderReflection() {
+    M3ProgramEye prog = M3Resources.programSkyboxReflect!;
+    gl.depthFunc(WebGL.EQUAL); // Match exactly from 1st pass
+    gl.depthMask(false); // Don't write to depth buffer in additive pass
+    gl.blendFunc(WebGL.ONE, WebGL.ONE); // Additive blending
+
+    // pre-draw
+    gl.useProgram(prog.program);
+    prog.applyCamera(camera);
+    M3Material mtrReflection = M3Material();
+    mtrReflection.texDiffuse = skybox!.mtr.texDiffuse;
+
+    for (final entity in entities) {
+      // culling
+      if (entity.mesh == null || !camera.isVisible(entity.worldBounding)) {
+        continue;
+      }
+      final mesh = entity.mesh!;
+      if (mesh.mtr.reflection <= 0) {
+        continue;
+      }
+
+      Vector4 reflectColor = Vector4.all(mesh.mtr.reflection);
+
+      prog.setMatrices(camera, entity.matrix);
+      prog.setMaterial(mtrReflection, reflectColor);
+      prog.setSkinning(mesh.skin);
+
+      mesh.geom.draw(prog, bSolid: true);
+
+      // statistics
+      final stats = M3AppEngine.instance.renderEngine.stats;
+      stats.reflection++;
+    }
+
+    // Reset depth state
+    gl.depthMask(true);
+    gl.depthFunc(WebGL.LEQUAL);
+  }
+
   // render helper: zero, camera, light, wireframe
   void renderHelper() {
-    M3Program progSimple = M3AppEngine.instance.renderEngine.programSimple!;
+    M3Program progSimple = M3Resources.programSimple!;
 
     // pre-draw
     gl.useProgram(progSimple.program);

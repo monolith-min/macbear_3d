@@ -49,6 +49,12 @@ class _MainPageState extends State<MainPage> {
   // 1 - shadowmap
   // 2 - csm
   int shadowMode = 2;
+  int _selectedSceneIndex = 0; // 00 starter, 01-08 scenes, 9 sample
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> _loadScene(M3Scene scene) async {
     // Show loading dialog
@@ -79,7 +85,32 @@ class _MainPageState extends State<MainPage> {
       // Close the dialog
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
+        setState(() {
+          setShadowMode(shadowMode);
+        }); // Refresh UI
       }
+    }
+  }
+
+  void setShadowMode(int mode) {
+    final renderEngine = M3AppEngine.instance.renderEngine;
+    final scene = M3AppEngine.instance.activeScene!;
+    shadowMode = mode;
+    switch (shadowMode) {
+      case 0: // no shadow
+        renderEngine.options.shadows = false;
+        scene.camera.csmCount = 0;
+        break;
+      case 1: // shadowmap
+        renderEngine.options.shadows = true;
+        scene.camera.csmCount = 0;
+        scene.light.refreshProjectionMatrix();
+        scene.light.setLookat(Vector3(2, 0, 8), Vector3.zero(), Vector3(0, 0, 1));
+        break;
+      case 2: // cascade shadow map
+        renderEngine.options.shadows = true;
+        scene.camera.csmCount = 4;
+        break;
     }
   }
 
@@ -165,52 +196,49 @@ class _MainPageState extends State<MainPage> {
       children: [
         FloatingActionButton(
           heroTag: 'shadow',
+          backgroundColor: shadowMode > 0 ? Colors.lightGreen : null,
           onPressed: () {
-            final scene = M3AppEngine.instance.activeScene!;
-            shadowMode = (shadowMode + 1) % 3;
-            switch (shadowMode) {
-              case 0: // no shadow
-                renderEngine.options.shadows = false;
-                scene.camera.csmCount = 0;
-                break;
-              case 1: // shadowmap
-                renderEngine.options.shadows = true;
-                scene.camera.csmCount = 0;
-                scene.light.refreshProjectionMatrix();
-                scene.light.setLookat(Vector3(2, 0, 8), Vector3.zero(), Vector3(0, 0, 1));
-                break;
-              case 2: // cascade shadow map
-                renderEngine.options.shadows = true;
-                scene.camera.csmCount = 4;
-                break;
-            }
+            setState(() {
+              setShadowMode((shadowMode + 1) % 3);
+            });
           },
-          child: const Icon(Icons.light_mode_rounded),
+          child: Icon(
+            shadowMode == 2 ? Icons.layers : (shadowMode == 1 ? Icons.light_mode : Icons.light_mode_outlined),
+          ),
         ),
         const SizedBox(width: 6),
         FloatingActionButton(
           heroTag: 'pcf',
+          backgroundColor: shaderOptions.pcf ? Colors.lightGreen : null,
           onPressed: () {
-            shaderOptions.pcf = !shaderOptions.pcf;
-            renderEngine.setLightingProgram();
+            setState(() {
+              shaderOptions.pcf = !shaderOptions.pcf;
+              M3Resources.setLightingProgram(shaderOptions);
+            });
           },
           child: const Icon(Icons.blur_on_rounded),
         ),
         const SizedBox(width: 16),
         FloatingActionButton(
           heroTag: 'per_pixel',
+          backgroundColor: shaderOptions.perPixel ? Colors.lightGreen : null,
           onPressed: () {
-            shaderOptions.perPixel = !shaderOptions.perPixel;
-            renderEngine.setLightingProgram();
+            setState(() {
+              shaderOptions.perPixel = !shaderOptions.perPixel;
+              M3Resources.setLightingProgram(shaderOptions);
+            });
           },
           child: const Icon(Icons.draw),
         ),
         const SizedBox(width: 6),
         FloatingActionButton(
           heroTag: 'cartoon',
+          backgroundColor: shaderOptions.cartoon ? Colors.lightGreen : null,
           onPressed: () {
-            shaderOptions.cartoon = !shaderOptions.cartoon;
-            renderEngine.setLightingProgram();
+            setState(() {
+              shaderOptions.cartoon = !shaderOptions.cartoon;
+              M3Resources.setLightingProgram(shaderOptions);
+            });
           },
           child: const Icon(Icons.draw_outlined),
         ),
@@ -226,16 +254,22 @@ class _MainPageState extends State<MainPage> {
       children: [
         FloatingActionButton(
           heroTag: 'wireframe',
+          backgroundColor: renderEngine.options.debug.wireframe ? Colors.lightGreen : null,
           onPressed: () {
-            renderEngine.options.debug.wireframe = !renderEngine.options.debug.wireframe;
+            setState(() {
+              renderEngine.options.debug.wireframe = !renderEngine.options.debug.wireframe;
+            });
           },
           child: const Icon(Icons.grid_4x4_sharp),
         ),
         const SizedBox(width: 6),
         FloatingActionButton(
           heroTag: 'info',
+          backgroundColor: renderEngine.options.debug.showHelpers ? Colors.lightGreen : null,
           onPressed: () {
-            renderEngine.options.debug.showHelpers = !renderEngine.options.debug.showHelpers;
+            setState(() {
+              renderEngine.options.debug.showHelpers = !renderEngine.options.debug.showHelpers;
+            });
           },
           child: const Icon(Icons.info),
         ),
@@ -251,56 +285,102 @@ class _MainPageState extends State<MainPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
+            heroTag: 'scene_00',
+            backgroundColor: _selectedSceneIndex == 0 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 0;
+              _loadScene(StarterScene_00());
+            },
+            child: const Icon(Icons.star),
+          ),
+          const SizedBox(width: 6),
+          FloatingActionButton(
             heroTag: 'scene_01',
-            onPressed: () => _loadScene(CubeScene_01()),
+            backgroundColor: _selectedSceneIndex == 1 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 1;
+              _loadScene(CubeScene_01());
+            },
             child: const Icon(Icons.filter_1),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_02',
-            onPressed: () => _loadScene(SkyboxScene_02()),
+            backgroundColor: _selectedSceneIndex == 2 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 2;
+              _loadScene(SkyboxScene_02());
+            },
             child: const Icon(Icons.filter_2),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_03',
-            onPressed: () => _loadScene(PrimitivesScene_03()),
+            backgroundColor: _selectedSceneIndex == 3 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 3;
+              _loadScene(PrimitivesScene_03());
+            },
             child: const Icon(Icons.filter_3),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_04',
-            onPressed: () => _loadScene(ObjTeapotScene_04()),
+            backgroundColor: _selectedSceneIndex == 4 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 4;
+              _loadScene(ObjTeapotScene_04());
+            },
             child: const Icon(Icons.filter_4),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_05',
-            onPressed: () => _loadScene(GlftScene_05()),
+            backgroundColor: _selectedSceneIndex == 5 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 5;
+              _loadScene(GlftScene_05());
+            },
             child: const Icon(Icons.filter_5),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_06',
-            onPressed: () => _loadScene(ShadowmapScene_06()),
+            backgroundColor: _selectedSceneIndex == 6 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 6;
+              _loadScene(ShadowmapScene_06());
+            },
             child: const Icon(Icons.looks_6),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_07',
-            onPressed: () => _loadScene(PhysicsScene_07()),
+            backgroundColor: _selectedSceneIndex == 7 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 7;
+              _loadScene(PhysicsScene_07());
+            },
             child: const Icon(Icons.filter_7),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_08',
-            onPressed: () => _loadScene(Text3DScene_08()),
+            backgroundColor: _selectedSceneIndex == 8 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 8;
+              _loadScene(Text3DScene_08());
+            },
             child: const Icon(Icons.filter_8),
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'sample',
-            onPressed: () => _loadScene(SampleScene()),
+            backgroundColor: _selectedSceneIndex == 9 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 9;
+              _loadScene(SampleScene());
+            },
             child: const Icon(Icons.desktop_mac_sharp),
           ),
         ],

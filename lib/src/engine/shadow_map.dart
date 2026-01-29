@@ -7,7 +7,7 @@ import 'framebuffer.dart';
 /// Renders the scene from the light's perspective to generate a depth texture.
 class M3ShadowMap {
   RenderingContext get gl => M3AppEngine.instance.renderEngine.gl;
-  static final _prog = M3AppEngine.instance.renderEngine.programSimple!;
+  static final _prog = M3Resources.programSimple!;
 
   final M3Framebuffer _framebuffer;
   int get mapW => _framebuffer.frameW;

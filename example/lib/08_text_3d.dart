@@ -16,7 +16,8 @@ class Text3DScene_08 extends M3Scene {
 
     // NotoSansMonoCJKtc-VF.ttf,
     // https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/OTF/NotoSansCJKtc-VF.otf
-    final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/OTF/NotoSansCJKtc-VF.otf';
+    // final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/OTF/NotoSansCJKtc-VF.otf';
+    final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/TTF/NotoSansCJKtc-VF.ttf';
     // final fontPath = 'assets/NotoSansMonoCJKtc-VF.ttf';
     M3ResourceManager resManager = M3AppEngine.instance.resourceManager;
     final font = await resManager.loadFont(fontPath);

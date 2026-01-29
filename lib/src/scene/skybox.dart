@@ -31,7 +31,7 @@ class M3Skybox {
   }
 
   bool drawSkybox(M3Camera camEye) {
-    final prog = M3AppEngine.instance.renderEngine.programSkybox!;
+    final prog = M3Resources.programSkybox!;
 
     gl.depthMask(false);
     gl.disable(WebGL.DEPTH_TEST);

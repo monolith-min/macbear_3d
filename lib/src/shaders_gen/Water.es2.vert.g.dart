@@ -2,12 +2,11 @@
 // ignore: constant_identifier_names
 const String Water_es2_vert = r"""
 // Water vert-shader //////////
-attribute highp vec3 inVertex;
+attribute highp vec3 inVertex;		// vertex-data
 attribute lowp vec4 inColor;		// for water-color as fog in water
 attribute mediump vec2 inTexCoord;
 // eye-space for camera-viewer
 //uniform mat4 Projection;
-//uniform mat4 Modelview;
 uniform highp mat4 ModelviewProjection;
 // object-space (same as world-space here)
 uniform mediump vec3 EyePosition;	// eye as camera origin

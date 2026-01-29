@@ -9,7 +9,7 @@ part 'rectangle_2d.dart';
 /// Base class for 2D shapes with dynamic vertex buffers for lines, triangles, and images.
 class M3Shape2D {
   RenderingContext get gl => M3AppEngine.instance.renderEngine.gl;
-  static M3Program get prog2D => M3AppEngine.instance.renderEngine.programRectangle!;
+  static M3Program get prog2D => M3Resources.programRectangle!;
 
   // always GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_LINES, GL_LINE_STRIP
   // not supported: GL_TRIANGLE_FAN, GL_LINE_LOOP
@@ -112,20 +112,19 @@ class M3Shape2D {
     tri.draw();
   }
 
-  static void drawImage(M3Texture tex, Matrix4 mvMatrix, {Vector4? color}) {
-    Vector4 colorImage = Colors.white;
+  static void drawImage(M3Texture tex, Matrix4 mMatrix, {Vector4? color}) {
+    Vector4 imgColor = Colors.white;
     if (color != null) {
-      colorImage = color;
+      imgColor = color;
     }
     M3Material mtr = M3Material();
     mtr.texDiffuse = tex;
 
-    M3Shape2D.prog2D.setMaterial(mtr, colorImage);
-    M3Shape2D.prog2D.setModelViewMatrix(mvMatrix);
+    Matrix4 imgMatrix = mMatrix.clone();
+    imgMatrix.scaleByVector3(Vector3(tex.texW.toDouble(), tex.texH.toDouble(), 1));
 
-    Matrix4 mvUnit = mvMatrix.clone();
-    mvUnit.scaleByVector3(Vector3(tex.texW.toDouble(), tex.texH.toDouble(), 1));
-    M3Shape2D.prog2D.setModelViewMatrix(mvUnit);
+    M3Shape2D.prog2D.setMaterial(mtr, imgColor);
+    M3Shape2D.prog2D.setModelMatrix(imgMatrix);
 
     // draw shape2D
     M3Resources.rectUnit.draw();

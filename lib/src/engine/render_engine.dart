@@ -1,56 +1,9 @@
 // Macbear3D engine
 import '../../macbear_3d.dart';
-import '../shaders_gen/Rect.es2.frag.g.dart';
-import '../shaders_gen/Rect.es2.vert.g.dart';
-import '../shaders_gen/Simple.es2.frag.g.dart';
-import '../shaders_gen/Simple.es2.vert.g.dart';
-import '../shaders_gen/SimpleLighting.es2.vert.g.dart';
-import '../shaders_gen/Skinning.es2.vert.g.dart';
-import '../shaders_gen/Skybox.es2.frag.g.dart';
-import '../shaders_gen/Skybox.es2.vert.g.dart';
-import '../shaders_gen/TexturedLighting.es2.frag.g.dart';
-import '../shaders_gen/TexturedLighting.es2.vert.g.dart';
 
 import 'shadow_map.dart';
 
-/// Rendering options for the engine (wireframe, helpers, shadows, FPS display).
-class M3RenderOptions {
-  // debug options
-  M3DebugOptions debug = M3DebugOptions();
-  // shader options
-  M3ShaderOptions shader = M3ShaderOptions();
-  bool shadows = true;
-}
-
-class M3DebugOptions {
-  bool wireframe = false;
-  bool showHelpers = false;
-  bool showStats = true;
-  bool showPhysicsStats = false;
-}
-
-// GLSL options
-class M3ShaderOptions {
-  bool perPixel = false; // per-pixel lighting
-  bool cartoon = false; // cartoon in per-pixel lighting
-  bool pcf = true; // percentage-closer-fliter (PCF) for shadowmap
-}
-
-/// Rendering statistics
-class M3RenderStats {
-  int frames = 0;
-  int vertices = 0;
-  int triangles = 0;
-  int entities = 0;
-  int culling = 0;
-
-  void reset() {
-    vertices = 0;
-    triangles = 0;
-    entities = 0;
-    culling = 0;
-  }
-}
+part 'render_options.dart';
 
 /// The WebGL rendering engine that manages shaders, framebuffers, and scene rendering.
 ///
@@ -58,14 +11,6 @@ class M3RenderStats {
 class M3RenderEngine {
   late RenderingContext gl;
   final Framebuffer defaultFBO = Framebuffer(0); // default framebuffer
-
-  M3Program? programSimple;
-  M3Program? programRectangle;
-  M3ProgramLighting? programSimpleLighting;
-  M3ProgramLighting? programTexture;
-  M3ProgramShadowmap? programShadowmap;
-  M3ProgramShadowCSM? programShadowCSM;
-  M3Program? programSkybox;
 
   // shadow map
   M3ShadowMap? _shadowMap;
@@ -84,13 +29,6 @@ class M3RenderEngine {
   }
 
   void dispose() {
-    programSimple?.dispose();
-    programRectangle?.dispose();
-    programSimpleLighting?.dispose();
-    programTexture?.dispose();
-    programShadowmap?.dispose();
-    programShadowCSM?.dispose();
-
     _shadowMap?.dispose();
   }
 
@@ -136,61 +74,6 @@ class M3RenderEngine {
         break;
       }
     }
-  }
-
-  Future<void> initProgram() async {
-    // getExtensions();
-
-    // simple program
-    programSimple = M3Program(Skinning_es2_vert + Simple_es2_vert, Simple_es2_frag);
-
-    // skybox program
-    programSkybox = M3Program(Skybox_es2_vert, Skybox_es2_frag);
-
-    // simple lighting program
-    programSimpleLighting = M3ProgramLighting(SimpleLighting_es2_vert, Simple_es2_frag);
-
-    // rectangle program
-    programRectangle = M3Program(Rect_es2_vert, Rect_es2_frag);
-
-    setLightingProgram();
-  }
-
-  void setLightingProgram() {
-    programTexture?.dispose();
-    programShadowmap?.dispose();
-    programShadowCSM?.dispose();
-
-    final String strSkin = "#define WITH_NORMAL \n$Skinning_es2_vert";
-    // texture lighting program
-    String strVert = TexturedLighting_es2_vert;
-    strVert = strSkin + strVert;
-    String strFrag = TexturedLighting_es2_frag;
-    // pixel lighting: phong shading, cartoon
-    if (options.shader.perPixel) {
-      strVert = "#define ENABLE_PIXEL_LIGHTING \n$strVert";
-      strFrag = "#define ENABLE_PIXEL_LIGHTING \n$strFrag";
-      if (options.shader.cartoon) {
-        strFrag = "#define ENABLE_CARTOON \n$strFrag";
-      }
-    }
-    programTexture = M3ProgramLighting(strVert, strFrag);
-
-    // shadow map program
-    String vsShadow = "#define ENABLE_SHADOW_MAP \n$strVert";
-    String fsShadow = "#define ENABLE_SHADOW_MAP \n$strFrag";
-    if (options.shader.pcf) {
-      fsShadow = "#define ENABLE_PCF \n$fsShadow";
-    }
-    programShadowmap = M3ProgramShadowmap(vsShadow, fsShadow);
-
-    // shadow CSM program
-    vsShadow = "#define ENABLE_SHADOW_CSM \n$strVert";
-    fsShadow = "#define ENABLE_SHADOW_CSM \n$strFrag";
-    if (options.shader.pcf) {
-      fsShadow = "#define ENABLE_PCF \n$fsShadow";
-    }
-    programShadowCSM = M3ProgramShadowCSM(vsShadow, fsShadow);
   }
 
   void createShadowMap({int width = 1024, int height = 1024}) {
@@ -239,15 +122,16 @@ class M3RenderEngine {
     gl.blendFunc(WebGL.SRC_ALPHA, WebGL.ONE_MINUS_SRC_ALPHA); // WebGL.ONE
 
     if (!options.debug.wireframe) {
-      M3ProgramLighting progLight = programTexture!; // texture shader
+      M3ProgramLighting progLight = M3Resources.programTexture!; // texture shader
+      // M3ProgramLighting progLight = M3Resources.programSimpleLighting!; // texture shader
       // Render Shadow Map
       if (options.shadows && _shadowMap != null) {
         _shadowMap!.renderDepthPass(scene, scene.light);
 
-        M3ProgramShadow progShadow = programShadowmap!;
+        M3ProgramShadow progShadow = M3Resources.programShadowmap!;
         // cascaded shadow mapping
         if (scene.light.cascades.isNotEmpty) {
-          progShadow = programShadowCSM!;
+          progShadow = M3Resources.programShadowCSM!;
         }
         progLight = progShadow;
         // bind shadowmap texture
@@ -258,9 +142,14 @@ class M3RenderEngine {
       progLight.applyLight(scene.light);
       // solid
       scene.render(progLight, scene.camera, bSolid: true);
+
+      // reflection pass
+      if (scene.skybox != null) {
+        scene.renderReflection();
+      }
     } else {
       // wireframe
-      scene.render(programSimple!, scene.camera, bSolid: false);
+      scene.render(M3Resources.programSimple!, scene.camera, bSolid: false);
     }
 
     // draw Helper
@@ -276,7 +165,7 @@ class M3RenderEngine {
     gl.enable(WebGL.BLEND);
     gl.blendFunc(WebGL.SRC_ALPHA, WebGL.ONE_MINUS_SRC_ALPHA);
 
-    final prog2D = programRectangle!;
+    final prog2D = M3Resources.programRectangle!;
     gl.useProgram(prog2D.program);
     prog2D.setProjectionMatrix(_projection2D.projectionMatrix);
 
@@ -296,7 +185,7 @@ class M3RenderEngine {
         _shadowMap!.drawDebugDepth(10, engine.appHeight - 210, width, 200);
       }
 
-      prog2D.setModelViewMatrix(Matrix4.identity());
+      prog2D.setModelMatrix(Matrix4.identity());
 
       // draw test: triangle, line, touches
       M3Shape2D.drawTouches(engine.touchManager);
@@ -309,17 +198,10 @@ class M3RenderEngine {
       final fpsText = engine.fps.toStringAsFixed(2);
       M3Resources.text2D.drawText(fpsText, matStats, color: Vector4(0, 1, 0, 1));
 
-      final statText =
-          '''
-${engine.frameCounter.toString().padLeft(6)}
-mesh:${stats.entities}
-cull:${stats.culling}
- tri:${stats.triangles}
-vert:${stats.vertices}''';
       matStats.setTranslation(Vector3(M3AppEngine.instance.appWidth - 90, 66, 0));
       matStats.scaleByVector3(Vector3.all(0.9));
       // Render Stats
-      M3Resources.text2D.drawText(statText, matStats, color: Vector4(1, 1, 1, 1));
+      M3Resources.text2D.drawText(stats.toString(), matStats, color: Vector4(1, 1, 1, 1));
 
       if (engine.activeScene != null) {
         final scene = engine.activeScene!;

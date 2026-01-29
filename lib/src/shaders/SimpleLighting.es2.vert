@@ -1,14 +1,14 @@
 // Simple-lighting vert-shader //////////
-attribute vec3 inVertex;
-//attribute vec4 inColor;		// as diffuse-ambient material
-attribute vec3 inNormal;
-//attribute vec2 inTexCoord;
+// NOTICE: "Skinning.es2.vert" must be added before this file
+#ifndef ENABLE_SKINNING
+attribute highp vec3 inVertex;		// vertex-data
+attribute mediump vec3 inNormal;
+#endif // ENABLE_SKINNING
 
 uniform lowp vec4 uColor;
 
 // eye-space for camera-viewer
 //uniform mat4 Projection;
-//uniform mat4 Modelview;
 uniform mat4 ModelviewProjection;
 
 // color combined by light and material
@@ -27,6 +27,13 @@ varying lowp vec4 DestinationColor;
 void main(void) {
 	highp vec4 objVert = vec4(inVertex, 1.0);
 	mediump vec3 objNormal = inNormal;
+
+#ifdef ENABLE_SKINNING
+	if (BoneCount > 0)
+	{
+		ComputeSkinningVertex(objVert, objNormal);
+	}
+#endif // ENABLE_SKINNING
 
 	// object-space: normal, light-position, eye-position
 	vec3 N = objNormal;

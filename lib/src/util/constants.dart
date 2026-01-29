@@ -25,4 +25,36 @@ class M3Constants {
     Vector4(0, 0, 0.5, 0),
     Vector4(0.5, 0.5, 0.5, 1),
   );
+
+  // default material
+  static final M3Material mtrDefault = M3Material()
+    ..diffuse = Vector4(0.75, 0.75, 0.75, 1.0)
+    ..specular = Vector3(0.2, 0.2, 0.2)
+    ..shininess = 32;
+
+  // 高反射、高光集中的銀色金屬
+  static final M3Material mtrMetal = M3Material()
+    ..diffuse = Vector4(0.4, 0.4, 0.4, 1.0)
+    ..specular = Vector3(0.6, 0.6, 0.6)
+    ..shininess = 128
+    ..reflection = 0.8;
+
+  static final M3Material mtrWood = M3Material()
+    ..diffuse = Vector4(0.65, 0.45, 0.25, 1.0)
+    ..specular = Vector3(0.2, 0.2, 0.2)
+    ..shininess = 32;
+
+  // blinn plastic
+  static final M3Material mtrPlastic = M3Material()
+    ..diffuse = Vector4(0.65, 0.65, 0.65, 1.0)
+    ..specular = Vector3(0.2, 0.2, 0.2)
+    ..shininess = 64
+    ..reflection = 0.4;
+
+  // 半透明、高反射的清玻璃
+  static final M3Material mtrGlass = M3Material()
+    ..diffuse = Vector4(0.0, 0.0, 0.0, 0.2)
+    ..specular = Vector3(0.5, 0.5, 0.5)
+    ..shininess = 64
+    ..reflection = 0.9;
 }

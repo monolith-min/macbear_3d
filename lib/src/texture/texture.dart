@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../../macbear_3d.dart' hide Colors;
 import 'ktx_info.dart';
+
+// part for texture
+part 'text_texture.dart';
 
 /// WebGL texture wrapper supporting 2D and cubemap textures.
 ///
@@ -196,18 +201,7 @@ class M3Texture {
     final frameInfo = await codec.getNextFrame();
     final img = frameInfo.image;
 
-    tex.texW = img.width;
-    tex.texH = img.height;
-
-    final pixelFormat = WebGL.RGBA;
-    await tex.gl.texImage2DfromImage(
-      tex.target,
-      img,
-      format: pixelFormat,
-      internalformat: pixelFormat,
-      type: WebGL.UNSIGNED_BYTE,
-    );
-
+    await tex._loadTargetFromImage(img);
     debugPrint(tex.toString());
     return tex;
   }
@@ -236,18 +230,123 @@ class M3Texture {
       // } else if (lowerName.endsWith('.pvr')) {
       // PVR compressed texture
     } else {
-      final data = await gl.loadImageFromAsset(filename);
-      texW = data.width;
-      texH = data.height;
-
-      final pixelFormat = WebGL.RGBA;
-      await gl.texImage2DfromImage(
-        faceTarget,
-        data,
-        format: pixelFormat,
-        internalformat: pixelFormat,
-        type: WebGL.UNSIGNED_BYTE,
-      );
+      ui.Image img = await gl.loadImageFromAsset(filename);
+      await _loadTargetFromImage(img, faceTarget: faceTarget);
     }
+  }
+
+  Future<void> _loadTargetFromImage(ui.Image image, {int faceTarget = WebGL.TEXTURE_2D}) async {
+    texW = image.width;
+    texH = image.height;
+
+    final pixelFormat = WebGL.RGBA;
+    await gl.texImage2DfromImage(
+      faceTarget,
+      image,
+      format: pixelFormat,
+      internalformat: pixelFormat,
+      type: WebGL.UNSIGNED_BYTE,
+    );
+  }
+
+  static Future<M3Texture> createWoodTexture({int size = 512}) async {
+    M3Texture tex = M3Texture();
+    final img = await _generateWoodImage(size: size);
+    await tex._loadTargetFromImage(img);
+    return tex;
+  }
+
+  // 生成高品質木紋紋理 (Advanced Procedural Wood)
+  static Future<ui.Image> _generateWoodImage({int size = 512}) async {
+    final Uint8List pixels = Uint8List(size * size * 4);
+
+    // 核心噪點函數 (Deterministic Hash)
+    double noise(double x, double y) {
+      int n = (x.toInt() * 12345 + y.toInt() * 67890);
+      n = (n << 13) ^ n;
+      return (1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
+    }
+
+    // 平滑插值噪點
+    double smoothNoise(double x, double y) {
+      double corners = (noise(x - 1, y - 1) + noise(x + 1, y - 1) + noise(x - 1, y + 1) + noise(x + 1, y + 1)) / 16;
+      double sides = (noise(x - 1, y) + noise(x + 1, y) + noise(x, y - 1) + noise(x, y + 1)) / 8;
+      double center = noise(x, y) / 4;
+      return corners + sides + center;
+    }
+
+    // 擾動 (Turbulence)
+    double getTurbulence(double x, double y, double size) {
+      double value = 0.0, initialSize = size;
+      while (size >= 1) {
+        value += smoothNoise(x / size, y / size) * size;
+        size /= 2;
+      }
+      return (128.0 * value / initialSize);
+    }
+
+    // Wood Colors (更好的木質感配色)
+    final colBase = [160, 110, 60]; // 中等木色
+    final colDark = [70, 35, 10]; // 深色紋路
+    final colLight = [200, 160, 110]; // 亮部
+
+    for (int y = 0; y < size; y++) {
+      for (int x = 0; x < size; x++) {
+        double nx = x.toDouble();
+        double ny = y.toDouble();
+
+        // 1. 取得擾動值
+        double turb = getTurbulence(nx, ny, 64.0);
+
+        // 2. 核心紋路邏輯：歪斜的 Sine 波
+        // 模擬木材縱向生長，增加橫向的隨機偏移
+        double dist = (nx * 0.1) + (ny * 0.02) + (turb * 0.1);
+        double val = (sin(dist * pi * 0.2) + 1.0) / 2.0;
+
+        // 3. 調整曲線讓紋路更銳利一點
+        val = pow(val, 0.5).toDouble();
+
+        // 4. 三色插值
+        double r, g, b;
+        if (val < 0.5) {
+          double t = val * 2.0;
+          r = colDark[0] * (1 - t) + colBase[0] * t;
+          g = colDark[1] * (1 - t) + colBase[1] * t;
+          b = colDark[2] * (1 - t) + colBase[2] * t;
+        } else {
+          double t = (val - 0.5) * 2.0;
+          r = colBase[0] * (1 - t) + colLight[0] * t;
+          g = colBase[1] * (1 - t) + colLight[1] * t;
+          b = colBase[2] * (1 - t) + colLight[2] * t;
+        }
+
+        // 5. 疊加垂直導管 (Pores) 與表面細紋
+        double pores = smoothNoise(nx * 5, ny * 0.2);
+        if (pores > 0.7) {
+          double pVal = (pores - 0.7) * 2.0;
+          r *= (1.0 - pVal * 0.3);
+          g *= (1.0 - pVal * 0.3);
+          b *= (1.0 - pVal * 0.3);
+        }
+
+        // 6. 微觀隨機噪點
+        double grain = 1.0 + (noise(nx, ny) * 0.03);
+        r *= grain;
+        g *= grain;
+        b *= grain;
+
+        final int index = (y * size + x) * 4;
+        pixels[index] = r.toInt().clamp(0, 255);
+        pixels[index + 1] = g.toInt().clamp(0, 255);
+        pixels[index + 2] = b.toInt().clamp(0, 255);
+        pixels[index + 3] = 255;
+      }
+    }
+
+    final completer = Completer<ui.Image>();
+    ui.decodeImageFromPixels(pixels, size, size, ui.PixelFormat.rgba8888, (ui.Image img) {
+      completer.complete(img);
+    });
+    return completer.future;
   }
 }

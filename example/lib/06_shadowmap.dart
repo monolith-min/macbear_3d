@@ -47,9 +47,9 @@ class ShadowmapScene_06 extends M3Scene {
     final plane = addMesh(M3Mesh(geomPlane), Vector3(0, 0, -2));
     plane.mesh!.mtr.texDiffuse = texGround;
 
-    final geomBox = M3BoxGeom(2.0, 1.5, 3.0);
-    final geomSphere = M3SphereGeom(2);
-    final geomCylinder = M3CylinderGeom(1.2, 1.2, 8, heightSegments: 2);
+    final geomBox = M3BoxGeom(2, 3, 6);
+    final geomSphere = M3SphereGeom(2.5);
+    final geomCylinder = M3CylinderGeom(1.5, 1.5, 8, heightSegments: 2);
     final geomTorus = M3TorusGeom(2, 0.3);
 
     for (int i = 0; i <= 10; i++) {
@@ -60,8 +60,9 @@ class ShadowmapScene_06 extends M3Scene {
       sphere.mesh!.mtr.texDiffuse = texGrid2;
 
       // 06-3: cylinder geometry
-      final cylinder = addMesh(M3Mesh(geomCylinder), Vector3(posX, 5, 3));
+      final cylinder = addMesh(M3Mesh(geomCylinder), Vector3(posX, 5, 3))..color = Vector4(1, 1, 0, 1);
       cylinder.mesh!.mtr.texDiffuse = texGrid;
+      cylinder.mesh!.mtr.reflection = i * 0.1;
       cylinder.rotation.setEuler(rot, 0, 0);
 
       // 06-3: box geometry

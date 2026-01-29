@@ -35,11 +35,21 @@ class ObjTeapotScene_04 extends M3Scene {
 
     // 04: obj model - using M3Mesh.load()
     final meshTeapot = await M3Mesh.load('example/teapot.obj');
+    meshTeapot.mtr.reflection = 0.5;
     _teapot = addMesh(meshTeapot, Vector3(0, 0, 0));
     _teapot!.color = Vector4(1.0, 0.5, 0.0, 1);
 
-    // set background color
-    M3AppEngine.backgroundColor = Vector3(0, 0, 0.36);
+    // 02: sample cubemap
+    final strPrefix = 'example/nvlobby_';
+    final strExt = 'jpg';
+    skybox = await M3Skybox.createCubemap(
+      '${strPrefix}xpos.$strExt',
+      '${strPrefix}xneg.$strExt',
+      '${strPrefix}ypos.$strExt',
+      '${strPrefix}yneg.$strExt',
+      '${strPrefix}zpos.$strExt',
+      '${strPrefix}zneg.$strExt',
+    );
   }
 
   @override

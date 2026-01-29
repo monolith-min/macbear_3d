@@ -41,7 +41,7 @@ class M3Sprite2D {
     mtr.texDiffuse.dispose();
   }
 
-  void draw(Matrix4 mvMatrix, {int index = 0, Vector4? color}) {
+  void draw(Matrix4 mMatrix, {int index = 0, Vector4? color}) {
     final row = index % rowCount;
     final col = (index ~/ rowCount) % colCount;
 
@@ -51,7 +51,7 @@ class M3Sprite2D {
     mtr.texMatrix[7] = offsetY;
 
     M3Shape2D.prog2D.setMaterial(mtr, color ?? Colors.white);
-    M3Shape2D.prog2D.setModelViewMatrix(mvMatrix);
+    M3Shape2D.prog2D.setModelMatrix(mMatrix);
 
     // draw shape2D
     _rect.draw();

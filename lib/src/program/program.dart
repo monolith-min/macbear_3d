@@ -23,7 +23,7 @@ class M3Program {
 
   // uniform part:
   late UniformLocation uniformProjection; // "Projection" matrix
-  late UniformLocation uniformModelview; // "Modelview" matrix
+  late UniformLocation uniformModel; // "Model" matrix
   late UniformLocation uniformMVP; // "ModelviewProjection" matrix of (Projection * Modelview)
 
   late UniformLocation uniformTexMatrix; // "uTexMatrix" for texture-matrix
@@ -96,7 +96,7 @@ class M3Program {
 
   void initLocation() {
     uniformProjection = gl.getUniformLocation(program, "Projection");
-    uniformModelview = gl.getUniformLocation(program, "Modelview");
+    uniformModel = gl.getUniformLocation(program, "Model");
     uniformMVP = gl.getUniformLocation(program, "ModelviewProjection");
 
     uniformColor = gl.getUniformLocation(program, "uColor");
@@ -138,9 +138,9 @@ class M3Program {
     }
   }
 
-  void setModelViewMatrix(Matrix4 mat) {
-    if (uniformModelview.id >= 0) {
-      gl.uniformMatrix4fv(uniformModelview, false, mat.storage);
+  void setModelMatrix(Matrix4 mat) {
+    if (uniformModel.id >= 0) {
+      gl.uniformMatrix4fv(uniformModel, false, mat.storage);
     }
   }
 
@@ -156,13 +156,12 @@ class M3Program {
     // Projection matrix
     setProjectionMatrix(cam.projectionMatrix);
 
-    // ModelView matrix
-    Matrix4 mvMatrix = cam.viewMatrix * mMatrix;
-    setModelViewMatrix(mvMatrix);
+    // Model matrix
+    setModelMatrix(mMatrix);
 
     // ModelView-Projection matrix
     if (uniformMVP.id >= 0) {
-      Matrix4 mvpMatrix = cam.projectionMatrix * mvMatrix;
+      Matrix4 mvpMatrix = cam.projectionMatrix * cam.viewMatrix * mMatrix;
       setMVPMatrix(mvpMatrix);
     }
   }
@@ -185,6 +184,21 @@ class M3Program {
     if (uniformSamplerDiffuse.id >= 0) {
       gl.activeTexture(WebGL.TEXTURE0);
       mtr.texDiffuse.bind(); // 2D or Cubemap
+    }
+  }
+
+  void setSkinning(M3Skin? skin) {
+    // Skinned Mesh support
+    if (uniformBoneCount.id >= 0) {
+      gl.uniform1i(uniformBoneCount, skin?.boneCount ?? 0);
+
+      if (skin != null) {
+        final boneArray = Float32List(skin.boneCount * 16);
+        for (int i = 0; i < skin.boneCount; i++) {
+          boneArray.setAll(i * 16, skin.boneMatrices[i].storage);
+        }
+        gl.uniformMatrix4fv(uniformBoneMatrixArray, false, boneArray);
+      }
     }
   }
 

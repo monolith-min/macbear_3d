@@ -1,9 +1,4 @@
-import 'dart:ui' as ui;
-
-import 'package:flutter/material.dart';
-import 'package:flutter_angle/flutter_angle.dart';
-
-import 'texture.dart';
+part of 'texture.dart';
 
 class M3TextTexture extends M3Texture {
   String text;
@@ -64,8 +59,7 @@ class M3TextTexture extends M3Texture {
 
     final picture = recorder.endRecording();
     final img = await picture.toImage(texW, texH);
-
-    gl.texImage2DfromImage(target, img, format: WebGL.RGBA, internalformat: WebGL.RGBA, type: WebGL.UNSIGNED_BYTE);
+    await _loadTargetFromImage(img);
   }
 
   // size depends on text content
@@ -113,16 +107,6 @@ class M3TextTexture extends M3Texture {
 
   Future<void> _createTextureFromLabel(String text) async {
     final img = await _makeLabelImage(text);
-
-    texW = img.width;
-    texH = img.height;
-
-    await gl.texImage2DfromImage(
-      WebGL.TEXTURE_2D,
-      img,
-      format: WebGL.RGBA,
-      internalformat: WebGL.RGBA,
-      type: WebGL.UNSIGNED_BYTE,
-    );
+    await _loadTargetFromImage(img);
   }
 }

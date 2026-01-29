@@ -21,7 +21,6 @@ varying mediump vec2 TextureCoordOut;
 
 // eye-space for camera-viewer
 //uniform mat4 Projection;
-//uniform mat4 Modelview;
 uniform mat4 ModelviewProjection;
 
 void main(void)

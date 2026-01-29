@@ -1,7 +1,11 @@
-// NOTICE 1: WITH_NORMAL must be defined before "Skinning.es2.vert"
+// TexturedLighting vert-shader: fog //////////
+// NOTICE 1: ENABLE_NORMAL must be defined before "Skinning.es2.vert"
 // NOTICE 2: "Skinning.es2.vert" must be added before this file
+#ifndef ENABLE_SKINNING
+attribute highp vec3 inVertex;		// vertex-data
+attribute mediump vec3 inNormal;
+#endif // ENABLE_SKINNING
 
-// Lighting function //////////
 attribute mediump vec2 inTexCoord;
 //attribute mediump vec4 inColor;		// as diffuse-ambient material
 uniform lowp vec4 uColor;
@@ -28,7 +32,6 @@ varying mediump vec2 TextureCoordOut;
 
 // eye-space for camera-viewer
 //uniform mat4 Projection;
-//uniform mat4 Modelview;
 uniform mat4 ModelviewProjection;
 
 #ifdef ENABLE_SHADOW_MAP
@@ -59,10 +62,12 @@ void main(void)
 	highp vec4 objVert = vec4(inVertex, 1.0);
 	mediump vec3 objNormal = inNormal;
 	
+#ifdef ENABLE_SKINNING
 	if (BoneCount > 0)
 	{
 		ComputeSkinningVertex(objVert, objNormal);
 	}
+#endif // ENABLE_SKINNING
 
 	// object-space: normal, light-position, eye-position
 	mediump vec3 L = LightPosition;							// parallel light source

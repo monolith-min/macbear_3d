@@ -19,7 +19,7 @@ class M3Text2D extends M3Sprite2D {
     return text2D;
   }
 
-  void drawText(String text, Matrix4 mvMatrix, {Vector4? color}) {
+  void drawText(String text, Matrix4 mMatrix, {Vector4? color}) {
     Vector3 offset = Vector3.zero();
     for (int i = 0; i < text.length; i++) {
       final char = text[i];
@@ -28,7 +28,7 @@ class M3Text2D extends M3Sprite2D {
         offset.y += _spriteH;
       } else {
         final charIndex = char.codeUnitAt(0) - firstChar;
-        final textMatrix = Matrix4.copy(mvMatrix);
+        final textMatrix = Matrix4.copy(mMatrix);
         textMatrix.translateByVector3(offset);
 
         // draw sprite by index

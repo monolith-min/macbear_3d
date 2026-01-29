@@ -1,7 +1,7 @@
 part of '../geom.dart';
 
 class M3Contour {
-  final List<_ContourInfo> infos = [];
+  final List<M3ContourInfo> infos = [];
   final List<List<Vector2>> normalizedOuters = [];
   final List<List<Vector2>> normalizedHoles = [];
   final List<int> outerOrigIndices = [];
@@ -23,7 +23,7 @@ class M3Contour {
 
     for (int i = 0; i < contourData.length; i++) {
       var data = contourData[i];
-      infos.add(_ContourInfo(data['points'] as List<Vector2>, data['area'] as double, i));
+      infos.add(M3ContourInfo(data['points'] as List<Vector2>, data['area'] as double, i));
     }
 
     // 2. Determine hierarchy (nesting)
@@ -86,10 +86,10 @@ class M3Contour {
   }
 }
 
-class _ContourInfo {
+class M3ContourInfo {
   final List<Vector2> points;
   final double area;
   final int index;
-  _ContourInfo? parent;
-  _ContourInfo(this.points, this.area, this.index);
+  M3ContourInfo? parent;
+  M3ContourInfo(this.points, this.area, this.index);
 }
