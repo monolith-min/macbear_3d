@@ -1,6 +1,6 @@
 // TexturedLighting vert-shader: fog //////////
-// NOTICE 1: ENABLE_NORMAL must be defined before "Skinning.es2.vert"
-// NOTICE 2: "Skinning.es2.vert" must be added before this file
+// NOTICE 1: ENABLE_NORMAL must be defined first
+// NOTICE 2: "Skinning.es2.vert" must be added for skinning
 #ifndef ENABLE_SKINNING
 attribute highp vec3 inVertex;		// vertex-data
 attribute mediump vec3 inNormal;
@@ -12,12 +12,15 @@ uniform lowp vec4 uColor;
 
 #ifdef ENABLE_PIXEL_LIGHTING
 varying mediump vec3 ObjectspaceH;	// LightPos + EyePos
+#ifdef ENABLE_PBR
+varying mediump vec3 ObjectspaceV;	// Eye vector (V)
+varying mediump vec3 ObjectspaceL;	// Light vector (L)
+#endif // ENABLE_PBR
 varying mediump vec3 ObjectspaceN;
 #else
 // color combined by light and material
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
-uniform lowp vec3 ColorSpecular;	// specular RGB
-uniform mediump float Shininess;	// shiness of material
+uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 varying lowp vec4 SpecularOut;		// separate specular added
 #endif // ENABLE_PIXEL_LIGHTING
 uniform lowp vec3 ColorAmbient;		// ambient RGB 
@@ -74,18 +77,23 @@ void main(void)
 	mediump vec3 E = normalize(EyePosition - objVert.xyz);	// vertex to eye
 #ifdef ENABLE_PIXEL_LIGHTING
 	ObjectspaceH = normalize(L + E);
+	#ifdef ENABLE_PBR
+	ObjectspaceV = E;
+	ObjectspaceL = L;
+	#endif // ENABLE_PBR
+	
 	ObjectspaceN = objNormal;
 #else
-#ifdef BLINN_PHONG_SPECULAR
+	#ifdef BLINN_PHONG_SPECULAR
 	mediump vec3 H = normalize(L + E);
 	mediump float sf = max(0.0, dot(objNormal, H));
-#else // regular Phong shader
+	#else // regular Phong shader
 	mediump vec3 R = reflect(-L, objNormal);	// 2N(N.L) - L
 	mediump float sf = max(0.0, dot(R, E));
-#endif
-	sf = pow(sf, Shininess);
-	// lighting = ambient + diffuse + specular * shininess
-	SpecularOut = vec4(ColorSpecular * sf, 0.0);
+	#endif // BLINN_PHONG_SPECULAR
+
+	sf = pow(sf, ColorSpecular.w);
+	SpecularOut = vec4(ColorSpecular.rgb * sf, 0.0);
 	
 	mediump float df = max(0.0, dot(objNormal, L));
 	DestinationColor = vec4(ColorAmbient + ColorDiffuse.rgb * df, ColorDiffuse.a);

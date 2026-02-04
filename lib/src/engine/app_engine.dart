@@ -14,9 +14,10 @@ import '../input/keyboard.dart';
 class M3AppEngine {
   static final M3AppEngine instance = M3AppEngine._internal();
 
-  String version = "macbear3d-lib v0.5.0 powered by ANGLE";
+  String version = "macbear3d-lib v0.5.5 powered by ANGLE";
   final FlutterAngle _angle = FlutterAngle();
   late FlutterAngleTexture _sourceTexture; // main framebuffer
+  Framebuffer get mainFbo => Framebuffer(_sourceTexture.fboId);
   static Vector3 backgroundColor = Vector3.zero();
 
   // did init engine completed
@@ -294,6 +295,10 @@ class M3AppEngine {
 
       // delta time since last frame (relative duration)
       Duration delta = elapsed - _lastElapsed;
+      final Duration maxDelta = Duration(milliseconds: 40);
+      if (delta > maxDelta) {
+        delta = maxDelta;
+      }
       _lastElapsed = elapsed;
 
       _stopwatch.reset();
@@ -350,7 +355,7 @@ class M3AppEngine {
     renderEngine.render2D();
 
     gl.flush();
-    // gl.finish();
+    // gl.finish(); // Macbear note: discard it
 
     await _sourceTexture.signalNewFrameAvailable();
   }

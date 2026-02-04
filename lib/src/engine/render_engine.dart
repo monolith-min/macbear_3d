@@ -10,7 +10,6 @@ part 'render_options.dart';
 /// Handles shader program creation, shadow mapping, 2D overlay rendering, and viewport management.
 class M3RenderEngine {
   late RenderingContext gl;
-  final Framebuffer defaultFBO = Framebuffer(0); // default framebuffer
 
   // shadow map
   M3ShadowMap? _shadowMap;
@@ -84,7 +83,7 @@ class M3RenderEngine {
     final engine = M3AppEngine.instance;
     final pixelW = (engine.appWidth * engine.devicePixelRatio).toInt();
     final pixelH = (engine.appHeight * engine.devicePixelRatio).toInt();
-    gl.bindFramebuffer(WebGL.FRAMEBUFFER, defaultFBO);
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, engine.mainFbo);
     gl.viewport(0, 0, pixelW, pixelH);
   }
 
@@ -143,8 +142,8 @@ class M3RenderEngine {
       // solid
       scene.render(progLight, scene.camera, bSolid: true);
 
-      // reflection pass
-      if (scene.skybox != null) {
+      // reflection pass (only if not using single-pass IBL)
+      if (scene.skybox != null && !options.shader.ibl) {
         scene.renderReflection();
       }
     } else {

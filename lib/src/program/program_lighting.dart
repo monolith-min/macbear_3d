@@ -5,10 +5,11 @@ mixin M3LightingShader {
 
   late UniformLocation uniformAmbient; // "ColorAmbient" = inColor * LightAmbient * MaterialDiffuse
   late UniformLocation uniformDiffuse; // "ColorDiffuse" = inColor * LightDiffuse * MaterialDiffuse
-  late UniformLocation uniformSpecular; // "ColorSpecular" = inColor * LightDiffuse * MaterialSpecular
-  late UniformLocation uniformShininess; // material specular "Shininess" (per surface object)
+  late UniformLocation uniformSpecular; // "ColorSpecular" = inColor * LightDiffuse * MaterialSpecular (w: Shininess)
 
   late UniformLocation uniformLightPosition; // light position "LightPosition" (per object-space)
+  late UniformLocation uniformParamPBR; // x: Metallic, y: Roughness
+  late UniformLocation uniformSamplerEnvironment;
 
   M3Light? _light; // active light
 
@@ -16,12 +17,13 @@ mixin M3LightingShader {
     uniformAmbient = gl.getUniformLocation(prog, "ColorAmbient");
     uniformDiffuse = gl.getUniformLocation(prog, "ColorDiffuse");
     uniformSpecular = gl.getUniformLocation(prog, "ColorSpecular");
-    uniformShininess = gl.getUniformLocation(prog, "Shininess");
 
     uniformLightPosition = gl.getUniformLocation(prog, "LightPosition");
+    uniformParamPBR = gl.getUniformLocation(prog, "uParamPBR");
+    uniformSamplerEnvironment = gl.getUniformLocation(prog, "SamplerEnvironment");
 
     // Set up some default material parameters.
-    gl.uniform1f(uniformShininess, 0);
+    gl.uniform2f(uniformParamPBR, 0, 0.5);
   }
 
   void applyLight(M3Light sceneLight) {
@@ -70,9 +72,11 @@ class M3ProgramLighting extends M3ProgramEye with M3LightingShader {
     // specular: RGB
     Vector3 outSpecular = M3Light.blendRGB(mtr.specular, color.rgb);
     outSpecular = M3Light.blendRGB(_light!.color, outSpecular);
-    gl.uniform3fv(uniformSpecular, outSpecular.storage);
 
-    // shininess
-    gl.uniform1f(uniformShininess, mtr.shininess);
+    // Pass as vec4: RGB, w = Shininess
+    gl.uniform4f(uniformSpecular, outSpecular.x, outSpecular.y, outSpecular.z, mtr.shininess);
+
+    // PBR
+    gl.uniform2f(uniformParamPBR, mtr.metallic, mtr.roughness);
   }
 }

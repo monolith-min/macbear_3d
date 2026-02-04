@@ -13,6 +13,8 @@ import '05_gltf.dart';
 import '06_shadowmap.dart';
 import '07_physics.dart';
 import '08_text_3d.dart';
+import '09_pbr_test.dart';
+import '10_terrain.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -240,7 +242,31 @@ class _MainPageState extends State<MainPage> {
               M3Resources.setLightingProgram(shaderOptions);
             });
           },
-          child: const Icon(Icons.draw_outlined),
+          child: const Text('toon'),
+        ),
+        const SizedBox(width: 6),
+        FloatingActionButton(
+          heroTag: 'pbr',
+          backgroundColor: shaderOptions.pbr ? Colors.lightGreen : null,
+          onPressed: () {
+            setState(() {
+              shaderOptions.pbr = !shaderOptions.pbr;
+              M3Resources.setLightingProgram(shaderOptions);
+            });
+          },
+          child: const Text('PBR'),
+        ),
+        const SizedBox(width: 6),
+        FloatingActionButton(
+          heroTag: 'ibl',
+          backgroundColor: shaderOptions.ibl ? Colors.lightGreen : null,
+          onPressed: () {
+            setState(() {
+              shaderOptions.ibl = !shaderOptions.ibl;
+              M3Resources.setLightingProgram(shaderOptions);
+            });
+          },
+          child: const Text('IBL'),
         ),
       ],
     );
@@ -375,10 +401,30 @@ class _MainPageState extends State<MainPage> {
           ),
           const SizedBox(width: 6),
           FloatingActionButton(
-            heroTag: 'sample',
+            heroTag: 'scene_09',
             backgroundColor: _selectedSceneIndex == 9 ? Colors.lightGreen : null,
             onPressed: () {
               _selectedSceneIndex = 9;
+              _loadScene(PbrTestScene_09());
+            },
+            child: const Icon(Icons.filter_9),
+          ),
+          const SizedBox(width: 6),
+          FloatingActionButton(
+            heroTag: 'scene_10',
+            backgroundColor: _selectedSceneIndex == 10 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 10;
+              _loadScene(TerrainScene_10());
+            },
+            child: const Icon(Icons.terrain),
+          ),
+          const SizedBox(width: 6),
+          FloatingActionButton(
+            heroTag: 'sample',
+            backgroundColor: _selectedSceneIndex == 100 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 100;
               _loadScene(SampleScene());
             },
             child: const Icon(Icons.desktop_mac_sharp),

@@ -1,14 +1,13 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String EarthNight_es2_vert = r"""
+const String EarthNight_vert = r"""
 // Lighting function //////////
 attribute mediump vec2 inTexCoord;
 //attribute mediump vec4 inColor;		// as diffuse-ambient material
 
 // color combined by light and material
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
-uniform lowp vec3 ColorSpecular;	// specular RGB
-uniform mediump float Shininess;	// shiness of material
+uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 uniform lowp vec3 ColorAmbient;		// ambient RGB
 
 // object space

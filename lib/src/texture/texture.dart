@@ -76,6 +76,35 @@ class M3Texture {
     return tex;
   }
 
+  static M3Texture createSolidColorCube(Vector4 color) {
+    M3Texture tex = M3Texture(isCubemap: true);
+    tex.name = "solid_color_cube";
+    for (int i = 0; i < 6; i++) {
+      tex._initColorPixel(color, faceTarget: _cubeMapFaceTargets[i]);
+    }
+    return tex;
+  }
+
+  /// Create a default IBL cubemap with simple sky/ground gradient colors.
+  static M3Texture createDefaultIBLCube() {
+    M3Texture tex = M3Texture(isCubemap: true);
+    tex.name = "default_ibl_cube";
+
+    final colorSky = Vector4(0.5, 0.7, 0.9, 1.0); // Light bluish sky
+    final colorGround = Vector4(0.2, 0.2, 0.2, 1.0); // Dark neutral gray ground
+    final colorHorizon = Vector4(0.5, 0.5, 0.5, 1.0); // Neutral gray horizon
+
+    // Faces: +X, -X, +Y, -Y, +Z, -Z
+    tex._initColorPixel(colorHorizon, faceTarget: _cubeMapFaceTargets[0]); // Right
+    tex._initColorPixel(colorHorizon, faceTarget: _cubeMapFaceTargets[1]); // Left
+    tex._initColorPixel(colorSky, faceTarget: _cubeMapFaceTargets[2]); // Top (+Y)
+    tex._initColorPixel(colorGround, faceTarget: _cubeMapFaceTargets[3]); // Bottom (-Y)
+    tex._initColorPixel(colorHorizon, faceTarget: _cubeMapFaceTargets[4]); // Back
+    tex._initColorPixel(colorHorizon, faceTarget: _cubeMapFaceTargets[5]); // Front
+
+    return tex;
+  }
+
   void _initColorPixel(Vector4 color, {int faceTarget = WebGL.TEXTURE_2D}) {
     texW = 1;
     texH = 1;

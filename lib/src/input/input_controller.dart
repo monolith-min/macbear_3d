@@ -14,6 +14,8 @@ abstract class M3InputController {
   void onKeyDown(KeyDownEvent e);
   void onKeyUp(KeyUpEvent e);
   void onKeyRepeat(PhysicalKeyboardKey key);
+
+  void update(double dt);
 }
 
 /// Camera controller for orbit, pan, and zoom interactions.
@@ -94,4 +96,28 @@ class M3CameraOrbitController extends M3InputController {
 
   @override
   void onKeyRepeat(PhysicalKeyboardKey key) {}
+
+  @override
+  void update(double dt) {
+    final keyboard = M3AppEngine.instance.keyboard;
+    final speed = 20.0 * dt; // move speed units per second
+
+    Vector3 moveDelta = Vector3.zero();
+    if (keyboard.isPressed(LogicalKeyboardKey.keyW) || keyboard.isPressed(LogicalKeyboardKey.arrowUp)) {
+      moveDelta += Vector3(0, speed, 0);
+    }
+    if (keyboard.isPressed(LogicalKeyboardKey.keyS) || keyboard.isPressed(LogicalKeyboardKey.arrowDown)) {
+      moveDelta += Vector3(0, -speed, 0);
+    }
+    if (keyboard.isPressed(LogicalKeyboardKey.keyA) || keyboard.isPressed(LogicalKeyboardKey.arrowLeft)) {
+      moveDelta += Vector3(-speed, 0, 0);
+    }
+    if (keyboard.isPressed(LogicalKeyboardKey.keyD) || keyboard.isPressed(LogicalKeyboardKey.arrowRight)) {
+      moveDelta += Vector3(speed, 0, 0);
+    }
+
+    if (moveDelta != Vector3.zero()) {
+      camera.move(moveDelta);
+    }
+  }
 }

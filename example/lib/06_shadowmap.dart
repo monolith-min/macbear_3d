@@ -50,19 +50,24 @@ class ShadowmapScene_06 extends M3Scene {
     final geomBox = M3BoxGeom(2, 3, 6);
     final geomSphere = M3SphereGeom(2.5);
     final geomCylinder = M3CylinderGeom(1.5, 1.5, 8, heightSegments: 2);
-    final geomTorus = M3TorusGeom(2, 0.3);
+    final geomTorus = M3TorusGeom(2, 0.6);
 
     for (int i = 0; i <= 10; i++) {
       final double posX = i * 10 - 50;
       final rot = i * pi / 20;
       // 06-2: sphere geometry
-      final sphere = addMesh(M3Mesh(geomSphere), Vector3(posX, 0, 2));
-      sphere.mesh!.mtr.texDiffuse = texGrid2;
+      final meshSphere = M3Mesh(geomSphere);
+      meshSphere.mtr.texDiffuse = texGrid2;
+      meshSphere.mtr.diffuse = Vector4(1, 0.3, 0, 1);
+      meshSphere.mtr.specular = Vector3.all(0.6);
+      meshSphere.mtr.shininess = i * 20 + 8;
+      final sphere = addMesh(meshSphere, Vector3(posX, 0, 2));
 
       // 06-3: cylinder geometry
-      final cylinder = addMesh(M3Mesh(geomCylinder), Vector3(posX, 5, 3))..color = Vector4(1, 1, 0, 1);
-      cylinder.mesh!.mtr.texDiffuse = texGrid;
-      cylinder.mesh!.mtr.reflection = i * 0.1;
+      final meshCylinder = M3Mesh(geomCylinder);
+      meshCylinder.mtr.texDiffuse = texGrid;
+      meshCylinder.mtr.reflection = i * 0.1;
+      final cylinder = addMesh(meshCylinder, Vector3(posX, 5, 3))..color = Vector4(1, 1, 0, 1);
       cylinder.rotation.setEuler(rot, 0, 0);
 
       // 06-3: box geometry

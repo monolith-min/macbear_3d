@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Water_es2_vert = r"""
+const String Water_vert = r"""
 // Water vert-shader //////////
 attribute highp vec3 inVertex;		// vertex-data
 attribute lowp vec4 inColor;		// for water-color as fog in water

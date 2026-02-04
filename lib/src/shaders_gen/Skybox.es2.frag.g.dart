@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Skybox_es2_frag = r"""
+const String Skybox_frag = r"""
 // Skybox frag-shader //////////
 varying lowp vec4 DestinationColor;
 varying mediump vec3 TexCoordDirOut;

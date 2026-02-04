@@ -155,8 +155,16 @@ class GltfMaterial {
   final String name;
   final Vector4 baseColorFactor;
   final int? baseColorTextureIndex; // index of textures
+  final double metallicFactor;
+  final double roughnessFactor;
 
-  GltfMaterial({required this.name, required this.baseColorFactor, this.baseColorTextureIndex});
+  GltfMaterial({
+    required this.name,
+    required this.baseColorFactor,
+    this.baseColorTextureIndex,
+    this.metallicFactor = 1.0,
+    this.roughnessFactor = 1.0,
+  });
 
   static GltfMaterial parse(Map<String, dynamic> json) {
     final pbr = json['pbrMetallicRoughness'] as Map<String, dynamic>? ?? {};
@@ -177,10 +185,22 @@ class GltfMaterial {
       texIndex = tex['index'] as int?;
     }
 
+    // Metallic/Roughness
+    double metallic = 1.0;
+    double roughness = 1.0;
+    if (pbr.containsKey('metallicFactor')) {
+      metallic = (pbr['metallicFactor'] as num).toDouble();
+    }
+    if (pbr.containsKey('roughnessFactor')) {
+      roughness = (pbr['roughnessFactor'] as num).toDouble();
+    }
+
     return GltfMaterial(
       name: json['name'] as String? ?? 'Material',
       baseColorFactor: color,
       baseColorTextureIndex: texIndex,
+      metallicFactor: metallic,
+      roughnessFactor: roughness,
     );
   }
 }

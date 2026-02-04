@@ -36,6 +36,7 @@ Click buttons to test examples.
   6. Shadow for large scene
   7. Physics scene
   8. Text 3D scene
+  9. PBR Test scene
 ''';
 
     mat2D.setTranslation(Vector3(20, 80, 0));

@@ -1,4 +1,5 @@
 import 'dart:async';
+// ignore: depend_on_referenced_packages
 import 'package:build/build.dart';
 
 /// @nodoc
@@ -40,7 +41,7 @@ $escaped
   }
 
   String _makeConstName(String path) {
-    return path.split('/').last.replaceAll('.', '_').replaceAll('-', '_');
+    return path.split('/').last.replaceFirst('.es2', '').replaceAll('.', '_').replaceAll('-', '_');
   }
 }
 

@@ -81,6 +81,8 @@ abstract class M3Scene {
 
   void update(double delta) {
     _totalTime += delta;
+    inputController?.update(delta);
+
     for (final entity in entities) {
       // update animation
       entity.update(delta);
@@ -99,14 +101,33 @@ abstract class M3Scene {
     gl.useProgram(prog.program);
     prog.applyCamera(camera);
 
+    final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
+    if (prog is M3ProgramLighting && shaderOptions.pbr && shaderOptions.ibl) {
+      if (prog.uniformSamplerEnvironment.id >= 0) {
+        gl.activeTexture(WebGL.TEXTURE2);
+        if (skybox != null) {
+          skybox!.mtr.texDiffuse.bind();
+        } else {
+          M3Resources.texDefaultCube.bind();
+        }
+        gl.uniform1i(prog.uniformSamplerEnvironment, 2);
+        gl.activeTexture(WebGL.TEXTURE0); // Reset for setMaterial
+      }
+    }
+
+    final stats = M3AppEngine.instance.renderEngine.stats;
     for (final entity in entities) {
-      // culling
-      if (entity.mesh == null || !camera.isVisible(entity.worldBounding)) {
-        if (entity.mesh != null) M3AppEngine.instance.renderEngine.stats.culling++;
+      if (entity.mesh == null) {
         continue;
       }
 
       final mesh = entity.mesh!;
+      // culling
+      if (!camera.isVisible(entity.worldBounding)) {
+        if (stats.enabled) stats.culling++;
+        continue;
+      }
+
       prog.setMatrices(camera, entity.matrix);
       prog.setMaterial(mesh.mtr, entity.color);
       prog.setSkinning(mesh.skin);
@@ -114,10 +135,11 @@ abstract class M3Scene {
       mesh.geom.draw(prog, bSolid: bSolid);
 
       // statistics
-      final stats = M3AppEngine.instance.renderEngine.stats;
-      stats.entities++;
-      stats.vertices += mesh.geom.vertexCount;
-      stats.triangles += mesh.geom.getTriangleCount(bSolid: bSolid);
+      if (stats.enabled) {
+        stats.entities++;
+        stats.vertices += mesh.geom.vertexCount;
+        stats.triangles += mesh.geom.getTriangleCount(bSolid: bSolid);
+      }
     }
   }
 
@@ -130,14 +152,13 @@ abstract class M3Scene {
     // pre-draw
     gl.useProgram(prog.program);
     prog.applyCamera(camera);
-    M3Material mtrReflection = M3Material();
-    mtrReflection.texDiffuse = skybox!.mtr.texDiffuse;
 
     for (final entity in entities) {
       // culling
       if (entity.mesh == null || !camera.isVisible(entity.worldBounding)) {
         continue;
       }
+
       final mesh = entity.mesh!;
       if (mesh.mtr.reflection <= 0) {
         continue;
@@ -146,14 +167,19 @@ abstract class M3Scene {
       Vector4 reflectColor = Vector4.all(mesh.mtr.reflection);
 
       prog.setMatrices(camera, entity.matrix);
-      prog.setMaterial(mtrReflection, reflectColor);
+      // Use mesh material for PBR properties (metallic, roughness, diffuse)
+      prog.setMaterial(mesh.mtr, reflectColor);
+      // Override SamplerDiffuse with skybox cubemap for reflection lookup
+      gl.activeTexture(WebGL.TEXTURE0);
+      skybox!.mtr.texDiffuse.bind();
+
       prog.setSkinning(mesh.skin);
 
       mesh.geom.draw(prog, bSolid: true);
 
       // statistics
       final stats = M3AppEngine.instance.renderEngine.stats;
-      stats.reflection++;
+      if (stats.enabled) stats.reflection++;
     }
 
     // Reset depth state

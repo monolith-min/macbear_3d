@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Water_es2_frag = r"""
+const String Water_frag = r"""
 // Water frag-shader //////////
 // water distortion (noise effect)
 varying mediump vec2 BumpCoord0;

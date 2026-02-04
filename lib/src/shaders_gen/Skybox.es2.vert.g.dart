@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Skybox_es2_vert = r"""
+const String Skybox_vert = r"""
 // Skybox vert-shader: via cubemap //////////
 attribute highp vec3 inVertex;		// vertex-data
 

@@ -10,6 +10,8 @@ class M3Material {
   Vector3 specular = Vector3(0.3, 0.3, 0.3);
   double shininess = 16; // glossiness [0 ~ 128]
   double reflection = 0.0;
+  double metallic = 0.0;
+  double roughness = 0.5;
 
   // textures
   M3Texture texDiffuse = M3Resources.texWhite;
@@ -29,6 +31,8 @@ class M3Material {
     specular.setFrom(other.specular);
     shininess = other.shininess;
     reflection = other.reflection;
+    metallic = other.metallic;
+    roughness = other.roughness;
     texDiffuse = other.texDiffuse;
     texMatrix.setFrom(other.texMatrix);
   }
@@ -37,6 +41,8 @@ class M3Material {
     final mtr = M3Material();
     // Base Color
     mtr.diffuse = gltfMat.baseColorFactor;
+    mtr.metallic = gltfMat.metallicFactor;
+    mtr.roughness = gltfMat.roughnessFactor;
 
     // Base Color Texture
     if (gltfMat.baseColorTextureIndex != null) {

@@ -16,5 +16,6 @@ export 'src/scene/transform.dart';
 export 'src/texture/material.dart';
 export 'src/texture/texture.dart';
 export 'src/util/constants.dart';
+export 'src/util/noise.dart';
 export 'src/util/utility.dart';
 export 'src/widgets/view.dart';

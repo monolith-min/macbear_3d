@@ -45,7 +45,7 @@ class M3KeyboardManager {
 
   /// Check if a logical key is currently pressed
   bool isPressed(LogicalKeyboardKey key) {
-    return _pressed.contains(key);
+    return HardwareKeyboard.instance.logicalKeysPressed.contains(key);
   }
 
   /// Get mapped action (W, A, S, D etc.)

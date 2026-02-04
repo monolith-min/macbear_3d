@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Skinning_es2_vert = r"""
+const String Skinning_vert = r"""
 // Skinning vert-shader //////////
 /*
  If the current vertex is affected by bones then the vertex position and

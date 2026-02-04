@@ -54,6 +54,8 @@ class M3Camera extends M3Projection {
   void setViewport(int x, int y, int w, int h, {double fovy = 50.0, double near = 1.0, double far = 100.0}) {
     super.setViewport(x, y, w, h, fovy: fovy, near: near, far: far);
     _updateSplitDistances();
+    // frustum matrix for culling
+    updateFrustum(projectionMatrix * viewMatrix);
   }
 
   void _updateSplitDistances() {
@@ -91,6 +93,11 @@ class M3Camera extends M3Projection {
     _invViewMatrix = viewMatrix.orthoInverse(); // ortho inverse matrix
     // frustum matrix for culling
     updateFrustum(projectionMatrix * viewMatrix);
+  }
+
+  /// Move camera (both eye and target) by world-space delta.
+  void move(Vector3 delta) {
+    setLookat(position + delta, target + delta, up);
   }
 
   // yaw by Z-axis, pitch by Y-axis, roll by X-axis

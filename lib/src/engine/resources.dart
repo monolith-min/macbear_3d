@@ -6,18 +6,22 @@ import '../shaders_gen/Rect.es2.vert.g.dart';
 import '../shaders_gen/Simple.es2.frag.g.dart';
 import '../shaders_gen/Simple.es2.vert.g.dart';
 import '../shaders_gen/SimpleLighting.es2.vert.g.dart';
-import '../shaders_gen/Skinning.es2.vert.g.dart';
 import '../shaders_gen/Skybox.es2.frag.g.dart';
 import '../shaders_gen/Skybox.es2.vert.g.dart';
 import '../shaders_gen/SkyboxReflect.es2.vert.g.dart';
 import '../shaders_gen/TexturedLighting.es2.frag.g.dart';
 import '../shaders_gen/TexturedLighting.es2.vert.g.dart';
+// GLSL functions
+import '../shaders_gen/glsl/Pixel.es2.frag.g.dart';
+import '../shaders_gen/glsl/Skinning.es2.vert.g.dart';
 
 class M3Resources {
   // ------------------------------
   // Textures
   // ------------------------------
   static final texWhite = M3Texture.createSolidColor(Vector4(1, 1, 1, 1));
+  static final texNormal = M3Texture.createSolidColor(Vector4(0.5, 0.5, 1, 1));
+  static final texDefaultCube = M3Texture.createDefaultIBLCube();
 
   // ------------------------------
   // Geometries: debug
@@ -78,11 +82,14 @@ class M3Resources {
   static M3ProgramShadowmap? programShadowmap;
   static M3ProgramShadowCSM? programShadowCSM;
 
-  static final _skinNormal = "#define ENABLE_NORMAL \n$Skinning_es2_vert";
+  // ignore: non_constant_identifier_names
+  static final _SkinNormal_vert = "#define ENABLE_NORMAL \n$Skinning_vert";
 
   static Future<void> init() async {
     // Textures
     texWhite;
+    texNormal;
+    texDefaultCube;
 
     // Geometries
     debugAxis;
@@ -101,12 +108,12 @@ class M3Resources {
     _text2D = await M3Text2D.createText2D(fontSize: 30);
 
     // Programs
-    programSimple = M3Program(Skinning_es2_vert + Simple_es2_vert, Simple_es2_frag);
-    programSkybox = M3Program(Skybox_es2_vert, Skybox_es2_frag);
-    programRectangle = M3Program(Rect_es2_vert, Rect_es2_frag);
+    programSimple = M3Program(Skinning_vert + Simple_vert, Simple_frag);
+    programSkybox = M3Program(Skybox_vert, Skybox_frag);
+    programRectangle = M3Program(Rect_vert, Rect_frag);
 
-    programSkyboxReflect = M3ProgramEye(_skinNormal + SkyboxReflect_es2_vert, Skybox_es2_frag);
-    programSimpleLighting = M3ProgramLighting(_skinNormal + SimpleLighting_es2_vert, Simple_es2_frag);
+    programSkyboxReflect = M3ProgramEye(_SkinNormal_vert + SkyboxReflect_vert, Skybox_frag);
+    programSimpleLighting = M3ProgramLighting(_SkinNormal_vert + SimpleLighting_vert, Simple_frag);
 
     setLightingProgram(M3ShaderOptions());
 
@@ -117,19 +124,34 @@ class M3Resources {
     programTexture?.dispose();
     programShadowmap?.dispose();
     programShadowCSM?.dispose();
+    programSkyboxReflect?.dispose();
 
     // texture lighting program
-    String strVert = _skinNormal + TexturedLighting_es2_vert;
-    String strFrag = TexturedLighting_es2_frag;
-    // pixel lighting: phong shading, cartoon
+    String strVert = _SkinNormal_vert + TexturedLighting_vert;
+    String strFrag = TexturedLighting_frag;
+
+    // pixel lighting: phong shading, cartoon, PBR
     if (options.perPixel) {
       strVert = "#define ENABLE_PIXEL_LIGHTING \n$strVert";
-      strFrag = "#define ENABLE_PIXEL_LIGHTING \n$strFrag";
-      if (options.cartoon) {
+      strFrag = Pixel_frag + strFrag;
+      if (options.pbr) {
+        strVert = "#define ENABLE_PBR \n$strVert";
+        strFrag = "#define ENABLE_PBR \n$strFrag";
+        if (options.ibl) {
+          strFrag = "#define ENABLE_IBL \n$strFrag";
+        }
+      } else if (options.cartoon) {
         strFrag = "#define ENABLE_CARTOON \n$strFrag";
       }
     }
     programTexture = M3ProgramLighting(strVert, strFrag);
+
+    // skybox reflect program
+    String strReflectVert = _SkinNormal_vert + SkyboxReflect_vert;
+    if (options.pbr) {
+      strReflectVert = "#define ENABLE_PBR \n$strReflectVert";
+    }
+    programSkyboxReflect = M3ProgramEye(strReflectVert, Skybox_frag);
 
     // shadow map program
     String vsShadow = "#define ENABLE_SHADOW_MAP \n$strVert";
@@ -151,6 +173,8 @@ class M3Resources {
   static void dispose() {
     // Textures
     texWhite.dispose();
+    texNormal.dispose();
+    texDefaultCube.dispose();
 
     // Geometries
     debugAxis.dispose();

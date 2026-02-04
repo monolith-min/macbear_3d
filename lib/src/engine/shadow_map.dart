@@ -33,6 +33,11 @@ class M3ShadowMap {
   }
 
   void renderDepthPass(M3Scene scene, M3Light light) {
+    final renderEngine = M3AppEngine.instance.renderEngine;
+    final stats = renderEngine.stats;
+    final bool wasStatsEnabled = stats.enabled;
+    stats.enabled = false;
+
     _framebuffer.bind();
     gl.clear(WebGL.DEPTH_BUFFER_BIT);
     gl.disable(WebGL.BLEND);
@@ -71,7 +76,8 @@ class M3ShadowMap {
     gl.enable(WebGL.BLEND);
 
     // recover to default FBO
-    M3AppEngine.instance.renderEngine.bindDefaultFramebuffer();
+    renderEngine.bindDefaultFramebuffer();
+    stats.enabled = wasStatsEnabled;
   }
 
   void drawDebugDepth(double x, double y, double width, double height) {

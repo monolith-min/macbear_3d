@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Mirror_es2_vert = r"""
+const String Mirror_vert = r"""
 // Mirror vert-shader //////////
 attribute highp vec3 inVertex;		// vertex-data
 attribute lowp vec4 inColor;		// for mirror-color

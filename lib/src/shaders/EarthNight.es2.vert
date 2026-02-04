@@ -4,8 +4,7 @@ attribute mediump vec2 inTexCoord;
 
 // color combined by light and material
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
-uniform lowp vec3 ColorSpecular;	// specular RGB
-uniform mediump float Shininess;	// shiness of material
+uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 uniform lowp vec3 ColorAmbient;		// ambient RGB
 
 // object space

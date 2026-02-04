@@ -19,6 +19,7 @@ part 'primitive/ellipsoid_geom.dart';
 part 'primitive/plane_geom.dart';
 part 'primitive/pyramid_geom.dart';
 part 'primitive/sphere_geom.dart';
+part 'primitive/terrain_geom.dart';
 part 'primitive/torus_geom.dart';
 part 'text/text_geom.dart';
 part 'text/contour.dart';

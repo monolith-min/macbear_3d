@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Rect_es2_frag = r"""
+const String Rect_frag = r"""
 // Rect frag-shader //////////
 varying mediump vec2 TextureCoordOut;
 varying lowp vec4 DestinationColor;

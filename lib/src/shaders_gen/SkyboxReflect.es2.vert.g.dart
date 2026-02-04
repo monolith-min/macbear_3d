@@ -1,9 +1,9 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String SkyboxReflect_es2_vert = r"""
+const String SkyboxReflect_vert = r"""
 // Skybox Reflect vert-shader: via cubemap //////////
-// NOTICE 1: ENABLE_NORMAL must be defined before "Skinning.es2.vert"
-// NOTICE 2: "Skinning.es2.vert" must be added before this file
+// NOTICE 1: ENABLE_NORMAL must be defined first
+// NOTICE 2: "Skinning.es2.vert" must be added for skinning
 #ifndef ENABLE_SKINNING
 attribute highp vec3 inVertex;		// vertex-data
 attribute mediump vec3 inNormal;
@@ -19,6 +19,17 @@ varying mediump vec3 TexCoordDirOut;
 // space transformation
 uniform highp mat4 Model;
 uniform highp mat4 ModelviewProjection;
+
+#ifdef ENABLE_PBR
+uniform lowp vec4 ColorDiffuse;
+uniform mediump float Metallic;
+uniform mediump float Roughness;
+
+// Schlick's approximation for Fresnel
+mediump float fresnelSchlick(mediump float cosTheta, mediump float F0) {
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+#endif // ENABLE_PBR
 
 void main(void)
 {
@@ -41,7 +52,19 @@ void main(void)
 	TexCoordDirOut.y = reflectDir.z;
 	TexCoordDirOut.z = -reflectDir.y;
 
+#ifdef ENABLE_PBR
+    // Fresnel-based reflection intensity
+    mediump float cosTheta = max(dot(-eyeDir, objNormal), 0.0);
+    mediump float F0 = mix(0.04, 1.0, Metallic);
+    mediump float F = fresnelSchlick(cosTheta, F0);
+    
+    // Metallic reflection is tinted by base color
+    mediump vec3 tint = mix(vec3(1.0), ColorDiffuse.rgb, Metallic);
+    DestinationColor = vec4(uColor.rgb * tint * F, uColor.a);
+#else
     DestinationColor = uColor;
+#endif // ENABLE_PBR
+
     gl_Position = ModelviewProjection * objVert;	// pre-compute Projection * Modelview
 }
 

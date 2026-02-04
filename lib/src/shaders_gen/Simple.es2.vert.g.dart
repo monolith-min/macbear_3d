@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Simple_es2_vert = r"""
+const String Simple_vert = r"""
 // Simple vert-shader //////////
 // NOTICE: "Skinning.es2.vert" must be added before this file
 #ifndef ENABLE_SKINNING

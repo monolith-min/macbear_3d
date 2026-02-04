@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String Rect_es2_vert = r"""
+const String Rect_vert = r"""
 // Rect vert-shader //////////
 attribute highp vec3 inVertex;		// vertex-data
 //attribute mediump vec4 inColor;		// as diffuse-ambient material

@@ -1,6 +1,6 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String SimpleLighting_es2_vert = r"""
+const String SimpleLighting_vert = r"""
 // Simple-lighting vert-shader //////////
 // NOTICE: "Skinning.es2.vert" must be added before this file
 #ifndef ENABLE_SKINNING
@@ -17,8 +17,7 @@ uniform mat4 ModelviewProjection;
 // color combined by light and material
 uniform lowp vec3 ColorAmbient;		// ambient RGB 
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
-uniform lowp vec3 ColorSpecular;	// specular RGB
-uniform mediump float Shininess;	// shiness of material
+uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 
 // object-space
 uniform vec3 EyePosition;		// eye as camera origin
@@ -46,9 +45,9 @@ void main(void) {
 
 	float df = max(0.0, dot(N, L));
 	float sf = max(0.0, dot(N, H));
-	sf = pow(sf, Shininess);
+	sf = pow(sf, ColorSpecular.w);
 
-	lowp vec3 AmbientDiffuseSpecular = (ColorAmbient + ColorDiffuse.rgb * df) + ColorSpecular * sf;
+	lowp vec3 AmbientDiffuseSpecular = (ColorAmbient + ColorDiffuse.rgb * df) + ColorSpecular.rgb * sf;
 
 	DestinationColor = vec4(AmbientDiffuseSpecular, uColor.a);
 	// DestinationColor = vec4((N + vec3(1.0) / 2.0), uColor.a);		// normal

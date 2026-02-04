@@ -1,23 +1,27 @@
 // Generated file – do not edit.
 // ignore: constant_identifier_names
-const String TexturedLighting_es2_frag = r"""
+const String TexturedLighting_frag = r"""
 // TexturedLighting frag-shader: fog //////////
+// NOTICE: "Pixel.es2.frag" must be added for per-pixel lighting
 
-// color combined by light and material
+#ifndef ENABLE_PIXEL_LIGHTING
+
 uniform lowp vec3 ColorAmbient;		// ambient RGB 
-uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
-uniform lowp vec3 ColorSpecular;	// specular RGB
-uniform mediump float Shininess;	// shiness of material
 
-#ifdef ENABLE_PIXEL_LIGHTING
-uniform mediump vec3 LightPosition;		// parallel light
-varying mediump vec3 ObjectspaceN;
-varying mediump vec3 ObjectspaceH;		// LightVector + EyeVector
-#else
 varying lowp vec4 SpecularOut;	// separate specular added
+varying lowp vec4 DestinationColor;
+
+// lit result by per-vertex
+lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
+{
+	lowp vec4 litResult;
+
+	litResult = texDiffuse * DestinationColor;
+	litResult.rgb += (SpecularOut.rgb * litResult.a);
+	return litResult;
+}
 #endif // ENABLE_PIXEL_LIGHTING
 
-varying lowp vec4 DestinationColor;
 varying mediump vec2 TextureCoordOut;
 
 uniform sampler2D SamplerDiffuse;		// GL_TEXTURE0
@@ -42,38 +46,9 @@ uniform highp vec2 ShadowmapSize;		// shadowmap resolution
 uniform highp float NormalBias;			// normal bias (for shadow acne)
 #endif // ENABLE_SHADOW_MAP or ENABLE_SHADOW_CSM
 
-// lit result by per-vertex/per-pixel
-lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
-{
-	lowp vec4 litResult;
-#ifdef ENABLE_PIXEL_LIGHTING
-    mediump vec3 L = LightPosition;		// parallel light source
-    mediump vec3 N = normalize(ObjectspaceN);
-    mediump vec3 H = normalize(ObjectspaceH);
-    
-    lowp float df = max(0.0, dot(N, L));
-    lowp float sf = pow(max(0.0, dot(N, H)), Shininess);
-	
-	#ifdef ENABLE_CARTOON
-	// segment: 0___0.1___0.3___0.7___1
-	// cartoon:   0    0.3  0.7    1
-	df = dot(step(vec3(0.1,0.3,0.7), vec3(df)), vec3(0.3, 0.4, 0.3));
-	sf = step(0.5, sf);
-	#endif // ENABLE_CARTOON
-	
-	// lit = ambient + diffuse + specular * shininess
-	litResult = texDiffuse * vec4((ColorAmbient + ColorDiffuse.rgb * df), ColorDiffuse.a);
-	litResult.rgb += (ColorSpecular * (sf * litResult.a));
-#else
-	litResult = texDiffuse * DestinationColor;
-	litResult.rgb += (SpecularOut.rgb * litResult.a);
-#endif // ENABLE_PIXEL_LIGHTING
-	return litResult;
-}
 
 void main(void)
 {
-    lowp vec3 depthColor = vec3(1.0, 1.0, 0.0);
 	lowp vec4 texResult = texture2D(SamplerDiffuse, TextureCoordOut);	// tex-lookup
 #ifdef ENABLE_ALPHA_TEST
 	if (texResult.a < 0.5)
@@ -86,20 +61,18 @@ void main(void)
 		highp vec4 LightcoordShadowmap = LightcoordCSM[3];
 		if (gl_FragCoord.z < DepthCSM.x) {
 			LightcoordShadowmap = LightcoordCSM[0];
-			depthColor = vec3(1.0, 0.0, 0.0);
 		}
 		else if (gl_FragCoord.z < DepthCSM.y) {
 			LightcoordShadowmap = LightcoordCSM[1];
-			depthColor = vec3(0.0, 1.0, 0.0);
 		}
 		else if (gl_FragCoord.z < DepthCSM.z) {
 			LightcoordShadowmap = LightcoordCSM[2];
-			depthColor = vec3(0.0, 0.0, 1.0);
 		}
-		else
+		else {
 			LightcoordShadowmap = LightcoordCSM[3];
+		}
 
-		// gl_FragColor = vec4(vec3(gl_FragCoord.z), 1.0);
+		// gl_FragColor = vec4(vec3(gl_FragCoord.z), 1.0); // debug CSM
 		// return;
 	#endif // ENABLE_SHADOW_CSM
 	
@@ -110,31 +83,33 @@ void main(void)
 
 	////////// PCF //////////
 	#ifdef ENABLE_PCF
-	highp vec2 texelSize = vec2(1.0) / ShadowmapSize;
-	highp vec4 depthPCF;	// depth-shadow by PCF
-	depthPCF.x = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2( 1.0,  0.5) * texelSize).r;
-	depthPCF.y = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2(-1.0, -0.5) * texelSize).r;
-	depthPCF.z = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2(-0.5,  1.0) * texelSize).r;
-	depthPCF.w = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2( 0.5, -1.0) * texelSize).r;
-	
-	depthPCF = step(vec4(LightcoordShadowmap.z - 0.0005), depthPCF);
-	lowp float factorLit = dot(depthPCF, depthPCF) / 4.0;
-	
-	lowp vec4 areaShadow = texResult * vec4(ColorAmbient, 1.0);	// shadow-area
-	texResult = mix(areaShadow, ComputePixelLit(texResult), factorLit);
+		highp vec2 texelSize = vec2(1.0) / ShadowmapSize;
+		highp vec4 depthPCF;	// depth-shadow by PCF
+		depthPCF.x = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2( 1.0,  0.5) * texelSize).r;
+		depthPCF.y = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2(-1.0, -0.5) * texelSize).r;
+		depthPCF.z = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2(-0.5,  1.0) * texelSize).r;
+		depthPCF.w = texture2D(SamplerShadowmap, LightcoordShadowmap.st + vec2( 0.5, -1.0) * texelSize).r;
+		
+		depthPCF = step(vec4(LightcoordShadowmap.z - 0.0005), depthPCF);
+		lowp float factorLit = dot(depthPCF, depthPCF) / 4.0;
+		
+		lowp vec4 areaShadow = texResult * vec4(ColorAmbient, 1.0);	// shadow-area
+		texResult = mix(areaShadow, ComputePixelLit(texResult), factorLit);
+		
 	#else
 
-	highp float depthShadow;
-	depthShadow = texture2D(SamplerShadowmap, LightcoordShadowmap.st).r;
-	//	depthShadow = texture2DProj(SamplerShadowmap, LightcoordShadowmap).r;	// palallel-projection, so w = 1 
-	if (depthShadow < LightcoordShadowmap.z - 0.0005)
-		texResult = texResult * vec4(ColorAmbient, 1.0);		// shadow-area
-	else
-		texResult = ComputePixelLit(texResult);					// lit-area
+		highp float depthShadow;
+		depthShadow = texture2D(SamplerShadowmap, LightcoordShadowmap.st).r;
+		//	depthShadow = texture2DProj(SamplerShadowmap, LightcoordShadowmap).r;	// palallel-projection, so w = 1 
+		if (depthShadow < LightcoordShadowmap.z - 0.0005)
+			texResult = texResult * vec4(ColorAmbient, 1.0);		// shadow-area
+		else
+			texResult = ComputePixelLit(texResult);					// lit-area
 	#endif // ENABLE_PCF
 
 	// texResult = vec4(vec3(LightcoordShadowmap.z), 1.0);	// debug shadowmap
 	}
+
 #else
     texResult = ComputePixelLit(texResult);
 #endif // ENABLE_SHADOW_MAP or ENABLE_SHADOW_CSM
@@ -145,7 +120,7 @@ void main(void)
 	texResult.rgb = mix(texResult.rgb, FogColor, fFogBlend); 
 #endif // ENABLE_FOG
 
-	gl_FragColor = texResult; // * vec4(depthColor, 1.0);
+	gl_FragColor = texResult;
 }
 
 """;
