@@ -1,6 +1,11 @@
 # Macbear 3D (繁體中文)
+**OpenGL 可以, 我來寫**
 
 [English](README.md) | [繁體中文](README_zh.md)
+
+[![pub package](https://img.shields.io/pub/v/macbear_3d.svg)](https://pub.dev/packages/macbear_3d)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android%20%7C%20macos%20%7C%20windows-blue)
 
 **Macbear 3D** 是一個專為 Flutter 打造的輕量級、高性能 3D 渲染引擎，由 **Google ANGLE (OpenGL ES)** 驅動。它提供簡單且強大的 API，讓開發者能夠輕鬆創建驚艷的 3D 體驗、遊戲與視覺化應用。
 
@@ -20,8 +25,9 @@
 ### 🎨 渲染與視覺
 - **模型加載**: 原生支援 **glTF/GLB** 與 **OBJ** 格式。
 - **骨架動畫**: 完整支援皮膚網格 (Skinned Mesh) 與基於骨骼的動畫系統。
-- **進階陰影**: 支援動態光照與 **級聯陰影貼圖 (CSM)**，提供大場景下的高品質陰影。
-- **3D 文字**: 支援從 TrueType/OpenType 字體直接生成 3D 文字幾何體。
+- **進階光照**: 支援動態光照、**級聯陰影貼圖 (CSM)**、**PBR (實體渲染)** 與 **IBL (環境光照)**。
+- **地形系統**: 使用 Perlin Noise 實現程序化地形生成。
+- **3D 文字**: 支援從 TrueType/OpenType 字體直接生成 3D 文字幾何體，並修正 Web 端對齊問題。
 
 ### ⚙️ 物理與交互
 - **整合物理引擎**: 與 **oimo_physics** 剛體物理引擎無縫協作。
@@ -34,7 +40,7 @@
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.5.0
+  macbear_3d: ^0.6.0
 ```
 
 ## 快速上手
@@ -84,13 +90,15 @@ class MyScene extends M3Scene {
 - [x] 皮膚網格 (Skinned Mesh)
 - [x] 骨架動畫 (Skeletal Animation)
 - [x] 陰影優化 (級聯陰影貼圖 CSM)
-- [ ] PBR 材質支援
+- [x] PBR 材質支援 (金屬度、粗糙度)
+- [x] IBL 環境光照 (Image-Based Lighting)
+- [x] 地形系統 (Perlin Noise)
 - [x] 天空盒反射 (Cubemap)
 - [ ] 水面效果 (反射、折射)
 - [ ] 後處理特效 (Bloom, HDR)
 - [ ] 進階粒子系統
 - [ ] GUI 系統
-- [ ] WebGL 支援優化
+- [x] WebGL 支援優化 (文字對齊修正)
 
 ## 參與貢獻
 
