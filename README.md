@@ -23,8 +23,9 @@
 ### 🎨 Rendering & Visuals
 - **Model Loaders**: Native support for **glTF/GLB** and **OBJ** formats.
 - **Skeletal Animation**: Full support for skinned meshes and bone-based animations.
-- **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)** for high-quality shadows.
-- **Text Rendering**: Generate 3D geometry from TrueType/OpenType fonts.
+- **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)**, **PBR (Physically Based Rendering)** and **IBL (Image-Based Lighting)** support.
+- **Terrain System**: Procedural terrain generation using Perlin Noise.
+- **Text Rendering**: Generate 3D geometry from TrueType/OpenType fonts with alignment fixes for Web.
 
 ### ⚙️ Physics & Interaction
 - **Integrated Physics**: Seamless integration with the **oimo_physics** rigid body physics engine.
@@ -55,7 +56,7 @@ Add `macbear_3d` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.5.0
+  macbear_3d: ^0.6.0
 ```
 
 ## Usage
@@ -128,7 +129,9 @@ output to uml/macbear_3d.puml
 - [x] Skinned Mesh
 - [x] Skeletal Animation
 - [x] Shadows improvements (Cascaded Shadow Maps)
-- [ ] PBR Material support
+- [x] PBR Material support (Metallic, Roughness)
+- [x] IBL (Image-Based Lighting)
+- [x] Terrain System (Perlin Noise)
 - [x] Skybox reflection via cubemap
 - [ ] Water effect (reflection, refraction)
 - [ ] Post-processing effects (Bloom, HDR)
@@ -136,7 +139,7 @@ output to uml/macbear_3d.puml
 - [x] Resource Management System
 - [x] Text Rendering
 - [ ] GUI System
-- [ ] WebGL support optimization
+- [x] WebGL support optimization (Text rendering alignment)
 
 ## Contributing
 

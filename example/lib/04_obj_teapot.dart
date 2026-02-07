@@ -36,6 +36,8 @@ class ObjTeapotScene_04 extends M3Scene {
     // 04: obj model - using M3Mesh.load()
     final meshTeapot = await M3Mesh.load('example/teapot.obj');
     meshTeapot.mtr.reflection = 0.5;
+    meshTeapot.mtr.metallic = 0.5;
+
     _teapot = addMesh(meshTeapot, Vector3(0, 0, 0));
     _teapot!.color = Vector4(1.0, 0.5, 0.0, 1);
 

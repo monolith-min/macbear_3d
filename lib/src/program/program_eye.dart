@@ -40,10 +40,10 @@ class M3ProgramEye extends M3Program {
   void setMaterial(M3Material mtr, Vector4 color) {
     super.setMaterial(mtr, color);
 
-    if (uniformDiffuse.id >= 0) {
+    if (M3Program.isLocationValid(uniformDiffuse)) {
       gl.uniform4fv(uniformDiffuse, mtr.diffuse.storage);
     }
-    if (uniformParamPBR.id >= 0) {
+    if (M3Program.isLocationValid(uniformParamPBR)) {
       gl.uniform2f(uniformParamPBR, mtr.metallic, mtr.roughness);
     }
   }

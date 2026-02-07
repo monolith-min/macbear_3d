@@ -11,14 +11,19 @@ uniform lowp vec3 ColorAmbient;		// ambient RGB
 varying lowp vec4 SpecularOut;	// separate specular added
 varying lowp vec4 DestinationColor;
 
+// no pre-multiply alpha
 // lit result by per-vertex
 lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
 {
-	lowp vec4 litResult;
+	lowp vec4 result = texDiffuse * DestinationColor;
+	result.rgb += SpecularOut.rgb;
+	return result;
+}
 
-	litResult = texDiffuse * DestinationColor;
-	litResult.rgb += (SpecularOut.rgb * litResult.a);
-	return litResult;
+lowp vec4 ComputePixelUnlit(in lowp vec4 texDiffuse)
+{
+	// unlit = ambient 
+	return texDiffuse * vec4(ColorAmbient, DestinationColor.a);
 }
 #endif // ENABLE_PIXEL_LIGHTING
 
@@ -93,8 +98,7 @@ void main(void)
 		depthPCF = step(vec4(LightcoordShadowmap.z - 0.0005), depthPCF);
 		lowp float factorLit = dot(depthPCF, depthPCF) / 4.0;
 		
-		lowp vec4 areaShadow = texResult * vec4(ColorAmbient, 1.0);	// shadow-area
-		texResult = mix(areaShadow, ComputePixelLit(texResult), factorLit);
+		texResult = mix(ComputePixelUnlit(texResult), ComputePixelLit(texResult), factorLit);
 		
 	#else
 
@@ -102,9 +106,9 @@ void main(void)
 		depthShadow = texture2D(SamplerShadowmap, LightcoordShadowmap.st).r;
 		//	depthShadow = texture2DProj(SamplerShadowmap, LightcoordShadowmap).r;	// palallel-projection, so w = 1 
 		if (depthShadow < LightcoordShadowmap.z - 0.0005)
-			texResult = texResult * vec4(ColorAmbient, 1.0);		// shadow-area
+			texResult = ComputePixelUnlit(texResult);
 		else
-			texResult = ComputePixelLit(texResult);					// lit-area
+			texResult = ComputePixelLit(texResult);
 	#endif // ENABLE_PCF
 
 	// texResult = vec4(vec3(LightcoordShadowmap.z), 1.0);	// debug shadowmap

@@ -48,7 +48,7 @@ class M3ProgramLighting extends M3ProgramEye with M3LightingShader {
     super.setMatrices(cam, mMatrix);
 
     final light = _light!;
-    if (uniformLightPosition.id >= 0) {
+    if (M3Program.isLocationValid(uniformLightPosition)) {
       Vector4 lightDirection = Matrix4.inverted(mMatrix) * light.getDirection();
       lightDirection.normalize();
       gl.uniform3fv(uniformLightPosition, lightDirection.xyz.storage);

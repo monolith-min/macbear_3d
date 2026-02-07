@@ -14,7 +14,7 @@ import '../input/keyboard.dart';
 class M3AppEngine {
   static final M3AppEngine instance = M3AppEngine._internal();
 
-  String version = "macbear3d-lib v0.5.5 powered by ANGLE";
+  String version = "macbear3d-lib v0.6.0 powered by ANGLE";
   final FlutterAngle _angle = FlutterAngle();
   late FlutterAngleTexture _sourceTexture; // main framebuffer
   Framebuffer get mainFbo => Framebuffer(_sourceTexture.fboId);
@@ -268,7 +268,7 @@ class M3AppEngine {
 
     // so resize it
     final options = AngleOptions(width: width, height: height, dpr: dpr, useSurfaceProducer: true);
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       await _angle.deleteTexture(_sourceTexture);
       _sourceTexture = await _angle.createTexture(options);
       // M3RenderEngine.gl = _sourceTexture.getContext();
@@ -305,10 +305,9 @@ class M3AppEngine {
       _stopwatch.start();
 
       // application update then render
-      delta *= timeScale;
-      if (delta > Duration.zero) {
-        _update(delta);
-      }
+      _update(delta);
+      // check shader update if dirty
+      M3Resources.checkUpdate(renderEngine.options.shader);
       await _render();
 
       _stopwatch.stop();
@@ -333,9 +332,13 @@ class M3AppEngine {
     // debugPrint('update= $delta');
     if (activeScene != null) {
       double dt = delta.inMicroseconds / 1000000.0;
+      double sdt = dt * timeScale;
 
-      physicsEngine.update(dt, onBeforeStep: activeScene!.savePhysicsStates);
-      activeScene!.update(dt);
+      activeScene!.inputController?.update(dt);
+      if (sdt > 0) {
+        physicsEngine.update(sdt, onBeforeStep: activeScene!.savePhysicsStates);
+        activeScene!.update(sdt);
+      }
     }
   }
 
@@ -361,8 +364,8 @@ class M3AppEngine {
   }
 
   Widget _flipY(Widget widgetSrc) {
-    // Flip Y only for Metal/iOS
-    if (Platform.isIOS || Platform.isMacOS) {
+    // Flip Y only for Metal/iOS, Windows
+    if (Platform.isIOS || Platform.isMacOS || Platform.isWindows) {
       return Transform.scale(scaleY: -1.0, child: widgetSrc);
     } else {
       return widgetSrc;

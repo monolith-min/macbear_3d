@@ -34,19 +34,20 @@ class M3Texture {
 
   M3Texture({this.isCubemap = false}) {
     _texture = gl.createTexture();
-    bind();
 
     setParameters();
-    gl.pixelStorei(WebGL.UNPACK_ALIGNMENT, 1);
   }
 
   void setParameters() {
     final int warpMode = isCubemap ? WebGL.CLAMP_TO_EDGE : WebGL.REPEAT;
+
+    bind();
     gl.texParameteri(target, WebGL.TEXTURE_WRAP_S, warpMode);
     gl.texParameteri(target, WebGL.TEXTURE_WRAP_T, warpMode);
 
     gl.texParameteri(target, WebGL.TEXTURE_MIN_FILTER, WebGL.LINEAR); // NEAREST, GL_LINEAR_MIPMAP_LINEAR
     gl.texParameteri(target, WebGL.TEXTURE_MAG_FILTER, WebGL.LINEAR); // NEAREST
+    gl.pixelStorei(WebGL.UNPACK_ALIGNMENT, 1);
   }
 
   void dispose() {
@@ -255,6 +256,7 @@ class M3Texture {
       Uint8Array byteData = Uint8Array.fromList(ktxInfo.texData);
 
       final pixelFormat = ktxInfo.glFormat;
+      bind();
       gl.compressedTexImage2D(faceTarget, 0, pixelFormat, texW, texH, 0, byteData);
       // } else if (lowerName.endsWith('.pvr')) {
       // PVR compressed texture
@@ -269,13 +271,24 @@ class M3Texture {
     texH = image.height;
 
     final pixelFormat = WebGL.RGBA;
-    await gl.texImage2DfromImage(
-      faceTarget,
-      image,
-      format: pixelFormat,
-      internalformat: pixelFormat,
-      type: WebGL.UNSIGNED_BYTE,
-    );
+    // Macbear note: texImage2DfromImage not working on web
+    // await gl.texImage2DfromImage(
+    //   faceTarget,
+    //   image,
+    //   format: pixelFormat,
+    //   internalformat: pixelFormat,
+    //   type: WebGL.UNSIGNED_BYTE,
+    // );
+
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    if (byteData == null) {
+      debugPrint('*** ERROR: M3Texture.toByteData returned null');
+      return;
+    }
+    final pixels = Uint8Array.fromList(byteData.buffer.asUint8List());
+
+    bind();
+    gl.texImage2D(faceTarget, 0, pixelFormat, texW, texH, 0, pixelFormat, WebGL.UNSIGNED_BYTE, pixels);
   }
 
   static Future<M3Texture> createWoodTexture({int size = 512}) async {

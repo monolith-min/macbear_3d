@@ -81,7 +81,6 @@ abstract class M3Scene {
 
   void update(double delta) {
     _totalTime += delta;
-    inputController?.update(delta);
 
     for (final entity in entities) {
       // update animation
@@ -103,7 +102,7 @@ abstract class M3Scene {
 
     final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
     if (prog is M3ProgramLighting && shaderOptions.pbr && shaderOptions.ibl) {
-      if (prog.uniformSamplerEnvironment.id >= 0) {
+      if (M3Program.isLocationValid(prog.uniformSamplerEnvironment)) {
         gl.activeTexture(WebGL.TEXTURE2);
         if (skybox != null) {
           skybox!.mtr.texDiffuse.bind();

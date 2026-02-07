@@ -20,6 +20,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   M3AppEngine.instance.onDidInit = onDidInit;
+  final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
+  shaderOptions.pcf = true;
+  shaderOptions.perPixel = false;
   runApp(MainApp());
 }
 
@@ -27,7 +30,9 @@ Future<void> onDidInit() async {
   debugPrint('main_all.dart: onDidInit');
   final renderEngine = M3AppEngine.instance.renderEngine;
   renderEngine.createShadowMap(width: 2048, height: 4096);
-  await M3AppEngine.instance.setScene(StarterScene_00());
+
+  final initScene = StarterScene_00();
+  await M3AppEngine.instance.setScene(initScene);
 }
 
 class MainApp extends StatelessWidget {
@@ -215,7 +220,6 @@ class _MainPageState extends State<MainPage> {
           onPressed: () {
             setState(() {
               shaderOptions.pcf = !shaderOptions.pcf;
-              M3Resources.setLightingProgram(shaderOptions);
             });
           },
           child: const Icon(Icons.blur_on_rounded),
@@ -227,7 +231,6 @@ class _MainPageState extends State<MainPage> {
           onPressed: () {
             setState(() {
               shaderOptions.perPixel = !shaderOptions.perPixel;
-              M3Resources.setLightingProgram(shaderOptions);
             });
           },
           child: const Icon(Icons.draw),
@@ -239,7 +242,6 @@ class _MainPageState extends State<MainPage> {
           onPressed: () {
             setState(() {
               shaderOptions.cartoon = !shaderOptions.cartoon;
-              M3Resources.setLightingProgram(shaderOptions);
             });
           },
           child: const Text('toon'),
@@ -251,7 +253,6 @@ class _MainPageState extends State<MainPage> {
           onPressed: () {
             setState(() {
               shaderOptions.pbr = !shaderOptions.pbr;
-              M3Resources.setLightingProgram(shaderOptions);
             });
           },
           child: const Text('PBR'),
@@ -263,7 +264,6 @@ class _MainPageState extends State<MainPage> {
           onPressed: () {
             setState(() {
               shaderOptions.ibl = !shaderOptions.ibl;
-              M3Resources.setLightingProgram(shaderOptions);
             });
           },
           child: const Text('IBL'),

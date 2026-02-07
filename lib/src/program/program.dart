@@ -15,6 +15,11 @@ part 'program_shadowmap.dart';
 class M3Program {
   RenderingContext get gl => M3AppEngine.instance.renderEngine.gl;
 
+  static bool isLocationValid(UniformLocation? loc) {
+    final id = loc?.id;
+    return id != null && (id is! int || id >= 0);
+  }
+
   // shader program
   late WebGLShader _shaderVert;
   late WebGLShader _shaderFrag;
@@ -117,7 +122,7 @@ class M3Program {
     attribBoneIndex = gl.getAttribLocation(program, "inBoneIndex");
     attribBoneWeight = gl.getAttribLocation(program, "inBoneWeight");
 
-    if (uniformSamplerDiffuse.id >= 0) {
+    if (isLocationValid(uniformSamplerDiffuse)) {
       // Set the active sampler to stage 0.  Not really necessary since the uniform
       // defaults to zero anyway, but good practice.
       gl.activeTexture(WebGL.TEXTURE0);
@@ -133,19 +138,19 @@ class M3Program {
   }
 
   void setProjectionMatrix(Matrix4 mat) {
-    if (uniformProjection.id >= 0) {
+    if (isLocationValid(uniformProjection)) {
       gl.uniformMatrix4fv(uniformProjection, false, mat.storage);
     }
   }
 
   void setModelMatrix(Matrix4 mat) {
-    if (uniformModel.id >= 0) {
+    if (isLocationValid(uniformModel)) {
       gl.uniformMatrix4fv(uniformModel, false, mat.storage);
     }
   }
 
   void setMVPMatrix(Matrix4 mat) {
-    if (uniformMVP.id >= 0) {
+    if (isLocationValid(uniformMVP)) {
       gl.uniformMatrix4fv(uniformMVP, false, mat.storage);
     }
   }
@@ -160,14 +165,14 @@ class M3Program {
     setModelMatrix(mMatrix);
 
     // ModelView-Projection matrix
-    if (uniformMVP.id >= 0) {
+    if (isLocationValid(uniformMVP)) {
       Matrix4 mvpMatrix = cam.projectionMatrix * cam.viewMatrix * mMatrix;
       setMVPMatrix(mvpMatrix);
     }
   }
 
   void setMaterial(M3Material mtr, Vector4 color) {
-    if (uniformColor.id >= 0) {
+    if (isLocationValid(uniformColor)) {
       // mColor4 colorMix;
       // colorMix = color * mtr.m_diffuse;
       // only work when NOT glEnableVertexAttribArray(m_attribColor)
@@ -177,11 +182,11 @@ class M3Program {
     }
 
     // texture matrix
-    if (uniformTexMatrix.id >= 0) {
+    if (isLocationValid(uniformTexMatrix)) {
       gl.uniformMatrix3fv(uniformTexMatrix, false, mtr.texMatrix.storage);
     }
     // diffuse-texture: GL_TEXTURE0
-    if (uniformSamplerDiffuse.id >= 0) {
+    if (isLocationValid(uniformSamplerDiffuse)) {
       gl.activeTexture(WebGL.TEXTURE0);
       mtr.texDiffuse.bind(); // 2D or Cubemap
     }
@@ -189,7 +194,7 @@ class M3Program {
 
   void setSkinning(M3Skin? skin) {
     // Skinned Mesh support
-    if (uniformBoneCount.id >= 0) {
+    if (isLocationValid(uniformBoneCount)) {
       gl.uniform1i(uniformBoneCount, skin?.boneCount ?? 0);
 
       if (skin != null) {
@@ -203,13 +208,13 @@ class M3Program {
   }
 
   void disableAttribute() {
-    if (attribVertex.id >= 0) {
+    if (isLocationValid(attribVertex)) {
       gl.disableVertexAttribArray(attribVertex.id);
     }
-    if (attribNormal.id >= 0) {
+    if (isLocationValid(attribNormal)) {
       gl.disableVertexAttribArray(attribNormal.id);
     }
-    if (attribUV.id >= 0) {
+    if (isLocationValid(attribUV)) {
       gl.disableVertexAttribArray(attribUV.id);
     }
   }

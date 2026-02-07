@@ -86,10 +86,12 @@ class M3Resources {
   static final _SkinNormal_vert = "#define ENABLE_NORMAL \n$Skinning_vert";
 
   static Future<void> init() async {
+    debugPrint('M3Resources: init starting...');
     // Textures
     texWhite;
     texNormal;
     texDefaultCube;
+    debugPrint('M3Resources: basic textures initialized');
 
     // Geometries
     debugAxis;
@@ -100,14 +102,17 @@ class M3Resources {
 
     unitCube;
     unitSphere;
+    debugPrint('M3Resources: unit geometries initialized');
 
     // 2D
     line;
     triangle;
     rectUnit;
     _text2D = await M3Text2D.createText2D(fontSize: 30);
+    debugPrint('M3Resources: text2D initialized');
 
     // Programs
+    debugPrint('M3Resources: initializing shader programs...');
     programSimple = M3Program(Skinning_vert + Simple_vert, Simple_frag);
     programSkybox = M3Program(Skybox_vert, Skybox_frag);
     programRectangle = M3Program(Rect_vert, Rect_frag);
@@ -168,6 +173,13 @@ class M3Resources {
       fsShadow = "#define ENABLE_PCF \n$fsShadow";
     }
     programShadowCSM = M3ProgramShadowCSM(vsShadow, fsShadow);
+  }
+
+  static void checkUpdate(M3ShaderOptions options) {
+    if (options.isDirty) {
+      setLightingProgram(options);
+      options.isDirty = false;
+    }
   }
 
   static void dispose() {

@@ -5,14 +5,17 @@ import 'main_all.dart';
 class GlftScene_05 extends M3Scene {
   M3Entity? _duck;
   M3Entity? _man;
+  M3Entity? _fox;
+  int _foxAnimIndex = 0;
+  double _foxAnimTimer = 0.0;
 
   @override
   Future<void> load() async {
     if (isLoaded) return;
     await super.load();
 
-    camera.setLookat(Vector3(10, 0, 0), Vector3(0, 0, 2), Vector3(0, 0, 1));
-    camera.setEuler(pi / 6, -pi / 6, 0, distance: 8);
+    camera.setLookat(Vector3(10, 0, 0), Vector3(0, 0, 1), Vector3(0, 0, 1));
+    camera.setEuler(pi / 6, -pi / 6, 0, distance: 10);
 
     M3Texture texWood = await M3Texture.createWoodTexture();
 
@@ -34,24 +37,40 @@ class GlftScene_05 extends M3Scene {
     _man!.scale = Vector3.all(3);
 
     // 05-2: GLTF model - using M3Mesh.load()
-    // https://github.com/KhronosGroup/glTF-Sample-Models
-    // iOS entitlements should enable for internet access
-    // com.apple.security.network.client
-    /*
-    final meshDuck = await M3Mesh.load(
-      // 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Avocado/glTF-Binary/Avocado.glb',
-      'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Duck/glTF-Binary/Duck.glb',
-    );
-*/
     final meshDuck = await M3Mesh.load('example/Duck.glb');
     _duck = addMesh(meshDuck, Vector3(0, 5, 0));
-    _duck!.scale = Vector3.all(0.03);
+    _duck!.scale = Vector3.all(0.025);
 
     final meshFox = await M3Mesh.load('example/Fox.glb');
     meshFox.animator?.play(0);
-    final fox = addMesh(meshFox, Vector3(-3, 0, 0));
-    fox.rotation = Quaternion.euler(0, pi / 2, 0);
-    fox.scale = Vector3.all(0.04);
+    _fox = addMesh(meshFox, Vector3(-2, 0, 0));
+    _fox!.rotation = Quaternion.euler(0, pi / 2, 0);
+    _fox!.scale = Vector3.all(0.04);
+
+    // Fox 1: Survey Animation (Index 0)
+    final mesh1 = meshFox.clone();
+    mesh1.animator?.play(0);
+    mesh1.animator?.playRate = 0.6;
+    final entity1 = addMesh(mesh1, Vector3(-4, 0, 0));
+    entity1.rotation = Quaternion.euler(0, pi / 2, 0);
+    entity1.scale = Vector3.all(0.05);
+    entity1.color = Vector4(1, 0.5, 0.5, 1); // Reddish
+
+    // Fox 2: Walk Animation (Index 1)
+    final mesh2 = meshFox.clone();
+    mesh2.animator?.play(1);
+    final entity2 = addMesh(mesh2, Vector3(2, 0, 0));
+    entity2.rotation = Quaternion.euler(0, pi / 2, 0);
+    entity2.scale = Vector3.all(0.03);
+    entity2.color = Vector4(0.5, 1, 0.5, 1); // Greenish
+
+    // Fox 3: Run Animation (Index 2)
+    final mesh3 = meshFox.clone();
+    mesh3.animator?.play(2);
+    final entity3 = addMesh(mesh3, Vector3(4, 0, 0));
+    entity3.rotation = Quaternion.euler(0, pi / 2, 0);
+    entity3.scale = Vector3.all(0.02);
+    entity3.color = Vector4(0.5, 0.5, 1, 1); // Blueish
 
     // set background color
     M3AppEngine.backgroundColor = Vector3(0.3, 0.1, 0.3);
@@ -64,7 +83,17 @@ class GlftScene_05 extends M3Scene {
     double sec = totalTime;
 
     light.setEuler(sec * pi / 18, -pi / 3, 0, distance: light.distanceToTarget); // rotate light
-    // debugPrint('Light Direction: $dirLight');
+
+    // Update Fox Animation Cycle
+    if (_fox != null) {
+      _foxAnimTimer += delta;
+      if (_foxAnimTimer > 3.0) {
+        _foxAnimTimer = 0.0;
+        _foxAnimIndex = (_foxAnimIndex + 1) % 3;
+        _fox!.mesh?.animator?.crossFade(_foxAnimIndex, 0.5);
+        debugPrint('Fox animation cross-fade to index: $_foxAnimIndex');
+      }
+    }
 
     double angle = sec * pi / 10; // 18 degree per second
 

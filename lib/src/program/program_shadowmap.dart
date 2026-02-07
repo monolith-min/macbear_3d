@@ -16,7 +16,7 @@ abstract class M3ProgramShadow extends M3ProgramLighting {
     uniformShadowmapSize = gl.getUniformLocation(program, "ShadowmapSize");
     uniformNormalBias = gl.getUniformLocation(program, "NormalBias");
 
-    if (uniformSamplerShadowmap.id >= 0) {
+    if (M3Program.isLocationValid(uniformSamplerShadowmap)) {
       gl.uniform1i(uniformSamplerShadowmap, 1);
     }
   }
@@ -25,11 +25,11 @@ abstract class M3ProgramShadow extends M3ProgramLighting {
   void applyLight(M3Light sceneLight) {
     super.applyLight(sceneLight);
 
-    if (uniformShadowmapSize.id >= 0) {
+    if (M3Program.isLocationValid(uniformShadowmapSize)) {
       final shadowMap = M3AppEngine.instance.renderEngine.shadowMap!;
       gl.uniform2f(uniformShadowmapSize, shadowMap.mapW.toDouble(), shadowMap.mapH.toDouble());
     }
-    if (uniformNormalBias.id >= 0) {
+    if (M3Program.isLocationValid(uniformNormalBias)) {
       gl.uniform1f(uniformNormalBias, sceneLight.shadowNormalBias);
     }
   }
@@ -60,7 +60,7 @@ class M3ProgramShadowmap extends M3ProgramShadow {
     super.setMatrices(cam, mMatrix);
 
     final light = _light!;
-    if (uniformMatrixShadowmap.id >= 0) {
+    if (M3Program.isLocationValid(uniformMatrixShadowmap)) {
       // light-space
       Matrix4 lightMatrix = light.projectionMatrix * light.viewMatrix * mMatrix;
       Matrix4 shadowMatrix = M3Constants.biasMatrix * lightMatrix;
@@ -87,7 +87,7 @@ class M3ProgramShadowCSM extends M3ProgramShadow {
   void applyCamera(M3Camera cam) {
     super.applyCamera(cam);
 
-    if (uniformDepthCSM.id >= 0) {
+    if (M3Program.isLocationValid(uniformDepthCSM)) {
       final maxCSM = 4;
       final numCSM = min(maxCSM, cam.csmCount);
 
@@ -106,7 +106,7 @@ class M3ProgramShadowCSM extends M3ProgramShadow {
     super.setMatrices(cam, mMatrix);
 
     final light = _light!;
-    if (uniformMatrixCSM.id >= 0) {
+    if (M3Program.isLocationValid(uniformMatrixCSM)) {
       final maxCSM = 4;
       final numCSM = min(maxCSM, light.cascades.length);
 

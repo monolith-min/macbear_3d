@@ -59,6 +59,15 @@ class M3Skin {
     }
   }
 
+  /// Creates a copy of this skin pointing to a new set of joint nodes.
+  M3Skin clone(List<GltfNode> newNodes) {
+    return M3Skin(
+      boneCount,
+      inverseBindMatrices: inverseBindMatrices?.map((m) => m.clone()).toList(),
+      jointNodes: newNodes,
+    );
+  }
+
   int _debugCount = 0;
 }
 
@@ -81,6 +90,9 @@ class M3Mesh {
 
   /// Optional animator for playing back animations.
   M3Animator? animator;
+
+  /// The skeletal hierarchy nodes for this mesh instance.
+  List<GltfNode>? nodes;
 
   /// Creates a mesh from the given geometry and optional material/skin.
   M3Mesh(this.geom, {M3Material? material, this.skin}) : mtr = material ?? M3Material();
@@ -165,6 +177,7 @@ class M3Mesh {
 
     final mesh = M3Mesh(geom, material: mtr, skin: skin);
     mesh.initMatrix.setFrom(matNode);
+    mesh.nodes = doc.nodes;
 
     // 4. Initialize Animator
     if (doc.animations.isNotEmpty) {
@@ -173,5 +186,33 @@ class M3Mesh {
     }
 
     return mesh;
+  }
+
+  /// Creates a deep copy of this mesh instance suitable for independent animation.
+  /// Heavy resources like [geom] and [mtr] are shared, while [skin], [animator],
+  /// and skeletal [nodes] are duplicated.
+  M3Mesh clone() {
+    final Map<GltfNode, GltfNode> nodeCloneMap = {};
+    final List<GltfNode>? clonedNodes = nodes?.map((n) {
+      final cn = n.clone();
+      nodeCloneMap[n] = cn;
+      return cn;
+    }).toList();
+
+    final clonedSkin = skin != null && clonedNodes != null
+        ? skin!.clone((skin!.jointNodes as List<GltfNode>).map((n) => nodeCloneMap[n]!).toList())
+        : null;
+
+    final clonedMesh = M3Mesh(geom, material: mtr, skin: clonedSkin);
+    clonedMesh.initMatrix.setFrom(initMatrix);
+    clonedMesh.nodes = clonedNodes;
+
+    if (animator != null && clonedNodes != null) {
+      final clonedNodeMap = {for (int i = 0; i < clonedNodes.length; i++) i: clonedNodes[i]};
+      clonedMesh.animator = M3Animator(animator!.animations, clonedNodeMap, allNodes: clonedNodes);
+      clonedMesh.animator!.playRate = animator!.playRate;
+    }
+
+    return clonedMesh;
   }
 }

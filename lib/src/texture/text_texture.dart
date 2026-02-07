@@ -11,7 +11,6 @@ class M3TextTexture extends M3Texture {
       _fontSize = fontSize,
       super(isCubemap: false) {
     name = "font($_fontSize, $_fontFamily): [$text]";
-    _updateTexture();
   }
 
   static Future<M3TextTexture> createFixed(
@@ -102,7 +101,8 @@ class M3TextTexture extends M3Texture {
     textPainter.paint(canvas, Offset(padding.left, padding.top));
 
     final picture = recorder.endRecording();
-    return picture.toImage(w, h);
+    final img = await picture.toImage(w, h);
+    return img;
   }
 
   Future<void> _createTextureFromLabel(String text) async {

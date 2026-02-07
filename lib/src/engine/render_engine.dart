@@ -1,4 +1,5 @@
 // Macbear3D engine
+import 'package:flutter/foundation.dart';
 import '../../macbear_3d.dart';
 
 import 'shadow_map.dart';
@@ -66,16 +67,24 @@ class M3RenderEngine {
       int val = gl.getParameter(key);
       debugPrint("GL Int[$key] = $val");
     }
-    for (int i = 0; i < 150; i++) {
-      final s0 = gl.getStringi(WebGL.EXTENSIONS, i);
-      debugPrint("GL [$i] = $s0");
-      if (s0 == 'unnamed') {
-        break;
+    /*
+    if (!kIsWeb) {
+      for (int i = 0; i < 150; i++) {
+        final s0 = gl.getStringi(WebGL.EXTENSIONS, i);
+        debugPrint("GL [$i] = $s0");
+        if (s0 == 'unnamed') {
+          break;
+        }
       }
     }
+    */
   }
 
   void createShadowMap({int width = 1024, int height = 1024}) {
+    if (kIsWeb) {
+      // web not support shadow map
+      return;
+    }
     _shadowMap ??= M3ShadowMap(width, height);
   }
 

@@ -17,15 +17,15 @@ uniform lowp vec4 uColor;
 varying mediump vec3 ObjectspaceH;	// LightPos + EyePos
 #ifdef ENABLE_PBR
 varying mediump vec3 ObjectspaceV;	// Eye vector (V)
-varying mediump vec3 ObjectspaceL;	// Light vector (L)
 #endif // ENABLE_PBR
 varying mediump vec3 ObjectspaceN;
-#else
+#else // ENABLE_PIXEL_LIGHTING
 // color combined by light and material
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
 uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 varying lowp vec4 SpecularOut;		// separate specular added
 #endif // ENABLE_PIXEL_LIGHTING
+
 uniform lowp vec3 ColorAmbient;		// ambient RGB 
 
 // object space
@@ -82,11 +82,10 @@ void main(void)
 	ObjectspaceH = normalize(L + E);
 	#ifdef ENABLE_PBR
 	ObjectspaceV = E;
-	ObjectspaceL = L;
 	#endif // ENABLE_PBR
 	
 	ObjectspaceN = objNormal;
-#else
+#else // ENABLE_PIXEL_LIGHTING
 	#ifdef BLINN_PHONG_SPECULAR
 	mediump vec3 H = normalize(L + E);
 	mediump float sf = max(0.0, dot(objNormal, H));

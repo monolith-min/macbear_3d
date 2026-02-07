@@ -11,6 +11,9 @@ class M3Sprite2D {
   late double _spriteW;
   late double _spriteH;
 
+  late double _cellW;
+  late double _cellH;
+
   // sample: row x col = (4 x 3)
   // 0 1 2 3
   // 4 5 6 7
@@ -20,8 +23,11 @@ class M3Sprite2D {
 
   M3Sprite2D(M3Texture tex, {this.rowCount = 1, this.colCount = 1}) {
     mtr.texDiffuse = tex;
-    _spriteW = tex.texW.toDouble() / rowCount;
-    _spriteH = tex.texH.toDouble() / colCount;
+    _cellW = tex.texW.toDouble() / rowCount;
+    _cellH = tex.texH.toDouble() / colCount;
+
+    _spriteW = _cellW;
+    _spriteH = _cellH;
 
     if (rowCount > 1) {
       _spriteW -= 1;

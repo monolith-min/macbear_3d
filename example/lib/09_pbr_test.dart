@@ -22,14 +22,17 @@ class PbrTestScene_09 extends M3Scene {
         double roughness = j / (cols - 1);
 
         final mesh = M3Mesh(sphereGeom);
-        mesh.mtr.diffuse = Vector4(1.0, 0.0, 0.0, 1.0); // Red base color
+        mesh.mtr.diffuse = Vector4(0.0, 1.0, 0.0, 1.0); // Green base color
+        mesh.mtr.reflection = metallic;
         mesh.mtr.metallic = metallic;
         mesh.mtr.roughness = max(roughness, 0.05); // Avoid zero roughness for GGX
 
         double x = (i - (rows - 1) / 2) * spacing;
         double y = (j - (cols - 1) / 2) * spacing;
 
-        addMesh(mesh, Vector3(x, y, 0));
+        final ball = addMesh(mesh, Vector3(x, y, 0));
+        ball.rotation.setEuler(i * pi / 10, j * pi / 20, 0);
+        ball.scale = Vector3.all(1.5);
       }
     }
 

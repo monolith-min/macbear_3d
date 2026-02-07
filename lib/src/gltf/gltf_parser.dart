@@ -418,7 +418,8 @@ class GltfNode {
   }
 
   /// Computes the world matrix for this node and its children.
-  void computeWorldMatrix(Matrix4 parentMatrix) {
+  void computeWorldMatrix(Matrix4 parentMatrix, [List<GltfNode>? nodes]) {
+    final nodeList = nodes ?? document.nodes;
     if (matrix != null) {
       worldMatrix.setFrom(parentMatrix * matrix!);
     } else {
@@ -426,8 +427,25 @@ class GltfNode {
     }
 
     for (final childIndex in children) {
-      document.nodes[childIndex].computeWorldMatrix(worldMatrix);
+      nodeList[childIndex].computeWorldMatrix(worldMatrix, nodeList);
     }
+  }
+
+  /// Creates a copy of this node for instance-sharing.
+  /// Note: This does not recursively clone children since nodes are often
+  /// referenced by index in the document. Hierarchy cloning is handled higher up.
+  GltfNode clone() {
+    return GltfNode(
+      document: document,
+      name: name,
+      meshIndex: meshIndex,
+      skinIndex: skinIndex,
+      children: List.from(children),
+      translation: translation.clone(),
+      rotation: rotation.clone(),
+      scale: scale.clone(),
+      matrix: matrix?.clone(),
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, Matrix4;
 
 // Macbear3D engine
 import 'package:macbear_3d/macbear_3d.dart';
@@ -46,5 +46,14 @@ class MyScene extends M3Scene {
     addMesh(M3Mesh(M3TorusGeom(1, 0.2)), Vector3(0, 0, 0)).color = Colors.green;
     addMesh(M3Mesh(M3CylinderGeom(0.5, 0.1, 1.0)), Vector3(0, 0, 1.2)).color = Colors.yellow;
     addMesh(M3Mesh(M3PlaneGeom(10, 10)), Vector3(0, 0, -1)).color = Colors.skyBlue;
+  }
+
+  @override
+  void render2D() {
+    super.render2D();
+
+    Matrix4 mat2D = Matrix4.identity();
+    final texDebug = M3Resources.text2D.mtr.texDiffuse;
+    M3Shape2D.drawImage(texDebug, mat2D);
   }
 }

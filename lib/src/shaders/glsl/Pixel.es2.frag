@@ -5,22 +5,18 @@ uniform lowp vec3 ColorAmbient;		// ambient RGB
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
 uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 
-uniform mediump vec3 LightPosition;		// parallel light
+uniform mediump vec3 LightPosition;	// parallel light
 varying mediump vec3 ObjectspaceN;
-varying mediump vec3 ObjectspaceH;		// LightVector + EyeVector
+varying mediump vec3 ObjectspaceH;	// LightVector + EyeVector
+
+mediump vec3 safe_normalize(mediump vec3 v) {
+    mediump float len2 = max(dot(v, v), 1e-8);
+    return v * inversesqrt(len2);
+}
+
 #ifdef ENABLE_PBR
 varying mediump vec3 ObjectspaceV;
-// ObjectspaceL varying removed to save slots; use LightPosition uniform instead.
 uniform mediump vec2 uParamPBR; // x: Metallic, y: Roughness
-
-#ifdef ENABLE_IBL
-uniform samplerCube SamplerEnvironment;
-#endif // ENABLE_IBL
-
-#endif // ENABLE_PBR
-
-#ifdef ENABLE_PBR
-const mediump float PI = 3.14159265359;
 
 // Trowbridge-Reitz GGX
 mediump float DistributionGGX(mediump vec3 N, mediump vec3 H, mediump float roughness) {
@@ -31,7 +27,7 @@ mediump float DistributionGGX(mediump vec3 N, mediump vec3 H, mediump float roug
 
     mediump float num = a2;
     mediump float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
+    denom = 3.14159265359 * denom * denom;
 
     return num / denom;
 }
@@ -62,16 +58,45 @@ mediump vec3 fresnelSchlick(mediump float cosTheta, mediump vec3 F0) {
 }
 #endif // ENABLE_PBR
 
-// lit result by per-vertex/per-pixel
+#ifdef ENABLE_IBL
+uniform highp mat4 Model;
+uniform samplerCube SamplerEnvironment;
+
+mediump vec3 ApplyIBL(mediump vec3 ambientDiffuse, mediump vec3 N, mediump vec3 V, mediump vec3 F) {
+    // IBL: Sample environment map for ambient reflection
+    mediump vec3 reflectDir = reflect(-V, N);
+    reflectDir = normalize(mat3(Model) * reflectDir).xyz;
+    // Swizzle to match skybox-cubemap orientation (rotXNeg90)
+    mediump vec3 sampleDir;
+    sampleDir.x = -reflectDir.x;
+    sampleDir.y = reflectDir.z;
+    sampleDir.z = -reflectDir.y;
+    
+    mediump vec3 envColor = pow(textureCube(SamplerEnvironment, sampleDir).rgb, vec3(2.2));
+    
+    // PBR weighting for ambient:
+    // kS (specular) is the Fresnel F
+    // kD (diffuse) reduction for energy conservation
+    mediump vec3 kS = F;
+    mediump vec3 kD = (vec3(1.0) - kS) * (1.0 - uParamPBR.x); // Metallic
+    
+    // IBL Specular reflection: attenuated by roughness
+    mediump vec3 iblSpecular = envColor * kS * (1.0 - uParamPBR.y); // Roughness
+    
+    return kD * ambientDiffuse + iblSpecular;
+}
+#endif // ENABLE_IBL
+
+// lit result by per-pixel: by lighting
 lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
 {
-	lowp vec4 litResult;
+	lowp vec4 result;
     mediump vec3 N = normalize(ObjectspaceN);
+    mediump vec3 L = LightPosition;		// parallel light source
 
 #ifdef ENABLE_PBR
-    mediump vec3 V = normalize(ObjectspaceV);
-    mediump vec3 L = normalize(LightPosition);
-    mediump vec3 H = normalize(V + L);
+    mediump vec3 V = safe_normalize(ObjectspaceV);
+    mediump vec3 H = safe_normalize(V + L);
 
     // PBR calculations should be done in linear space
     mediump vec3 baseColor = pow(ColorDiffuse.rgb * texDiffuse.rgb, vec3(2.2));
@@ -97,35 +122,24 @@ lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
     mediump vec3 ambient = pow(ColorAmbient, vec3(2.2)) * pow(texDiffuse.rgb, vec3(2.2));
 
     #ifdef ENABLE_IBL
-    // IBL: Sample environment map for ambient reflection
-    mediump vec3 reflectDir = reflect(-V, N);
-    // Swizzle to match skybox-cubemap orientation (rotXNeg90)
-    mediump vec3 sampleDir;
-    sampleDir.x = -reflectDir.x;
-    sampleDir.y = reflectDir.z;
-    sampleDir.z = -reflectDir.y;
-    
-    mediump vec3 envColor = pow(textureCube(SamplerEnvironment, sampleDir).rgb, vec3(2.2));
-    
-    // Simple IBL: combine environment reflection with fresnel
-    mediump vec3 iblReflection = envColor * F * (1.0 - uParamPBR.y); // Roughness
-    ambient += iblReflection * (1.0 - uParamPBR.x * 0.5); // Metals rely more on IBL than ambient
+    mediump vec3 Fibl = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    ambient = ApplyIBL(ambient, N, V, Fibl);
     #endif // ENABLE_IBL
 
-    // Compensate for PI division in diffuse term to match engine's non-PBR brightness
+    // Lit: ambient + (diffuse + specular)
     mediump vec3 color = ambient + (kD * baseColor + specular) * NdotL;
 
     // HDR tone mapping removed as we use LDR lights; only keep Gamma Correction
-    color = pow(color, vec3(1.0 / 2.2));
+    color = pow(max(color, 0.0), vec3(1.0 / 2.2));
 
-    litResult = vec4(color, alpha);
-#else
-    mediump vec3 L = LightPosition;		// parallel light source
-    mediump vec3 H = normalize(ObjectspaceH);
-    
-    lowp float df = max(0.0, dot(N, L));
-    lowp float sf = pow(max(0.0, dot(N, H)), ColorSpecular.w);
-	
+    result = vec4(color, alpha);
+#else // ENABLE_PBR
+    mediump vec3 H = safe_normalize(ObjectspaceH);
+
+    mediump float df = max(0.0, dot(N, L));
+    mediump float NdotH = max(0.0, dot(N, H));
+    mediump float sf = pow(NdotH, ColorSpecular.w);
+
 	#ifdef ENABLE_CARTOON
 	// segment: 0___0.1___0.3___0.7___1
 	// cartoon:   0    0.3  0.7    1
@@ -134,9 +148,49 @@ lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
 	#endif // ENABLE_CARTOON
 	
 	// lit = ambient + diffuse + specular * shininess
-	litResult = texDiffuse * vec4((ColorAmbient + ColorDiffuse.rgb * df), ColorDiffuse.a);
-	litResult.rgb += (ColorSpecular.rgb * (sf * litResult.a));
+    result.a = texDiffuse.a * ColorDiffuse.a;
+	result.rgb = texDiffuse.rgb * (ColorAmbient + ColorDiffuse.rgb * df);
+    result.rgb = result.rgb + ColorSpecular.rgb * sf;
+
+    return result;//vec4(1.0, 0.3, 0.0, 1.0);
+
 #endif // ENABLE_PBR
 
-	return litResult;
+	return result;
+}
+
+// unlit result by per-pixel: in shadow
+lowp vec4 ComputePixelUnlit(in lowp vec4 texDiffuse)
+{
+	lowp vec4 result;
+
+#ifdef ENABLE_PBR
+    mediump vec3 N = safe_normalize(ObjectspaceN);
+    mediump vec3 V = safe_normalize(ObjectspaceV);
+    // baseColor not used for unlit ambient, but needed for alpha
+    mediump float alpha = ColorDiffuse.a * texDiffuse.a;
+
+    // Correct ambient: ColorAmbient already includes material diffuse, so just multiply by texDiffuse
+    mediump vec3 ambient = pow(ColorAmbient, vec3(2.2)) * pow(texDiffuse.rgb, vec3(2.2));
+
+    #ifdef ENABLE_IBL
+    // PBR calculations for IBL
+    mediump vec3 baseColor = pow(ColorDiffuse.rgb * texDiffuse.rgb, vec3(2.2));
+    mediump vec3 F0 = vec3(0.04);
+    F0 = mix(F0, baseColor, uParamPBR.x); // Metallic
+    mediump vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0);
+
+    ambient = ApplyIBL(ambient, N, V, F);
+    #endif // ENABLE_IBL
+
+    mediump vec3 color = ambient;
+    color = pow(color, vec3(1.0 / 2.2));
+
+    result = vec4(color, alpha);
+#else
+	// unlit = ambient 
+	result = texDiffuse * vec4(ColorAmbient, ColorDiffuse.a);
+#endif // ENABLE_PBR
+
+	return result;
 }

@@ -22,13 +22,16 @@ class M3ShaderOptions {
   bool _cartoon = false; // cartoon shading
   bool _pbr = false; // physics based rendering
   bool _ibl = false; // image based lighting
+  bool _pcf = true; // shadow PCF
 
-  bool pcf = true; // shadow PCF
+  bool isDirty = false;
 
   // --- perPixel ---
   bool get perPixel => _perPixel;
   set perPixel(bool v) {
+    if (_perPixel == v) return;
     _perPixel = v;
+    isDirty = true;
 
     // perPixel 關閉時，cartoon 與 pbr 一定要關
     if (!_perPixel) {
@@ -40,11 +43,13 @@ class M3ShaderOptions {
   // --- cartoon ---
   bool get cartoon => _cartoon;
   set cartoon(bool v) {
+    if (_cartoon == v) return;
     _cartoon = v;
+    isDirty = true;
 
     // cartoon 開啟時，自動強制 perPixel, 並關閉 pbr
     if (_cartoon) {
-      if (!_perPixel) _perPixel = true;
+      if (!_perPixel) perPixel = true;
       if (pbr) pbr = false;
     }
   }
@@ -52,11 +57,13 @@ class M3ShaderOptions {
   // --- pbr ---
   bool get pbr => _pbr;
   set pbr(bool v) {
+    if (_pbr == v) return;
     _pbr = v;
+    isDirty = true;
 
     // pbr 開啟時，自動強制 perPixel, 並關閉 cartoon
     if (_pbr) {
-      if (!_perPixel) _perPixel = true;
+      if (!_perPixel) perPixel = true;
       if (cartoon) _cartoon = false;
     } else {
       // pbr 關閉時，ibl 也要關閉
@@ -67,12 +74,22 @@ class M3ShaderOptions {
   // --- ibl ---
   bool get ibl => _ibl;
   set ibl(bool v) {
+    if (_ibl == v) return;
     _ibl = v;
+    isDirty = true;
 
     // ibl 開啟時，自動強制 pbr
     if (_ibl) {
       if (!pbr) pbr = true;
     }
+  }
+
+  // --- pcf ---
+  bool get pcf => _pcf;
+  set pcf(bool v) {
+    if (_pcf == v) return;
+    _pcf = v;
+    isDirty = true;
   }
 }
 
