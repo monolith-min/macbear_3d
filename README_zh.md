@@ -1,5 +1,4 @@
-# Macbear 3D (繁體中文)
-**OpenGL 可以, 我來寫**
+# 麥克熊 3D - OpenGL 能, 我來.
 
 [English](README.md) | [繁體中文](README_zh.md)
 

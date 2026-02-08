@@ -1,5 +1,4 @@
-# Macbear 3D
-**OpenGL can, I will.**
+# Macbear 3D - OpenGL can, I will.
 
 [English](README.md) | [繁體中文](README_zh.md)
 

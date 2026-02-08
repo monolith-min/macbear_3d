@@ -3,8 +3,8 @@ part of 'program.dart';
 // add reflection by skybox-cubemap
 class M3ProgramEye extends M3Program {
   late UniformLocation uniformEyePosition; // eye position as camera origin
-  late UniformLocation uniformDiffuse;
-  late UniformLocation uniformParamPBR; // x: Metallic, y: Roughness
+  late UniformLocation uniformEyeColor;
+  late UniformLocation uniformEyeParam; // x: Metallic, y: Roughness
 
   M3ProgramEye(super.strVert, super.strFrag);
 
@@ -13,8 +13,8 @@ class M3ProgramEye extends M3Program {
     super.initLocation();
 
     uniformEyePosition = gl.getUniformLocation(program, "EyePosition");
-    uniformDiffuse = gl.getUniformLocation(program, "ColorDiffuse");
-    uniformParamPBR = gl.getUniformLocation(program, "uParamPBR");
+    uniformEyeColor = gl.getUniformLocation(program, "ColorDiffuse");
+    uniformEyeParam = gl.getUniformLocation(program, "uParamPBR");
   }
 
   // eye position in object-space (model-space)
@@ -26,25 +26,30 @@ class M3ProgramEye extends M3Program {
   void setMatrices(M3Camera cam, Matrix4 mMatrix) {
     super.setMatrices(cam, mMatrix);
 
-    // ModelView matrix
-    Matrix4 mvMatrix = cam.viewMatrix * mMatrix;
+    if (M3Program.isLocationValid(uniformEyePosition)) {
+      // ModelView matrix
+      Matrix4 mvMatrix = cam.viewMatrix * mMatrix;
 
-    // object-space position
-    Matrix4 matInv = Matrix4.inverted(mvMatrix);
-    Vector3 posEye = matInv.getTranslation();
+      // object-space position
+      Matrix4 matInv = Matrix4.identity();
+      double det = matInv.copyInverse(mvMatrix);
 
-    setEye(posEye);
+      if (det != 0.0) {
+        Vector3 posEye = matInv.getTranslation();
+        setEye(posEye);
+      }
+    }
   }
 
   @override
   void setMaterial(M3Material mtr, Vector4 color) {
     super.setMaterial(mtr, color);
 
-    if (M3Program.isLocationValid(uniformDiffuse)) {
-      gl.uniform4fv(uniformDiffuse, mtr.diffuse.storage);
+    if (M3Program.isLocationValid(uniformEyeColor)) {
+      gl.uniform4fv(uniformEyeColor, mtr.diffuse.storage);
     }
-    if (M3Program.isLocationValid(uniformParamPBR)) {
-      gl.uniform2f(uniformParamPBR, mtr.metallic, mtr.roughness);
+    if (M3Program.isLocationValid(uniformEyeParam)) {
+      gl.uniform2f(uniformEyeParam, mtr.metallic, mtr.roughness);
     }
   }
 }

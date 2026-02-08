@@ -15,7 +15,7 @@ class SkyboxScene_02 extends M3Scene {
     M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
     ball.scale = Vector3.all(3);
     ball.mesh!.mtr.texDiffuse = texGrid;
-    ball.mesh!.mtr.reflection = 0.3;
+    // ball.mesh!.mtr.reflection = 0.3;
 
     // 02: sample cubemap
     skybox = M3Skybox(M3Texture.createSampleCubemap());

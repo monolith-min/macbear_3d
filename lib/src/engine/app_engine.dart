@@ -293,35 +293,39 @@ class M3AppEngine {
     if (!_updating && _didInit) {
       _updating = true;
 
-      // delta time since last frame (relative duration)
-      Duration delta = elapsed - _lastElapsed;
-      final Duration maxDelta = Duration(milliseconds: 40);
-      if (delta > maxDelta) {
-        delta = maxDelta;
+      try {
+        // delta time since last frame (relative duration)
+        Duration delta = elapsed - _lastElapsed;
+        final Duration maxDelta = Duration(milliseconds: 40);
+        if (delta > maxDelta) {
+          delta = maxDelta;
+        }
+        _lastElapsed = elapsed;
+
+        _stopwatch.reset();
+        _stopwatch.start();
+
+        // application update then render
+        _update(delta);
+        // check shader update if dirty
+        M3Resources.checkUpdate(renderEngine.options.shader);
+        await _render();
+
+        _stopwatch.stop();
+
+        // FPS calculation
+        _fpsFrameCount++;
+        int now = DateTime.now().millisecondsSinceEpoch;
+        if (now - _fpsLastTime >= 1000) {
+          _currentFps = _fpsFrameCount * 1000.0 / (now - _fpsLastTime);
+          _fpsLastTime = now;
+          _fpsFrameCount = 0;
+        }
+      } catch (e) {
+        debugPrint('*** ERROR updateRender: $e');
+      } finally {
+        _updating = false;
       }
-      _lastElapsed = elapsed;
-
-      _stopwatch.reset();
-      _stopwatch.start();
-
-      // application update then render
-      _update(delta);
-      // check shader update if dirty
-      M3Resources.checkUpdate(renderEngine.options.shader);
-      await _render();
-
-      _stopwatch.stop();
-
-      // FPS calculation
-      _fpsFrameCount++;
-      int now = DateTime.now().millisecondsSinceEpoch;
-      if (now - _fpsLastTime >= 1000) {
-        _currentFps = _fpsFrameCount * 1000.0 / (now - _fpsLastTime);
-        _fpsLastTime = now;
-        _fpsFrameCount = 0;
-      }
-
-      _updating = false;
     } else {
       debugPrint('Too slow');
     }

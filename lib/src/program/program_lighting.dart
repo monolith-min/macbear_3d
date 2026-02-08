@@ -23,7 +23,9 @@ mixin M3LightingShader {
     uniformSamplerEnvironment = gl.getUniformLocation(prog, "SamplerEnvironment");
 
     // Set up some default material parameters.
-    gl.uniform2f(uniformParamPBR, 0, 0.5);
+    if (M3Program.isLocationValid(uniformParamPBR)) {
+      gl.uniform2f(uniformParamPBR, 0, 0.5);
+    }
   }
 
   void applyLight(M3Light sceneLight) {
@@ -62,21 +64,29 @@ class M3ProgramLighting extends M3ProgramEye with M3LightingShader {
     Vector4 outDiffuse = M3Light.blendRGBA(mtr.diffuse, color);
 
     // ambient: RGB
-    Vector3 outAmbient = M3Light.blendRGB(M3Light.ambient, outDiffuse.rgb);
-    gl.uniform3fv(uniformAmbient, outAmbient.storage);
+    if (M3Program.isLocationValid(uniformAmbient)) {
+      Vector3 outAmbient = M3Light.blendRGB(M3Light.ambient, outDiffuse.rgb);
+      gl.uniform3fv(uniformAmbient, outAmbient.storage);
+    }
 
     // diffuse: RGBA
-    outDiffuse.xyz = M3Light.blendRGB(_light!.color, outDiffuse.rgb);
-    gl.uniform4fv(uniformDiffuse, outDiffuse.storage);
+    if (M3Program.isLocationValid(uniformDiffuse)) {
+      outDiffuse.xyz = M3Light.blendRGB(_light!.color, outDiffuse.rgb);
+      gl.uniform4fv(uniformDiffuse, outDiffuse.storage);
+    }
 
     // specular: RGB
-    Vector3 outSpecular = M3Light.blendRGB(mtr.specular, color.rgb);
-    outSpecular = M3Light.blendRGB(_light!.color, outSpecular);
+    if (M3Program.isLocationValid(uniformSpecular)) {
+      Vector3 outSpecular = M3Light.blendRGB(mtr.specular, color.rgb);
+      outSpecular = M3Light.blendRGB(_light!.color, outSpecular);
 
-    // Pass as vec4: RGB, w = Shininess
-    gl.uniform4f(uniformSpecular, outSpecular.x, outSpecular.y, outSpecular.z, mtr.shininess);
+      // Pass as vec4: RGB, w = Shininess
+      gl.uniform4f(uniformSpecular, outSpecular.x, outSpecular.y, outSpecular.z, mtr.shininess);
+    }
 
     // PBR
-    gl.uniform2f(uniformParamPBR, mtr.metallic, mtr.roughness);
+    if (M3Program.isLocationValid(uniformParamPBR)) {
+      gl.uniform2f(uniformParamPBR, mtr.metallic, mtr.roughness);
+    }
   }
 }

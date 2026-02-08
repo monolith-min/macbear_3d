@@ -1,5 +1,4 @@
 // Macbear3D engine
-import 'package:flutter/foundation.dart';
 import '../../macbear_3d.dart';
 
 import 'shadow_map.dart';

@@ -39,11 +39,15 @@ class M3Texture {
   }
 
   void setParameters() {
-    final int warpMode = isCubemap ? WebGL.CLAMP_TO_EDGE : WebGL.REPEAT;
+    // WebGL 1.0 (common on web) requires CLAMP_TO_EDGE for Non-Power-of-Two (NPOT) textures.
+    final int warpMode = (kIsWeb || isCubemap) ? WebGL.CLAMP_TO_EDGE : WebGL.REPEAT;
 
     bind();
     gl.texParameteri(target, WebGL.TEXTURE_WRAP_S, warpMode);
     gl.texParameteri(target, WebGL.TEXTURE_WRAP_T, warpMode);
+    if (isCubemap) {
+      gl.texParameteri(target, WebGL.TEXTURE_WRAP_R, warpMode);
+    }
 
     gl.texParameteri(target, WebGL.TEXTURE_MIN_FILTER, WebGL.LINEAR); // NEAREST, GL_LINEAR_MIPMAP_LINEAR
     gl.texParameteri(target, WebGL.TEXTURE_MAG_FILTER, WebGL.LINEAR); // NEAREST
@@ -170,7 +174,7 @@ class M3Texture {
     return tex;
   }
 
-  static M3Texture createSampleCubemap({int gridCount = 9}) {
+  static M3Texture createSampleCubemap({int gridCount = 8}) {
     M3Texture tex = M3Texture(isCubemap: true);
     tex.name = 'sample_cubemap';
 
