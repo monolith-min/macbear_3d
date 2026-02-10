@@ -10,14 +10,26 @@ class SkyboxScene_02 extends M3Scene {
 
     camera.setEuler(pi / 6, -pi / 6, 0, distance: 8);
 
-    // 01: ball geometry
-    final ball = addMesh(M3Mesh(M3Resources.unitSphere), Vector3.zero());
-    M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
-    ball.scale = Vector3.all(3);
-    ball.mesh!.mtr.texDiffuse = texGrid;
-    // ball.mesh!.mtr.reflection = 0.3;
-
-    // 02: sample cubemap
+    // 01: sample cubemap
     skybox = M3Skybox(M3Texture.createSampleCubemap());
+
+    M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
+    // 02: ball geometry
+    final ballMesh = M3Mesh(M3Resources.unitSphere);
+    ballMesh.mtr.texDiffuse = texGrid;
+    ballMesh.mtr.reflection = 0.3;
+    ballMesh.mtr.metallic = 0.8;
+    ballMesh.mtr.roughness = 0.2;
+    final ball = addMesh(ballMesh, Vector3.zero());
+    ball.scale = Vector3.all(3);
+
+    // 03: cube geometry
+    final meshCube = M3Mesh(M3Resources.unitCube);
+    meshCube.mtr.texDiffuse = texGrid;
+    meshCube.mtr.reflection = 0.3;
+    meshCube.mtr.metallic = 0.8;
+    meshCube.mtr.roughness = 0.2;
+    final cube = addMesh(meshCube, Vector3(5, 0, 0));
+    cube.scale = Vector3(2, 3, 4);
   }
 }

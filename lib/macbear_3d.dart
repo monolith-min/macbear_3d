@@ -1,3 +1,4 @@
+export 'src/engine/framebuffer.dart';
 export 'src/export.dart';
 
 export 'src/2d/shape_2d.dart';

@@ -6,6 +6,8 @@ const String TexturedLighting_frag = r"""
 
 #ifndef ENABLE_PIXEL_LIGHTING
 
+precision mediump float;
+
 uniform lowp vec3 ColorAmbient;		// ambient RGB 
 
 varying lowp vec4 SpecularOut;	// separate specular added

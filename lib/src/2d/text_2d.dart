@@ -12,11 +12,8 @@ class M3Text2D extends M3Sprite2D {
   M3Text2D(super.tex) : super(rowCount: 16, colCount: 6);
 
   static Future<M3Text2D> createText2D({double fontSize = 32}) async {
-    String fontFamily = 'Courier New';
-    // fontSize = 30;
-    // if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
-    //   fontFamily = 'Courier New'; // 'Consolas';
-    // }
+    // 'RobotoMono': 'assets/fonts/RobotoMono', 'Courier New': for windows
+    String fontFamily = 'RobotoMono';
     M3Texture tex = await M3TextTexture.createFromText(_ascii, fontSize: fontSize, fontFamily: fontFamily);
 
     M3Text2D text2D = M3Text2D(tex);

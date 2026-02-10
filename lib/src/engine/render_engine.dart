@@ -31,54 +31,6 @@ class M3RenderEngine {
     _shadowMap?.dispose();
   }
 
-  void getExtensions() {
-    // 取得 WebGL context
-    // final a = WebGLParameter(WebGL.RENDERER);
-    // final b = WebGLParameter(WebGL.VENDOR);
-    // final c = WebGLParameter(WebGL.VERSION);
-    // 取出基本資訊
-    // final renderer = gl.getParameter(WebGL.RENDERER);
-    // final vendor = gl.getParameter(WebGL.VENDOR);
-    // final version = gl.getParameter(WebGL.VERSION);
-    // final shadingLang = gl.getParameter(WebGL.SHADING_LANGUAGE_VERSION);
-    // print('GL_VENDOR: $vendor');
-    // print('GL_RENDERER: $renderer');
-    // print('GL_VERSION: $version');
-    // print('GL_SHADING_LANGUAGE_VERSION: $shadingLang');
-
-    List<int> paramKeys = [
-      WebGL.MAX_TEXTURE_IMAGE_UNITS,
-      WebGL.MAX_VERTEX_TEXTURE_IMAGE_UNITS,
-      WebGL.MAX_TEXTURE_SIZE,
-      WebGL.MAX_CUBE_MAP_TEXTURE_SIZE,
-      WebGL.MAX_VERTEX_ATTRIBS,
-      WebGL.MAX_VERTEX_UNIFORM_VECTORS,
-      WebGL.MAX_VARYING_VECTORS,
-      WebGL.MAX_FRAGMENT_UNIFORM_VECTORS,
-      WebGL.MAX_SAMPLES,
-      WebGL.MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-      WebGL.SCISSOR_BOX,
-      WebGL.VIEWPORT,
-      WebGL.MAX_TEXTURE_MAX_ANISOTROPY_EXT,
-      WebGL.MAX_UNIFORM_BUFFER_BINDINGS,
-    ];
-    for (final key in paramKeys) {
-      int val = gl.getParameter(key);
-      debugPrint("GL Int[$key] = $val");
-    }
-    /*
-    if (!kIsWeb) {
-      for (int i = 0; i < 150; i++) {
-        final s0 = gl.getStringi(WebGL.EXTENSIONS, i);
-        debugPrint("GL [$i] = $s0");
-        if (s0 == 'unnamed') {
-          break;
-        }
-      }
-    }
-    */
-  }
-
   void createShadowMap({int width = 1024, int height = 1024}) {
     if (kIsWeb) {
       // web not support shadow map

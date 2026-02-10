@@ -20,16 +20,6 @@ varying mediump vec3 TexCoordDirOut;
 uniform highp mat4 Model;
 uniform highp mat4 ModelviewProjection;
 
-#ifdef ENABLE_PBR
-uniform lowp vec4 ColorDiffuse;
-uniform mediump vec2 uParamPBR; // x: Metallic, y: Roughness
-
-// Schlick's approximation for Fresnel
-mediump float fresnelSchlick(mediump float cosTheta, mediump float F0) {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
-#endif // ENABLE_PBR
-
 void main(void)
 {
 	highp vec4 objVert = vec4(inVertex, 1.0);
@@ -51,18 +41,7 @@ void main(void)
 	TexCoordDirOut.y = reflectDir.z;
 	TexCoordDirOut.z = -reflectDir.y;
 
-#ifdef ENABLE_PBR
-    // Fresnel-based reflection intensity
-    mediump float cosTheta = max(dot(-eyeDir, objNormal), 0.0);
-    mediump float F0 = mix(0.04, 1.0, uParamPBR.x); // Metallic
-    mediump float F = fresnelSchlick(cosTheta, F0);
-    
-    // Metallic reflection is tinted by base color
-    mediump vec3 tint = mix(vec3(1.0), ColorDiffuse.rgb, uParamPBR.x); // Metallic
-    DestinationColor = vec4(uColor.rgb * tint * F, uColor.a);
-#else
-    DestinationColor = uColor;
-#endif // ENABLE_PBR
+	DestinationColor = uColor;
 
     gl_Position = ModelviewProjection * objVert;	// pre-compute Projection * Modelview
 }

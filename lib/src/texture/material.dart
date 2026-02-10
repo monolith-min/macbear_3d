@@ -11,7 +11,7 @@ class M3Material {
   double shininess = 16; // glossiness [0 ~ 128]
   double reflection = 0.0;
   double metallic = 0.0;
-  double roughness = 0.5;
+  double roughness = 0.8;
 
   // textures
   M3Texture texDiffuse = M3Resources.texWhite;

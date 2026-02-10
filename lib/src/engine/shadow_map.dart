@@ -1,6 +1,5 @@
 // Macbear3D engine
 import '../../macbear_3d.dart';
-import 'framebuffer.dart';
 
 /// Shadow map renderer for real-time shadows from directional lights.
 ///

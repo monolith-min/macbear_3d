@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 // Macbear3D engine
 import '../../macbear_3d.dart' hide Colors;
 import '../input/keyboard.dart';
+import '../util/platform/platform_info.dart';
 
 /// The main application engine singleton that manages the Flutter-ANGLE context.
 ///
@@ -74,8 +75,8 @@ class M3AppEngine {
     }
     initTick = DateTime.now().millisecondsSinceEpoch;
 
-    debugPrint("--- Macbear: $version ---");
-    debugPrint("--- initApp: ($width x $height)  dpr: $dpr ---");
+    debugPrint("<<< $version >>>");
+    debugPrint("--- ${PlatformInfo.getOS()}: initApp($width x $height)  dpr: $dpr ---");
 
     initKeyboard();
 
@@ -91,10 +92,12 @@ class M3AppEngine {
     appHeight = height;
     devicePixelRatio = dpr;
 
+    // check OpenGL extensions
+    PlatformInfo.checkGLExtensions();
+
     // init resources
     await M3Resources.init();
 
-    // await _onSize(width, height, dpr, isResize: false);
     renderEngine.setViewport(width, height, dpr);
 
     _didInit = true;

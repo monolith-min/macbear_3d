@@ -129,7 +129,6 @@ class M3Resources {
     programTexture?.dispose();
     programShadowmap?.dispose();
     programShadowCSM?.dispose();
-    programSkyboxReflect?.dispose();
 
     // texture lighting program
     String strVert = _SkinNormal_vert + TexturedLighting_vert;
@@ -150,13 +149,6 @@ class M3Resources {
       }
     }
     programTexture = M3ProgramLighting(strVert, strFrag);
-
-    // skybox reflect program
-    String strReflectVert = _SkinNormal_vert + SkyboxReflect_vert;
-    if (options.pbr) {
-      strReflectVert = "#define ENABLE_PBR \n$strReflectVert";
-    }
-    programSkyboxReflect = M3ProgramEye(strReflectVert, Skybox_frag);
 
     // shadow map program
     String vsShadow = "#define ENABLE_SHADOW_MAP \n$strVert";

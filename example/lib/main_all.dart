@@ -141,6 +141,8 @@ class _MainPageState extends State<MainPage> {
         children: [
           const M3View(),
           Positioned(top: 3, right: 3, child: getTimeScaleWidget()),
+          if (M3AppEngine.instance.activeScene != null)
+            M3AppEngine.instance.activeScene!.buildUI(context) ?? const SizedBox.shrink(),
         ],
       ),
     );

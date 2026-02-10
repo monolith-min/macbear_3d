@@ -21,3 +21,8 @@ flutter:
   assets:
     - assets/
     - assets/example/
+
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: assets/fonts/RobotoMono/RobotoMono-Regular.ttf

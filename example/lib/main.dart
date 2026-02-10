@@ -46,8 +46,6 @@ class MyScene extends M3Scene {
     addMesh(M3Mesh(M3TorusGeom(1, 0.2)), Vector3(0, 0, 0)).color = Colors.green;
     addMesh(M3Mesh(M3CylinderGeom(0.5, 0.1, 1.0)), Vector3(0, 0, 1.2)).color = Colors.yellow;
     addMesh(M3Mesh(M3PlaneGeom(10, 10)), Vector3(0, 0, -1)).color = Colors.skyBlue;
-
-    skybox = M3Skybox(M3Texture.createSampleCubemap());
   }
 
   @override

@@ -1,3 +1,9 @@
+#ifdef GL_EXT_shader_texture_lod
+#extension GL_EXT_shader_texture_lod : enable
+#endif
+
+precision mediump float;
+
 #define ENABLE_PIXEL_LIGHTING
 
 // color combined by light and material
@@ -59,7 +65,7 @@ mediump vec3 fresnelSchlick(mediump float cosTheta, mediump vec3 F0) {
 #endif // ENABLE_PBR
 
 #ifdef ENABLE_IBL
-uniform highp mat4 Model;
+uniform mediump mat4 Model;
 uniform samplerCube SamplerEnvironment;
 
 mediump vec3 ApplyIBL(mediump vec3 ambientDiffuse, mediump vec3 N, mediump vec3 V, mediump vec3 F) {
@@ -72,7 +78,17 @@ mediump vec3 ApplyIBL(mediump vec3 ambientDiffuse, mediump vec3 N, mediump vec3 
     sampleDir.y = reflectDir.z;
     sampleDir.z = -reflectDir.y;
     
-    mediump vec3 envColor = pow(textureCube(SamplerEnvironment, sampleDir).rgb, vec3(2.2));
+    // Roughness based Mip-mapping for Specular IBL
+#ifdef GL_EXT_shader_texture_lod
+    // Assuming 7-8 mip levels for typical cubemap
+    mediump float mipLevel = uParamPBR.y * 7.0; // Roughness
+    mediump vec3 envColor = textureCubeLodEXT(SamplerEnvironment, sampleDir, mipLevel).rgb;
+    envColor = pow(envColor, vec3(2.2));
+#else
+    mediump vec3 envColor = textureCube(SamplerEnvironment, sampleDir).rgb;
+    envColor *= (1.0 - uParamPBR.y); // Roughness
+    envColor = pow(envColor, vec3(2.2));
+#endif
     
     // PBR weighting for ambient:
     // kS (specular) is the Fresnel F
@@ -81,7 +97,7 @@ mediump vec3 ApplyIBL(mediump vec3 ambientDiffuse, mediump vec3 N, mediump vec3 
     mediump vec3 kD = (vec3(1.0) - kS) * (1.0 - uParamPBR.x); // Metallic
     
     // IBL Specular reflection: attenuated by roughness
-    mediump vec3 iblSpecular = envColor * kS * (1.0 - uParamPBR.y); // Roughness
+    mediump vec3 iblSpecular = envColor * kS;
     
     return kD * ambientDiffuse + iblSpecular;
 }
