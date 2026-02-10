@@ -138,7 +138,7 @@ output to uml/macbear_3d.puml
 - [ ] Advanced Particle System
 - [x] Resource Management System
 - [x] Text Rendering
-- [ ] GUI System
+- [x] GUI System (Use Flutter Widgets)
 - [x] WebGL support optimization (Text rendering alignment)
 
 ## Contributing

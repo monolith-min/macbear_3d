@@ -6,6 +6,8 @@
   * **IBL (Image-Based Lighting)**: Environment-based realistic lighting using cubemaps.
   * **Shader Refactoring**: Modular shader architecture with unified pixel shader (`Pixel.es2.frag`).
   * **Web Support**: Fixed text rendering alignment and platform-specific WebGL constraints.
+  * **Platform Abstraction**: Separated logic for Native and Web (`PlatformInfo`).
+  * **GUI System**: Adopted Flutter Widgets for UI.
 
 ## 0.5.0
 
