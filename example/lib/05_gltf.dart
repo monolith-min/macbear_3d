@@ -20,11 +20,7 @@ class GlftScene_05 extends M3Scene {
     M3Texture texWood = await M3Texture.createWoodTexture();
 
     // plane geometry
-    M3Texture texGround = M3Texture.createCheckerboard(
-      size: 2,
-      lightColor: Vector4(.7, 1, .5, 1),
-      darkColor: Vector4(.5, 0.8, .3, 1),
-    );
+
     final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(1.0))), Vector3(0, 0, 0));
     plane.mesh!.mtr.texDiffuse = texWood;
 

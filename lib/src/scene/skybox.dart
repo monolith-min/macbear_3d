@@ -44,7 +44,7 @@ class M3Skybox {
     Matrix4 boxMatrix = Matrix4.identity();
     // rotate axisX 90 degree: up from axisY to axisZ
     boxMatrix.setRotation(M3Constants.rotXNeg90);
-    boxMatrix.scale(Vector3.all(-scale));
+    boxMatrix.scaleByVector3(Vector3.all(-scale));
     boxMatrix.setTranslation(camEye.position);
 
     prog.setMatrices(camEye, boxMatrix);

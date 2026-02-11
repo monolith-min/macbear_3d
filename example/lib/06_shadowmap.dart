@@ -62,7 +62,7 @@ class ShadowmapScene_06 extends M3Scene {
       meshSphere.mtr.specular = Vector3.all(0.6);
       meshSphere.mtr.shininess = i * 20 + 8;
       meshSphere.mtr.metallic = i * 0.1;
-      final sphere = addMesh(meshSphere, Vector3(posX, 0, 2));
+      addMesh(meshSphere, Vector3(posX, 0, 2));
 
       // 06-3: cylinder geometry
       final meshCylinder = M3Mesh(geomCylinder);
