@@ -96,8 +96,8 @@ class MyScene extends M3Scene {
 - [ ] 水面效果 (反射、折射)
 - [ ] 後處理特效 (Bloom, HDR)
 - [ ] 進階粒子系統
-- [ ] GUI 系統
-- [x] WebGL 支援優化 (文字對齊修正)
+- [x] GUI 系統 (使用 Flutter Widget)
+- [-] WebGL 支援優化 (文字對齊修正)
 
 ## 參與貢獻
 

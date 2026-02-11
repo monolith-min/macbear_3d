@@ -226,7 +226,7 @@ class _MainPageState extends State<MainPage> {
           },
           child: const Icon(Icons.blur_on_rounded),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
         FloatingActionButton(
           heroTag: 'per_pixel',
           backgroundColor: shaderOptions.perPixel ? Colors.lightGreen : null,
@@ -312,16 +312,6 @@ class _MainPageState extends State<MainPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          FloatingActionButton(
-            heroTag: 'scene_00',
-            backgroundColor: _selectedSceneIndex == 0 ? Colors.lightGreen : null,
-            onPressed: () {
-              _selectedSceneIndex = 0;
-              _loadScene(StarterScene_00());
-            },
-            child: const Icon(Icons.star),
-          ),
-          const SizedBox(width: 6),
           FloatingActionButton(
             heroTag: 'scene_01',
             backgroundColor: _selectedSceneIndex == 1 ? Colors.lightGreen : null,
@@ -420,16 +410,6 @@ class _MainPageState extends State<MainPage> {
               _loadScene(TerrainScene_10());
             },
             child: const Icon(Icons.terrain),
-          ),
-          const SizedBox(width: 6),
-          FloatingActionButton(
-            heroTag: 'sample',
-            backgroundColor: _selectedSceneIndex == 100 ? Colors.lightGreen : null,
-            onPressed: () {
-              _selectedSceneIndex = 100;
-              _loadScene(SampleScene());
-            },
-            child: const Icon(Icons.desktop_mac_sharp),
           ),
         ],
       ),

@@ -13,10 +13,10 @@ class TerrainScene_10 extends M3Scene {
 
     // 3. Create Terrain Geometry
     final terrainGeom = M3TerrainGeom(
-      40.0,
-      40.0,
-      widthSegments: 100,
-      heightSegments: 100,
+      100.0,
+      100.0,
+      widthSegments: 200,
+      heightSegments: 200,
       maxHeight: 8.0,
       noiseScale: 0.08,
     );
@@ -27,7 +27,8 @@ class TerrainScene_10 extends M3Scene {
     terrainMtr.specular = Vector3(0.1, 0.1, 0.1);
     terrainMtr.shininess = 10.0;
     terrainMtr.metallic = 0.0;
-    terrainMtr.roughness = 0.8;
+    terrainMtr.roughness = 0.1;
+    terrainMtr.reflection = 0.0;
 
     // 5. Add Terrain Entity
     final terrainMesh = M3Mesh(terrainGeom, material: terrainMtr);

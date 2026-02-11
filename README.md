@@ -10,7 +10,7 @@
 
 <p align="center">
   <img width="400" src="img/scene08.png" />
-  <img width="400" src="img/scene05_gltf.gif" />
+  <img width="480" src="img/scene_all.gif" />
 </p>
 
 ## Key Features
@@ -33,7 +33,7 @@
 - **Touch Input**: Built-in interaction handling for 3D objects and orbit control.
 
 <p align="center">
-  <img width="400" src="img/scene02.png" />
+  <img width="400" src="img/scene09.png" />
   <img width="400" src="img/scene04.png" />
 </p>
 
@@ -139,7 +139,7 @@ output to uml/macbear_3d.puml
 - [x] Resource Management System
 - [x] Text Rendering
 - [x] GUI System (Use Flutter Widgets)
-- [x] WebGL support optimization (Text rendering alignment)
+- [-] WebGL support optimization (Text rendering alignment)
 
 ## Contributing
 

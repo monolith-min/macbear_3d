@@ -25,11 +25,13 @@ class SkyboxScene_02 extends M3Scene {
 
     // 03: cube geometry
     final meshCube = M3Mesh(M3Resources.unitCube);
-    meshCube.mtr.texDiffuse = texGrid;
-    meshCube.mtr.reflection = 0.3;
-    meshCube.mtr.metallic = 0.8;
-    meshCube.mtr.roughness = 0.2;
-    final cube = addMesh(meshCube, Vector3(5, 0, 0));
-    cube.scale = Vector3(2, 3, 4);
+    meshCube.mtr.reflection = 0.0;
+    meshCube.mtr.metallic = 0.0;
+    meshCube.mtr.roughness = 1.0;
+    final cube = addMesh(meshCube, Vector3(5, 6, 3));
+    cube
+      ..scale = Vector3(2, 3, 4)
+      ..rotation.setEuler(0, pi / 3, 0)
+      ..color = Vector4(1.0, 0, 1.0, 1.0);
   }
 }
