@@ -32,10 +32,6 @@ class M3RenderEngine {
   }
 
   void createShadowMap({int width = 1024, int height = 1024}) {
-    if (kIsWeb) {
-      // web not support shadow map
-      return;
-    }
     _shadowMap ??= M3ShadowMap(width, height);
   }
 
@@ -43,7 +39,7 @@ class M3RenderEngine {
     final engine = M3AppEngine.instance;
     final pixelW = (engine.appWidth * engine.devicePixelRatio).toInt();
     final pixelH = (engine.appHeight * engine.devicePixelRatio).toInt();
-    gl.bindFramebuffer(WebGL.FRAMEBUFFER, engine.mainFbo);
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, M3AppEngine.mainFbo);
     gl.viewport(0, 0, pixelW, pixelH);
   }
 

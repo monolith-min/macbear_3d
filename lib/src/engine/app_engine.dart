@@ -15,10 +15,10 @@ import '../util/platform/platform_info.dart';
 class M3AppEngine {
   static final M3AppEngine instance = M3AppEngine._internal();
 
-  String version = "macbear3d-lib v0.6.0 powered by ANGLE";
+  String version = "macbear3d-lib v0.6.1 powered by ANGLE";
   final FlutterAngle _angle = FlutterAngle();
   late FlutterAngleTexture _sourceTexture; // main framebuffer
-  Framebuffer get mainFbo => Framebuffer(_sourceTexture.fboId);
+  static Framebuffer get mainFbo => Framebuffer(kIsWeb ? null : instance._sourceTexture.fboId);
   static Vector3 backgroundColor = Vector3.zero();
 
   // did init engine completed

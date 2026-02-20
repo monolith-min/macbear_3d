@@ -65,9 +65,9 @@ class M3Texture {
     gl.bindTexture(target, _texture);
   }
 
-  static final WebGLTexture _textureNone = WebGLTexture(0);
+  static final WebGLTexture _textureNone = WebGLTexture(kIsWeb ? null : 0);
   void unbind() {
-    gl.bindTexture(target, _textureNone);
+    gl.bindTexture(target, _textureNone); // seems not necessary
   }
 
   M3Texture.fromWebGLTexture(this._texture, {this.texW = 1024, this.texH = 1024, this.generateMipmaps = false})
