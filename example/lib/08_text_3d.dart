@@ -18,10 +18,11 @@ class Text3DScene_08 extends M3Scene {
     // https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/OTF/NotoSansCJKtc-VF.otf
     // final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/OTF/NotoSansCJKtc-VF.otf';
     final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/TTF/NotoSansCJKtc-VF.ttf';
+    final localPath = 'fonts/RobotoMono/RobotoMono-Regular.ttf';
     // final fontPath = 'assets/NotoSansMonoCJKtc-VF.ttf';
     M3ResourceManager resManager = M3AppEngine.instance.resourceManager;
-    final font = await resManager.loadFont(fontPath);
-    final text = "麥克熊";
+    final font = await resManager.loadFont(kIsWeb ? localPath : fontPath);
+    final text = kIsWeb ? "OpenGLES" : "麥克熊";
     // Create Text Geometry
     final textGeom = M3TextGeom(text, font, size: 1.5, depth: 0.3, curveSubdivisions: 3, creaseAngle: 40);
     final textGeom2 = M3TextGeom('Macbear 3D', font, size: 2, depth: 0.6, curveSubdivisions: 3, creaseAngle: 40);

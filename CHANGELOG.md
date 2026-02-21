@@ -1,3 +1,8 @@
+## 0.6.1
+
+* Add:
+  * **Support Web build**: Optimized for WebGL and Flutter Web integration.
+
 ## 0.6.0
 
 * Add:

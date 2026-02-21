@@ -4,7 +4,7 @@
 
 [![pub package](https://img.shields.io/pub/v/macbear_3d.svg)](https://pub.dev/packages/macbear_3d)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android%20%7C%20macos%20%7C%20windows-blue)
+![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android%20%7C%20macos%20%7C%20windows%20%7C%20web-blue)
 
 **Macbear 3D** 是一個專為 Flutter 打造的輕量級、高性能 3D 渲染引擎，由 **Google ANGLE (OpenGL ES)** 驅動。它提供簡單且強大的 API，讓開發者能夠輕鬆創建驚艷的 3D 體驗、遊戲與視覺化應用。
 
@@ -39,7 +39,7 @@
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.6.0
+  macbear_3d: ^0.6.1
 ```
 
 ## 快速上手
@@ -97,7 +97,7 @@ class MyScene extends M3Scene {
 - [ ] 後處理特效 (Bloom, HDR)
 - [ ] 進階粒子系統
 - [x] GUI 系統 (使用 Flutter Widget)
-- [-] WebGL 支援優化 (文字對齊修正)
+- [x] WebGL/Web 支援優化 (文字對齊修正、平台抽象化)
 
 ## 參與貢獻
 

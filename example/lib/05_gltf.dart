@@ -17,12 +17,15 @@ class GlftScene_05 extends M3Scene {
     camera.setLookat(Vector3(10, 0, 0), Vector3(0, 0, 1), Vector3(0, 0, 1));
     camera.setEuler(pi / 6, -pi / 6, 0, distance: 10);
 
-    M3Texture texWood = await M3Texture.createWoodTexture();
-
+    M3Texture texGround = M3Texture.createCheckerboard(
+      size: 10,
+      lightColor: Vector4(.7, 1, .5, 1),
+      darkColor: Vector4(.5, 0.8, .3, 1),
+    );
     // plane geometry
 
-    final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(1.0))), Vector3(0, 0, 0));
-    plane.mesh!.mtr.texDiffuse = texWood;
+    final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(8.0))), Vector3(0, 0, 0));
+    plane.mesh!.mtr.texDiffuse = texGround;
 
     // 05-1: GLTF model - using M3Mesh.load()
     final meshGltf = await M3Mesh.load('example/CesiumMan.glb');

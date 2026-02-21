@@ -41,8 +41,7 @@ class M3Texture {
   }
 
   void setParameters() {
-    // WebGL 1.0 (common on web) requires CLAMP_TO_EDGE for Non-Power-of-Two (NPOT) textures.
-    final int warpMode = (kIsWeb || isCubemap) ? WebGL.CLAMP_TO_EDGE : WebGL.REPEAT;
+    final int warpMode = isCubemap ? WebGL.CLAMP_TO_EDGE : WebGL.REPEAT;
 
     bind();
     gl.texParameteri(target, WebGL.TEXTURE_WRAP_S, warpMode);
