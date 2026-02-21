@@ -21,9 +21,11 @@ class StarterScene_00 extends M3Scene {
 
     Matrix4 mat2D = Matrix4.identity();
 
-    M3Shape2D.drawImage(_logo!, mat2D, color: Vector4(1, 1, 1, 1));
+    if (!kIsWeb) {
+      M3Shape2D.drawImage(_logo!, mat2D, color: Vector4(1, 1, 1, 1));
+      mat2D.setTranslation(Vector3(_logo!.texW + 6, 0, 0));
+    }
 
-    mat2D.setTranslation(Vector3(_logo!.texW + 6, 0, 0));
     M3Resources.text2D.drawText('Welcome to Macbear 3D.', mat2D, color: Vector4(0.5, 1, 0.6, 1));
 
     final info = '''

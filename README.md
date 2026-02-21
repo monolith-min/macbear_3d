@@ -13,6 +13,9 @@
   <img width="480" src="img/scene_all.gif" />
 </p>
 
+### 🌐 [Live Web Demo](https://macbearchen.github.io/macbear_3d/)
+Preview the `main_all.dart` example live in your browser!
+
 ## Key Features
 
 ### 🚀 Core Engine

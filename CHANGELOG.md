@@ -2,6 +2,7 @@
 
 * Add:
   * **Support Web build**: Optimized for WebGL and Flutter Web integration.
+  * **Live Demo**: Created automatic deployment to [GitHub Pages](https://macbearchen.github.io/macbear_3d/).
 
 ## 0.6.0
 
