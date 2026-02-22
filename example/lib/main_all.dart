@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:macbear_3d/macbear_3d.dart' hide Colors;
 export 'package:macbear_3d/macbear_3d.dart';
 
-import '00_starter.dart';
 import '01_cube.dart';
 import '02_skybox.dart';
 import '03_primitives.dart';
@@ -20,6 +19,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   M3AppEngine.instance.onDidInit = onDidInit;
+  M3AppEngine.backgroundColor = Vector3(0.1, 0.2, 0.6);
+
   final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
   shaderOptions.pcf = true;
   shaderOptions.perPixel = false;
@@ -31,7 +32,7 @@ Future<void> onDidInit() async {
   final renderEngine = M3AppEngine.instance.renderEngine;
   renderEngine.createShadowMap(width: 2048, height: 4096);
 
-  final initScene = StarterScene_00();
+  final initScene = CubeScene_01();
   await M3AppEngine.instance.setScene(initScene);
 }
 
@@ -56,11 +57,24 @@ class _MainPageState extends State<MainPage> {
   // 1 - shadowmap
   // 2 - csm
   int shadowMode = 2;
-  int _selectedSceneIndex = 0; // 00 starter, 01-08 scenes, 9 sample
+  int _selectedSceneIndex = 1; // 00 starter, 01-08 scenes, 9 sample
 
   @override
   void initState() {
     super.initState();
+    M3AppEngine.instance.addListener(_onEngineChanged);
+  }
+
+  @override
+  void dispose() {
+    M3AppEngine.instance.removeListener(_onEngineChanged);
+    super.dispose();
+  }
+
+  void _onEngineChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadScene(M3Scene scene) async {

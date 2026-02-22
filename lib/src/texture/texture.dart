@@ -66,6 +66,8 @@ class M3Texture {
 
   static final WebGLTexture _textureNone = WebGLTexture(kIsWeb ? null : 0);
   void unbind() {
+    return;
+    // ignore: dead_code
     gl.bindTexture(target, _textureNone); // seems not necessary
   }
 

@@ -12,7 +12,7 @@ import '../util/platform/platform_info.dart';
 /// The main application engine singleton that manages the Flutter-ANGLE context.
 ///
 /// Provides initialization, update loop, rendering, input handling, and scene management.
-class M3AppEngine {
+class M3AppEngine with ChangeNotifier {
   static final M3AppEngine instance = M3AppEngine._internal();
 
   String version = "macbear3d-lib v0.6.1 powered by ANGLE";
@@ -104,6 +104,7 @@ class M3AppEngine {
     if (onDidInit != null) {
       await onDidInit!();
     }
+    notifyListeners();
     debugPrint("*** initApp done ***");
   }
 
@@ -130,6 +131,7 @@ class M3AppEngine {
   }
 
   // dispose app
+  @override
   void dispose() {
     // for keyboard
     keyboard.stop();
@@ -144,6 +146,8 @@ class M3AppEngine {
     // for angle
     _angle.deleteTexture(_sourceTexture);
     _angle.dispose([_sourceTexture]);
+
+    super.dispose();
   }
 
   Future<void> setScene(M3Scene scene) async {
@@ -166,6 +170,7 @@ class M3AppEngine {
     activeScene = scene;
     renderEngine.setViewport(appWidth, appHeight, devicePixelRatio);
 
+    notifyListeners();
     resume(); // app ticker resume
   }
 

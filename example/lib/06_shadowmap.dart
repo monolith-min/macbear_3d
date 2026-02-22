@@ -60,8 +60,7 @@ class ShadowmapScene_06 extends M3Scene {
       meshSphere.mtr.texDiffuse = texGrid2;
       meshSphere.mtr.diffuse = Vector4(1, 0.3, 0, 1);
       meshSphere.mtr.specular = Vector3.all(0.6);
-      meshSphere.mtr.shininess = i * 20 + 8;
-      meshSphere.mtr.metallic = i * 0.1;
+      meshSphere.mtr.shininess = i * 10 + 8;
       addMesh(meshSphere, Vector3(posX, 0, 2));
 
       // 06-3: cylinder geometry
@@ -69,6 +68,7 @@ class ShadowmapScene_06 extends M3Scene {
       meshCylinder.mtr.texDiffuse = texGrid;
       meshCylinder.mtr.reflection = i * 0.1;
       meshCylinder.mtr.metallic = i * 0.1;
+      meshCylinder.mtr.roughness = 1.0 - i * 0.1;
       final cylinder = addMesh(meshCylinder, Vector3(posX, 5, 3))..color = Vector4(1, 1, 0, 1);
       cylinder.rotation.setEuler(rot, 0, 0);
 

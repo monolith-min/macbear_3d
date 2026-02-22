@@ -1,4 +1,5 @@
 // ignore_for_file: file_names
+import 'package:flutter/material.dart' as fm;
 import 'main_all.dart';
 
 // ignore: camel_case_types
@@ -15,5 +16,41 @@ class CubeScene_01 extends M3Scene {
 
     final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(5.0))), Vector3(0, 0, -1));
     plane.color = Vector4(0.1, 1.0, 0.3, 1.0);
+  }
+
+  @override
+  fm.Widget buildUI(fm.BuildContext context) {
+    const String info = '''
+麥克熊 3D: Welcome to Macbear 3D.
+Click buttons to test examples.
+  1. Cube scene
+  2. Skybox scene
+  3. Primitives scene
+  4. Obj teapot scene
+  5. GLTF scene
+  6. Shadow for large scene
+  7. Physics scene
+  8. Text 3D scene
+  9. PBR Test scene
+''';
+    return fm.Positioned(
+      top: 10,
+      left: 10,
+      child: fm.Container(
+        padding: const fm.EdgeInsets.all(12),
+        decoration: fm.BoxDecoration(color: fm.Colors.black54, borderRadius: fm.BorderRadius.circular(12)),
+        child: fm.Column(
+          mainAxisSize: fm.MainAxisSize.min,
+          crossAxisAlignment: fm.CrossAxisAlignment.start,
+          children: [
+            const fm.Text(
+              info,
+              style: fm.TextStyle(color: fm.Colors.white, fontWeight: fm.FontWeight.bold),
+            ),
+            const fm.SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 }
