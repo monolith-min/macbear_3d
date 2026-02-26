@@ -41,7 +41,10 @@ $escaped
   }
 
   String _makeConstName(String path) {
-    return path.split('/').last.replaceFirst('.es2', '').replaceAll('.', '_').replaceAll('-', '_');
+    String retPath = path.split('/').last.replaceFirst('.es2', '');
+    retPath = retPath.replaceFirst('.es3', '');
+    retPath = retPath.replaceAll('.', '_').replaceAll('-', '_');
+    return retPath;
   }
 }
 

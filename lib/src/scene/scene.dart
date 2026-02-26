@@ -95,6 +95,8 @@ abstract class M3Scene {
     }
   }
 
+  void applyReflectionCubemap(M3Texture cubemap) {}
+
   // render solid models
   void render(M3Program prog, M3Camera camera, {bool bSolid = true}) {
     // pre-draw
@@ -144,6 +146,9 @@ abstract class M3Scene {
   }
 
   void renderReflection() {
+    if (M3Resources.programSkyboxReflect == null) {
+      return;
+    }
     M3ProgramEye prog = M3Resources.programSkyboxReflect!;
     gl.depthFunc(WebGL.EQUAL); // Match exactly from 1st pass
     gl.depthMask(false); // Don't write to depth buffer in additive pass
@@ -247,76 +252,4 @@ abstract class M3Scene {
 
   /// Build scene-specific UI controls.
   Widget? buildUI(BuildContext context) => null;
-
-  /// Capture a cubemap texture from a specific position in the scene.
-  Future<M3Texture> captureCubemap(Vector3 position, {int size = 512, bool bSolid = true}) async {
-    final renderEngine = M3AppEngine.instance.renderEngine;
-    final gl = renderEngine.gl;
-
-    // Create a temporary framebuffer and empty cubemap
-    final fbo = M3Framebuffer(size, size, useDepthTexture: false);
-    final texCubemap = M3Texture.createEmptyCubemap(size);
-
-    // Save previous state
-    final prevFbo = gl.getParameter(WebGL.FRAMEBUFFER_BINDING) as Framebuffer?;
-    final prevViewport = gl.getParameter(WebGL.VIEWPORT) as Int32List;
-
-    // Temporary camera with 90 degree FOV
-    final camCapture = M3Camera();
-    camCapture.setViewport(0, 0, size, size, fovy: 90.0, near: 0.1, far: 1000.0);
-
-    final targets = [
-      Vector3(1, 0, 0),
-      Vector3(-1, 0, 0),
-      Vector3(0, 1, 0),
-      Vector3(0, -1, 0),
-      Vector3(0, 0, 1),
-      Vector3(0, 0, -1),
-    ];
-    final ups = [
-      Vector3(0, -1, 0),
-      Vector3(0, -1, 0),
-      Vector3(0, 0, 1),
-      Vector3(0, 0, -1),
-      Vector3(0, -1, 0),
-      Vector3(0, -1, 0),
-    ];
-    final faces = [
-      WebGL.TEXTURE_CUBE_MAP_POSITIVE_X,
-      WebGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
-      WebGL.TEXTURE_CUBE_MAP_POSITIVE_Y,
-      WebGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-      WebGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
-      WebGL.TEXTURE_CUBE_MAP_NEGATIVE_Z,
-    ];
-
-    final prog = M3Resources.programTexture!;
-
-    for (int i = 0; i < 6; i++) {
-      // Bind face
-      fbo.bindFace(faces[i], texCubemap.glTexture);
-
-      // Clear
-      gl.clearColor(0, 0, 0, 1);
-      gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
-
-      // Setup camera
-      camCapture.setLookat(position, position + targets[i], ups[i]);
-
-      // Render skybox
-      if (skybox != null) {
-        skybox!.drawSkybox(camCapture);
-      }
-
-      // Render scene
-      render(prog, camCapture, bSolid: bSolid);
-    }
-
-    // Restore state
-    gl.bindFramebuffer(WebGL.FRAMEBUFFER, prevFbo);
-    gl.viewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
-
-    fbo.dispose();
-    return texCubemap;
-  }
 }

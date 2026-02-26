@@ -1,19 +1,19 @@
 // Macbear3D engine
 import '../../macbear_3d.dart';
 
-import '../shaders_gen/Rect.es2.frag.g.dart';
-import '../shaders_gen/Rect.es2.vert.g.dart';
-import '../shaders_gen/Simple.es2.frag.g.dart';
-import '../shaders_gen/Simple.es2.vert.g.dart';
-import '../shaders_gen/SimpleLighting.es2.vert.g.dart';
-import '../shaders_gen/Skybox.es2.frag.g.dart';
-import '../shaders_gen/Skybox.es2.vert.g.dart';
-import '../shaders_gen/SkyboxReflect.es2.vert.g.dart';
-import '../shaders_gen/TexturedLighting.es2.frag.g.dart';
-import '../shaders_gen/TexturedLighting.es2.vert.g.dart';
+import '../shaders_gen/Rect.es3.frag.g.dart';
+import '../shaders_gen/Rect.es3.vert.g.dart';
+import '../shaders_gen/Simple.es3.frag.g.dart';
+import '../shaders_gen/Simple.es3.vert.g.dart';
+import '../shaders_gen/SimpleLighting.es3.vert.g.dart';
+import '../shaders_gen/Skybox.es3.frag.g.dart';
+import '../shaders_gen/Skybox.es3.vert.g.dart';
+import '../shaders_gen/SkyboxReflect.es3.vert.g.dart';
+import '../shaders_gen/TexturedLighting.es3.frag.g.dart';
+import '../shaders_gen/TexturedLighting.es3.vert.g.dart';
 // GLSL functions
-import '../shaders_gen/glsl/Pixel.es2.frag.g.dart';
-import '../shaders_gen/glsl/Skinning.es2.vert.g.dart';
+import '../shaders_gen/glsl/Pixel.es3.frag.g.dart';
+import '../shaders_gen/glsl/Skinning.es3.vert.g.dart';
 
 class M3Resources {
   // ------------------------------
@@ -116,7 +116,6 @@ class M3Resources {
     programSimple = M3Program(Skinning_vert + Simple_vert, Simple_frag);
     programSkybox = M3Program(Skybox_vert, Skybox_frag);
     programRectangle = M3Program(Rect_vert, Rect_frag);
-
     programSkyboxReflect = M3ProgramEye(_SkinNormal_vert + SkyboxReflect_vert, Skybox_frag);
     programSimpleLighting = M3ProgramLighting(_SkinNormal_vert + SimpleLighting_vert, Simple_frag);
 
@@ -136,16 +135,23 @@ class M3Resources {
 
     // pixel lighting: phong shading, cartoon, PBR
     if (options.perPixel) {
-      strVert = "#define ENABLE_PIXEL_LIGHTING \n$strVert";
-      strFrag = Pixel_frag + strFrag;
       if (options.pbr) {
-        strVert = "#define ENABLE_PBR \n$strVert";
-        strFrag = "#define ENABLE_PBR \n$strFrag";
+        // ES3 PBR: Use modern ES3 shaders
+        strVert = Skinning_vert + TexturedLighting_vert;
+        strFrag = Pixel_frag + TexturedLighting_frag;
+
+        strVert = "#define ENABLE_PIXEL_LIGHTING \n#define ENABLE_PBR \n#define ENABLE_NORMAL \n$strVert";
+        strFrag = "#define ENABLE_PIXEL_LIGHTING \n#define ENABLE_PBR \n$strFrag";
         if (options.ibl) {
           strFrag = "#define ENABLE_IBL \n$strFrag";
         }
-      } else if (options.cartoon) {
-        strFrag = "#define ENABLE_CARTOON \n$strFrag";
+      } else {
+        // ES2 Lighting
+        strVert = "#define ENABLE_PIXEL_LIGHTING \n$strVert";
+        strFrag = Pixel_frag + strFrag;
+        if (options.cartoon) {
+          strFrag = "#define ENABLE_CARTOON \n$strFrag";
+        }
       }
     }
     programTexture = M3ProgramLighting(strVert, strFrag);

@@ -7,7 +7,6 @@ import 'package:flutter/scheduler.dart';
 // Macbear3D engine
 import '../../macbear_3d.dart' hide Colors;
 import '../input/keyboard.dart';
-import '../util/platform/platform_info.dart';
 
 /// The main application engine singleton that manages the Flutter-ANGLE context.
 ///
@@ -93,7 +92,7 @@ class M3AppEngine with ChangeNotifier {
     devicePixelRatio = dpr;
 
     // check OpenGL extensions
-    PlatformInfo.checkGLExtensions();
+    // PlatformInfo.checkGLExtensions();
 
     // init resources
     await M3Resources.init();

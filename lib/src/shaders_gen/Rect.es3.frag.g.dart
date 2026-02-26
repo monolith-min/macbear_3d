@@ -1,0 +1,18 @@
+// Generated file – do not edit.
+// ignore: constant_identifier_names
+const String Rect_frag = r"""
+#version 300 es
+// Rect frag-shader ES3 //////////
+precision mediump float;
+in mediump vec2 TextureCoordOut;
+in lowp vec4 DestinationColor;
+
+uniform sampler2D SamplerDiffuse;	// GL_TEXTURE0
+out vec4 fragColor;
+
+void main(void)
+{
+    fragColor = texture(SamplerDiffuse, TextureCoordOut) * DestinationColor;
+}
+
+""";

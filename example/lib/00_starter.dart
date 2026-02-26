@@ -12,7 +12,9 @@ class StarterScene_00 extends M3Scene {
 
     M3AppEngine.backgroundColor = Vector3(0.1, 0.3, 0.15);
 
-    _logo = await M3TextTexture.createFromText('麥克熊 3D');
+    String strLogo = kIsWeb ? 'Macbear 3D' : '麥克熊 3D';
+    strLogo = 'Welcome to $strLogo';
+    _logo = await M3TextTexture.createFromText(strLogo);
   }
 
   @override
@@ -21,12 +23,8 @@ class StarterScene_00 extends M3Scene {
 
     Matrix4 mat2D = Matrix4.identity();
 
-    if (!kIsWeb) {
-      M3Shape2D.drawImage(_logo!, mat2D, color: Vector4(1, 1, 1, 1));
-      mat2D.setTranslation(Vector3(_logo!.texW + 6, 0, 0));
-    }
-
-    M3Resources.text2D.drawText('Welcome to Macbear 3D.', mat2D, color: Vector4(0.5, 1, 0.6, 1));
+    M3Shape2D.drawImage(_logo!, mat2D, color: Vector4(1, 1, 1, 1));
+    mat2D.setTranslation(Vector3(_logo!.texW + 6, 0, 0));
 
     final info = '''
 Click buttons to test examples.
@@ -41,7 +39,7 @@ Click buttons to test examples.
   9. PBR Test scene
 ''';
 
-    mat2D.setTranslation(Vector3(20, 80, 0));
+    mat2D.setTranslation(Vector3(12, 60, 0));
     mat2D.scaleByVector3(Vector3.all(0.7));
     M3Resources.text2D.drawText(info, mat2D);
   }

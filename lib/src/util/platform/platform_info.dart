@@ -6,9 +6,43 @@ import 'platform_info_native.dart'
 // Macbear3D engine
 import '../../../macbear_3d.dart';
 
+class GraphicsInfo {
+  final String vendor;
+  final String renderer;
+  final String version;
+  final String shadingVersion;
+
+  const GraphicsInfo({
+    required this.vendor,
+    required this.renderer,
+    required this.version,
+    required this.shadingVersion,
+  });
+
+  @override
+  String toString() {
+    return '''
+==============================
+[ Graphics Information ]
+------------------------------
+Vendor: $vendor
+Renderer: $renderer
+Version: $version
+Shading version: $shadingVersion
+==============================''';
+  }
+}
+
 class PlatformInfo {
   static String getOS() {
     return getPlatformName();
+  }
+
+  // GPU info: Vendor, Renderer, GLSL version
+  static GraphicsInfo getGraphicsInfo() {
+    final info = getGpuInfo();
+    debugPrint('$info');
+    return info;
   }
 
   static const Map<int, String> _glParamNames = {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:macbear_3d/macbear_3d.dart' hide Colors;
 export 'package:macbear_3d/macbear_3d.dart';
 
+import '00_starter.dart';
 import '01_cube.dart';
 import '02_skybox.dart';
 import '03_primitives.dart';
@@ -29,9 +30,12 @@ Future<void> main() async {
 
 Future<void> onDidInit() async {
   debugPrint('main_all.dart: onDidInit');
+
   final renderEngine = M3AppEngine.instance.renderEngine;
   renderEngine.createShadowMap(width: 2048, height: 4096);
 
+  // ignore: unused_local_variable
+  final scene00 = StarterScene_00();
   final initScene = CubeScene_01();
   await M3AppEngine.instance.setScene(initScene);
 }

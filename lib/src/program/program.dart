@@ -52,51 +52,75 @@ class M3Program {
 
   /// Compiles and links a shader program from vertex and fragment sources.
   M3Program(String strVert, String strFrag) {
+    // Ensure #version directive is at the very beginning if present
+    strVert = _ensureVersionAtStart(strVert);
+    strFrag = _ensureVersionAtStart(strFrag);
+
+    final bool isES3 = strVert.startsWith("#version 300 es") || strFrag.startsWith("#version 300 es");
+
     // vertrx shader
     _shaderVert = gl.createShader(WebGL.VERTEX_SHADER);
     gl.shaderSource(_shaderVert, strVert);
     gl.compileShader(_shaderVert);
+
+    // check shader compile status
+    if (gl.getShaderParameter(_shaderVert, WebGL.COMPILE_STATUS) == false) {
+      final log = gl.getShaderInfoLog(_shaderVert);
+      debugPrint("--- VERTEX SHADER COMPILE ERROR ---\n$log\n--- SOURCE ---\n$strVert");
+    }
 
     // fragment shader
     _shaderFrag = gl.createShader(WebGL.FRAGMENT_SHADER);
     gl.shaderSource(_shaderFrag, strFrag);
     gl.compileShader(_shaderFrag);
 
+    // check shader compile status
+    if (gl.getShaderParameter(_shaderFrag, WebGL.COMPILE_STATUS) == false) {
+      final log = gl.getShaderInfoLog(_shaderFrag);
+      debugPrint("--- FRAGMENT SHADER COMPILE ERROR ---\n$log\n--- SOURCE ---\n$strFrag");
+    }
+
     // create program and attach shader
     program = gl.createProgram();
     gl.attachShader(program, _shaderVert);
     gl.attachShader(program, _shaderFrag);
 
-    // bind attrib location before glLinkProgram
-    // nvidia:
-    // (0) gl_Vertex
-    // (2) gl_Normal
-    // (3) gl_Color
-    // (4) gl_SecondaryColor
-    // (5) gl_FogCoord
-    // (8) gl_MultiTexCoord0
-    // (9) gl_MultiTexCoord1...
-    gl.bindAttribLocation(program, 0, "inVertex");
-    gl.bindAttribLocation(program, 1, "inColor");
-    gl.bindAttribLocation(program, 2, "inNormal");
-    gl.bindAttribLocation(program, 3, "inTexCoord");
-    gl.bindAttribLocation(program, 4, "inBoneIndex");
-    gl.bindAttribLocation(program, 5, "inBoneWeight");
+    // bind attrib location before glLinkProgram (if not using layout in ES3)
+    if (!isES3) {
+      gl.bindAttribLocation(program, 0, "inVertex");
+      gl.bindAttribLocation(program, 1, "inColor");
+      gl.bindAttribLocation(program, 2, "inNormal");
+      gl.bindAttribLocation(program, 3, "inTexCoord");
+      gl.bindAttribLocation(program, 4, "inBoneIndex");
+      gl.bindAttribLocation(program, 5, "inBoneWeight");
+    }
 
     gl.linkProgram(program);
+
+    // check link status
+    if (gl.getProgramParameter(program, WebGL.LINK_STATUS) == false) {
+      final log = gl.getProgramInfoLog(program);
+      debugPrint("--- PROGRAM LINK ERROR ---\n$log");
+    }
+
     gl.useProgram(program);
 
     // prepare uniform and attrib location
     initLocation();
 
-    // shader log
-    String? strLog = gl.getShaderInfoLog(_shaderFrag);
-    strLog != null ? debugPrint(strLog) : null;
-    strLog = gl.getShaderInfoLog(_shaderVert);
-    strLog != null ? debugPrint(strLog) : null;
-
     // check GL error
     gl.checkError();
+  }
+
+  String _ensureVersionAtStart(String source) {
+    const versionHeader = "#version 300 es";
+    if (source.contains(versionHeader)) {
+      // Remove all occurrences of the version header
+      String cleanSource = source.replaceAll(versionHeader, "").trim();
+      // Prepend it to the start
+      return "$versionHeader\n$cleanSource";
+    }
+    return source;
   }
 
   void initLocation() {

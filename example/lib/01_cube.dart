@@ -21,7 +21,8 @@ class CubeScene_01 extends M3Scene {
   @override
   fm.Widget buildUI(fm.BuildContext context) {
     const String info = '''
-麥克熊 3D: Welcome to Macbear 3D.
+Welcome to 麥克熊 3D.
+
 Click buttons to test examples.
   1. Cube scene
   2. Skybox scene
@@ -31,11 +32,10 @@ Click buttons to test examples.
   6. Shadow for large scene
   7. Physics scene
   8. Text 3D scene
-  9. PBR Test scene
-''';
+  9. PBR Test scene''';
     return fm.Positioned(
-      top: 10,
-      left: 10,
+      top: 50,
+      left: 8,
       child: fm.Container(
         padding: const fm.EdgeInsets.all(12),
         decoration: fm.BoxDecoration(color: fm.Colors.black54, borderRadius: fm.BorderRadius.circular(12)),
