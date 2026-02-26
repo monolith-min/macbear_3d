@@ -24,7 +24,9 @@ Future<void> main() async {
 
   final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
   shaderOptions.pcf = true;
-  shaderOptions.perPixel = false;
+  shaderOptions.perPixel = true;
+  shaderOptions.pbr = true;
+  shaderOptions.ibl = true;
   runApp(MainApp());
 }
 

@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android%20%7C%20macos%20%7C%20windows%20%7C%20web-blue)
 
-**Macbear 3D** 是一個專為 Flutter 打造的輕量級、高性能 3D 渲染引擎，由 **Google ANGLE (OpenGL ES)** 驅動。它提供簡單且強大的 API，讓開發者能夠輕鬆創建驚艷的 3D 體驗、遊戲與視覺化應用。
+**Macbear 3D** 是一個專為 Flutter 打造的輕量級、高性能 3D 渲染引擎，由 **Google ANGLE (OpenGL ES 3.0)** 驅動。它提供簡單且強大的 API，讓開發者能夠輕鬆創建驚艷的 3D 體驗、遊戲與視覺化應用。
 
 <p align="center">
   <img width="400" src="img/scene08.png" />
@@ -20,7 +20,7 @@
 ## 主要特性
 
 ### 🚀 核心引擎
-- **ANGLE 驅動**: 透過 Google ANGLE 直接整合 OpenGL ES，確保卓越性能。
+- **ANGLE 驅動**: 透過 Google ANGLE 直接整合 **OpenGL ES 3.0**，確保卓越性能。
 - **場景圖 (Scene Graph)**: 靈活的實體-組件 (Entity-Component) 架構，支援多攝影機系統。
 - **資源管理**: 預建的高效集中式加載與快取機制（紋理、模型、字體）。
 
@@ -42,7 +42,7 @@
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.6.1
+  macbear_3d: ^0.7.0
 ```
 
 ## 快速上手

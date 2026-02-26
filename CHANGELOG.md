@@ -1,3 +1,10 @@
+## 0.7.0
+
+* Update:
+  * **OpenGL ES 3.0 Support**: Upgraded unified shaders from ES2 to ES3 (GLSL 3.00 ES).
+  * **ES2 Cleanup**: Moved legacy ES2 shaders to `shaders_discard` directory.
+  * **Enhanced Rendering**: Enabled PBR and IBL by default in main examples for superior visual quality.
+
 ## 0.6.1
 
 * Add:

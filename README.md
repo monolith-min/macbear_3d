@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android%20%7C%20macos%20%7C%20windows%20%7C%20web-blue)
 
-**Macbear 3D** is a lightweight, high-performance 3D rendering engine for Flutter, powered by **Google ANGLE (OpenGL ES)**. It provides a simple yet powerful API to create stunning 3D experiences, games, and visualizations.
+**Macbear 3D** is a lightweight, high-performance 3D rendering engine for Flutter, powered by **Google ANGLE (OpenGL ES 3.0)**. It provides a simple yet powerful API to create stunning 3D experiences, games, and visualizations.
 
 <p align="center">
   <img width="400" src="img/scene08.png" />
@@ -19,7 +19,7 @@ Preview the `main_all.dart` example live in your browser!
 ## Key Features
 
 ### 🚀 Core Engine
-- **Powered by ANGLE**: Direct OpenGL ES access via Google's ANGLE for high performance.
+- **Powered by ANGLE**: Direct **OpenGL ES 3.0** access via Google's ANGLE for high performance.
 - **Scene Graph**: Flexible Entity-Component architecture and multi-camera support.
 - **Resource Management**: Efficient centralized loading and caching for textures, meshes, and fonts.
 
@@ -59,7 +59,7 @@ Add `macbear_3d` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.6.1
+  macbear_3d: ^0.7.0
 ```
 
 ## Usage
