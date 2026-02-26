@@ -61,9 +61,18 @@ class "macbear_3d::src::mesh::obj_loader.dart::M3ObjLoader" {
   {static} -void _processVertex()
 }
 
+class "macbear_3d::src::util::platform::platform_info.dart::GraphicsInfo" {
+  +String vendor
+  +String renderer
+  +String version
+  +String shadingVersion
+  +String toString()
+}
+
 class "macbear_3d::src::util::platform::platform_info.dart::PlatformInfo" {
   {static} -Map<int, String> _glParamNames
   {static} +String getOS()
+  {static} +GraphicsInfo getGraphicsInfo()
   {static} +void checkGLExtensions()
 }
 
@@ -641,6 +650,7 @@ class "macbear_3d::src::program::program.dart::M3Program" {
   +UniformLocation attribBoneWeight
   +RenderingContext gl
   {static} +bool isLocationValid()
+  -String _ensureVersionAtStart()
   +void initLocation()
   +void dispose()
   +void setProjectionMatrix()
@@ -937,12 +947,12 @@ abstract class "macbear_3d::src::scene::scene.dart::M3Scene" {
   +void addEntity()
   +void savePhysicsStates()
   +void update()
+  +void applyReflectionCubemap()
   +void render()
   +void renderReflection()
   +void renderHelper()
   +void render2D()
   +Widget? buildUI()
-  +dynamic captureCubemap()
 }
 
 "macbear_3d::src::scene::scene.dart::M3Scene" o-- "macbear_3d::src::input::touch.dart::M3InputController"
@@ -979,6 +989,23 @@ class "macbear_3d::src::scene::skybox.dart::M3Skybox" {
 "macbear_3d::src::scene::skybox.dart::M3Skybox" o-- "macbear_3d::src::texture::material.dart::M3Material"
 "macbear_3d::src::scene::skybox.dart::M3Skybox" o-- "macbear_3d::src::texture::texture.dart::M3Texture"
 "macbear_3d::src::scene::skybox.dart::M3Skybox" o-- "flutter_angle::desktop::wrapper.dart::RenderingContext"
+
+class "macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" {
+  +Vector3 position
+  -M3Camera _camCapture
+  -M3Entity? _captureEntity
+  +int texSize
+  +M3Texture? texCubemap
+  -M3Framebuffer? _fbo
+  +void dispose()
+  +void capture()
+}
+
+"macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" o-- "vector_math::vector_math.dart::Vector3"
+"macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" o-- "macbear_3d::src::scene::camera.dart::M3Camera"
+"macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" o-- "macbear_3d::src::scene::entity.dart::M3Entity"
+"macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" o-- "macbear_3d::src::texture::texture.dart::M3Texture"
+"macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" o-- "macbear_3d::src::engine::framebuffer.dart::M3Framebuffer"
 
 class "macbear_3d::src::scene::entity.dart::M3Entity" {
   -M3Transform _transform
@@ -1101,7 +1128,7 @@ class "macbear_3d::src::engine::app_engine.dart::M3AppEngine" {
   +int edgeInsetBottom
   +M3Scene? activeScene
   +M3PhysicsEngine physicsEngine
-  +Framebuffer mainFbo
+  {static} +Framebuffer mainFbo
   +double fps
   +dynamic initApp()
   +void initKeyboard()
@@ -1131,6 +1158,7 @@ class "macbear_3d::src::engine::app_engine.dart::M3AppEngine" {
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "macbear_3d::src::scene::scene.dart::M3Scene"
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "macbear_3d::src::physics::physics_engine.dart::M3PhysicsEngine"
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "flutter_angle::shared::classes.dart::Framebuffer"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "macbear_3d::src::engine::app_engine.dart::M3AppEngine"
 
 class "macbear_3d::src::engine::framebuffer.dart::M3Framebuffer" {
   +int frameW
