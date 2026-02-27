@@ -12,6 +12,8 @@ class M3Entity {
   M3Mesh? mesh;
   Vector4 color = Vector4(1.0, 1.0, 1.0, 1.0); // RGBA
 
+  M3ReflectionProbe? reflectionProbe;
+
   // render up axis is always Z, physics up axis is Y or Z
   // if physicsUpAxis is Y, then rotate -90 degree on X-axis
   M3Axis physicsUpAxis = M3Axis.z;

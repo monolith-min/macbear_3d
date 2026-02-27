@@ -7,6 +7,9 @@ class SkyboxScene_02 extends M3Scene {
   GraphicsInfo? _gpuInfo;
 
   late M3ReflectionProbe _probe;
+  late M3Entity _orbit1;
+  late M3Entity _orbit2;
+  double orbitAngle = 0.0;
 
   @override
   Future<void> load() async {
@@ -19,7 +22,18 @@ class SkyboxScene_02 extends M3Scene {
     camera.setEuler(pi / 6, -pi / 6, 0, distance: 8);
 
     // 01: sample cubemap
-    skybox = M3Skybox(M3Texture.createSampleCubemap());
+    // skybox = M3Skybox(M3Texture.createSampleCubemap());
+    // 02: sample cubemap
+    final strPrefix = 'example/nvlobby_';
+    final strExt = 'jpg';
+    skybox = await M3Skybox.createCubemap(
+      '${strPrefix}xpos.$strExt',
+      '${strPrefix}xneg.$strExt',
+      '${strPrefix}ypos.$strExt',
+      '${strPrefix}yneg.$strExt',
+      '${strPrefix}zpos.$strExt',
+      '${strPrefix}zneg.$strExt',
+    );
 
     M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
     // 02: ball geometry
@@ -32,19 +46,36 @@ class SkyboxScene_02 extends M3Scene {
     final ball = addMesh(ballMesh, Vector3.zero());
     ball.scale = Vector3.all(3);
 
-    // 03: balls around
+    final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(10.0))), Vector3(0, 0, -5));
+    M3Texture texGround = M3Texture.createCheckerboard(
+      size: 2,
+      lightColor: Vector4(0.65, 0.45, 0.25, 1),
+      darkColor: Vector4(0.36, 0.22, 0.12, 1),
+    );
+    plane.mesh!.mtr.texDiffuse = texGround;
+
+    // 03: orbit around
     final meshSphere = M3Mesh(M3Resources.unitSphere);
+    final meshTorus = M3Mesh(M3TorusGeom(0.6, 0.2));
     meshSphere.mtr
       ..reflection = 0.0
       ..metallic = 0.0
       ..roughness = 1.0;
-    final sphere = addMesh(meshSphere, Vector3(5, 2, 1));
-    sphere
+
+    _orbit1 = addMesh(meshSphere, Vector3(5, 2, 1));
+    _orbit1
       ..rotation.setEuler(0, pi / 3, 0)
       ..color = Vector4(1.0, 0, 1.0, 1.0);
 
+    _orbit2 = addMesh(meshTorus, Vector3(0, 6, 0));
+    _orbit2
+      ..rotation.setEuler(0, pi / 7, 0)
+      ..color = Vector4(0.0, 1.0, 0.3, 1.0);
+
     // 04: reflection probe
     _probe = M3ReflectionProbe(position: ball.position);
+
+    ball.reflectionProbe = _probe;
   }
 
   @override
@@ -67,6 +98,12 @@ class SkyboxScene_02 extends M3Scene {
   @override
   void update(double delta) {
     super.update(delta);
-    // _probe.capture(this);
+
+    orbitAngle += delta * 0.5;
+    _orbit1.position = Vector3(5 * cos(orbitAngle), 5 * sin(orbitAngle), 1);
+
+    _orbit2.position = Vector3(3 * cos(orbitAngle * 0.7), 0, 4 * sin(orbitAngle * 0.7));
+
+    _probe.capture(this);
   }
 }

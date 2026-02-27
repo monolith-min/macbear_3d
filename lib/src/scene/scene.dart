@@ -95,7 +95,26 @@ abstract class M3Scene {
     }
   }
 
-  void applyReflectionCubemap(M3Texture cubemap) {}
+  void applyReflectionCubemap(M3Program prog, M3Texture? cubemap) {
+    final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
+    if (prog is M3ProgramLighting && shaderOptions.pbr && shaderOptions.ibl) {
+      if (M3Program.isLocationValid(prog.uniformSamplerEnvironment)) {
+        gl.activeTexture(WebGL.TEXTURE2);
+
+        if (cubemap != null) {
+          cubemap.bind();
+        } else {
+          if (skybox != null) {
+            skybox!.mtr.texDiffuse.bind();
+          } else {
+            M3Resources.texDefaultCube.bind();
+          }
+          gl.uniform1i(prog.uniformSamplerEnvironment, 2);
+          gl.activeTexture(WebGL.TEXTURE0); // Reset for setMaterial
+        }
+      }
+    }
+  }
 
   // render solid models
   void render(M3Program prog, M3Camera camera, {bool bSolid = true}) {
@@ -103,19 +122,8 @@ abstract class M3Scene {
     gl.useProgram(prog.program);
     prog.applyCamera(camera);
 
-    final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
-    if (prog is M3ProgramLighting && shaderOptions.pbr && shaderOptions.ibl) {
-      if (M3Program.isLocationValid(prog.uniformSamplerEnvironment)) {
-        gl.activeTexture(WebGL.TEXTURE2);
-        if (skybox != null) {
-          skybox!.mtr.texDiffuse.bind();
-        } else {
-          M3Resources.texDefaultCube.bind();
-        }
-        gl.uniform1i(prog.uniformSamplerEnvironment, 2);
-        gl.activeTexture(WebGL.TEXTURE0); // Reset for setMaterial
-      }
-    }
+    // apply reflection cubemap
+    applyReflectionCubemap(prog, skybox?.mtr.texDiffuse);
 
     final stats = M3AppEngine.instance.renderEngine.stats;
     for (final entity in entities) {
@@ -134,8 +142,17 @@ abstract class M3Scene {
       prog.setMaterial(mesh.mtr, entity.color);
       prog.setSkinning(mesh.skin);
 
+      // pre-reflection probe
+      if (entity.reflectionProbe != null) {
+        applyReflectionCubemap(prog, entity.reflectionProbe!.texCubemap);
+      }
+
       mesh.geom.draw(prog, bSolid: bSolid);
 
+      // post-reflection probe
+      if (entity.reflectionProbe != null) {
+        applyReflectionCubemap(prog, null);
+      }
       // statistics
       if (stats.enabled) {
         stats.entities++;
