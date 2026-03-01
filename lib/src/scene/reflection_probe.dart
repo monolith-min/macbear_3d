@@ -67,7 +67,7 @@ class M3ReflectionProbe {
       // Clear
       gl.clearColor(0, 0, 0, 1);
       gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
-      if (i > 1) {
+      if (i > 3) {
         break;
       }
       // Setup camera

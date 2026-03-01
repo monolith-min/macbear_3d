@@ -38,7 +38,8 @@ Future<void> onDidInit() async {
 
   // ignore: unused_local_variable
   final scene00 = StarterScene_00();
-  final initScene = CubeScene_01();
+  final initScene = SkyboxScene_02();
+  // final initScene = CubeScene_01();
   await M3AppEngine.instance.setScene(initScene);
 }
 

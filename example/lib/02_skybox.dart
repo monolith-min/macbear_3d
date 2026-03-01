@@ -1,5 +1,5 @@
 // ignore_for_file: file_names
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Matrix4;
 import 'main_all.dart' hide Colors;
 
 // ignore: camel_case_types
@@ -10,6 +10,8 @@ class SkyboxScene_02 extends M3Scene {
   late M3Entity _orbit1;
   late M3Entity _orbit2;
   double orbitAngle = 0.0;
+
+  late M3Texture texYoshi;
 
   @override
   Future<void> load() async {
@@ -35,6 +37,8 @@ class SkyboxScene_02 extends M3Scene {
       '${strPrefix}zneg.$strExt',
     );
 
+    texYoshi = await M3Texture.loadTexture('example/nvlobby_zneg.jpg');
+
     M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
     // 02: ball geometry
     final ballMesh = M3Mesh(M3Resources.unitSphere);
@@ -53,6 +57,18 @@ class SkyboxScene_02 extends M3Scene {
       darkColor: Vector4(0.36, 0.22, 0.12, 1),
     );
     plane.mesh!.mtr.texDiffuse = texGround;
+
+    final xAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), Vector3(10, 0, -2));
+    xAxisMesh.scale = Vector3(16, 0.5, 0.5);
+    xAxisMesh.color = Vector4(1, 0, 0, 1);
+
+    final yAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), Vector3(0, 10, -2));
+    yAxisMesh.scale = Vector3(0.5, 16, 0.5);
+    yAxisMesh.color = Vector4(0, 1, 0, 1);
+
+    final zAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), Vector3(0, 0, 10));
+    zAxisMesh.scale = Vector3(0.5, 0.5, 16);
+    zAxisMesh.color = Vector4(0, 0, 1, 1);
 
     // 03: orbit around
     final meshSphere = M3Mesh(M3Resources.unitSphere);
@@ -89,10 +105,20 @@ class SkyboxScene_02 extends M3Scene {
         color: Colors.black54,
         child: Text(
           _gpuInfo.toString(),
-          style: const TextStyle(color: Colors.white, fontSize: 9, fontFamily: 'monospace'),
+          style: const TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'monospace'),
         ),
       ),
     );
+  }
+
+  @override
+  void render2D() {
+    super.render2D();
+
+    Matrix4 mat2D = Matrix4.identity();
+
+    mat2D.setTranslation(Vector3(10.0, 200.0, 0.0));
+    M3Shape2D.drawImage(texYoshi, mat2D, color: Vector4(0, 1, 1, 1));
   }
 
   @override
