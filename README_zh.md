@@ -28,6 +28,7 @@
 - **模型加載**: 原生支援 **glTF/GLB** 與 **OBJ** 格式。
 - **骨架動畫**: 完整支援皮膚網格 (Skinned Mesh) 與基於骨骼的動畫系統。
 - **進階光照**: 支援動態光照、**級聯陰影貼圖 (CSM)**、**PBR (實體渲染)** 與 **IBL (環境光照)**。
+- **動態反射探針**: 加入 `M3ReflectionProbe` 實作即時環境捕捉與動態反射。
 - **地形系統**: 使用 Perlin Noise 實現程序化地形生成。
 - **3D 文字**: 支援從 TrueType/OpenType 字體直接生成 3D 文字幾何體，並修正 Web 端對齊問題。
 
@@ -96,6 +97,7 @@ class MyScene extends M3Scene {
 - [x] IBL 環境光照 (Image-Based Lighting)
 - [x] 地形系統 (Perlin Noise)
 - [x] 天空盒反射 (Cubemap)
+- [x] 動態反射探針 (Dynamic Reflection Probe)
 - [ ] 水面效果 (反射、折射)
 - [ ] 後處理特效 (Bloom, HDR)
 - [ ] 進階粒子系統

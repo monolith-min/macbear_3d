@@ -5,6 +5,8 @@
   * **ES2 Cleanup**: Moved legacy ES2 shaders to `shaders_discard` directory.
   * **Enhanced Rendering**: Enabled PBR and IBL by default in main examples for superior visual quality.
   * **Platform & Graphics info**: Added `PlatformInfo` and `GraphicsInfo` for cross-platform GPU metadata (Vendor, Renderer, GLSL version) and GL extension checking.
+  * **Dynamic Reflection Probe**: Added `M3ReflectionProbe` for real-time cubemap capture and dynamic reflections.
+  * **Internal**: Improved engine disposal and minor texture unbind cleanup.
 
 ## 0.6.1
 

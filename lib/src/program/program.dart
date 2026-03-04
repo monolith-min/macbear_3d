@@ -98,7 +98,8 @@ class M3Program {
     gl.linkProgram(program);
 
     // check link status
-    if (gl.getProgramParameter(program, WebGL.LINK_STATUS) == false) {
+    final param = gl.getProgramParameter(program, WebGL.LINK_STATUS);
+    if (param.id == false) {
       final log = gl.getProgramInfoLog(program);
       debugPrint("--- PROGRAM LINK ERROR ---\n$log");
     }

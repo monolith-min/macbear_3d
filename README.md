@@ -27,6 +27,7 @@ Preview the `main_all.dart` example live in your browser!
 - **Model Loaders**: Native support for **glTF/GLB** and **OBJ** formats.
 - **Skeletal Animation**: Full support for skinned meshes and bone-based animations.
 - **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)**, **PBR (Physically Based Rendering)** and **IBL (Image-Based Lighting)** support.
+- **Dynamic Reflection Probe**: Added `M3ReflectionProbe` for real-time cubemap capture and dynamic reflections.
 - **Terrain System**: Procedural terrain generation using Perlin Noise.
 - **Text Rendering**: Generate 3D geometry from TrueType/OpenType fonts with alignment fixes for Web.
 
@@ -136,6 +137,7 @@ output to uml/macbear_3d.puml
 - [x] IBL (Image-Based Lighting)
 - [x] Terrain System (Perlin Noise)
 - [x] Skybox reflection via cubemap
+- [x] Dynamic Reflection Probe
 - [ ] Water effect (reflection, refraction)
 - [ ] Post-processing effects (Bloom, HDR)
 - [ ] Advanced Particle System

@@ -24,6 +24,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  ffi: ^2.2.0
   build: ^4.0.3
   flutter:
     sdk: flutter
@@ -31,6 +32,7 @@ dependencies:
   http: ^1.6.0
   oimo_physics: ^0.0.4
   vector_math: ^2.2.0
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

@@ -945,10 +945,13 @@ abstract class "macbear_3d::src::scene::scene.dart::M3Scene" {
   +dynamic load()
   +M3Entity addMesh()
   +void addEntity()
+  +void addAxisGizmo()
   +void savePhysicsStates()
   +void update()
-  +void applyReflectionCubemap()
+  -void _bindReflection()
+  -void _applyReflectionCubemap()
   +void render()
+  +void renderDebug()
   +void renderReflection()
   +void renderHelper()
   +void render2D()
@@ -984,6 +987,7 @@ class "macbear_3d::src::scene::skybox.dart::M3Skybox" {
   {static} +dynamic createCubemap()
   +void dispose()
   +bool drawSkybox()
+  {static} +bool drawDebug()
 }
 
 "macbear_3d::src::scene::skybox.dart::M3Skybox" o-- "macbear_3d::src::texture::material.dart::M3Material"
@@ -993,10 +997,11 @@ class "macbear_3d::src::scene::skybox.dart::M3Skybox" {
 class "macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe" {
   +Vector3 position
   -M3Camera _camCapture
-  -M3Entity? _captureEntity
+  +M3Entity? excludeEntity
   +int texSize
   +M3Texture? texCubemap
   -M3Framebuffer? _fbo
+  +bool isMirror
   +void dispose()
   +void capture()
 }
@@ -1012,6 +1017,7 @@ class "macbear_3d::src::scene::entity.dart::M3Entity" {
   +RigidBody? rigidBody
   +M3Mesh? mesh
   +Vector4 color
+  +M3ReflectionProbe? reflectionProbe
   +M3Axis physicsUpAxis
   +M3Bounding worldBounding
   -bool _boundsDirty
@@ -1035,6 +1041,7 @@ class "macbear_3d::src::scene::entity.dart::M3Entity" {
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "oimo_physics::core::rigid_body.dart::RigidBody"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::mesh::mesh.dart::M3Mesh"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "vector_math::vector_math.dart::Vector4"
+"macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::util::constants.dart::M3Axis"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::geom::geom.dart::M3Bounding"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "vector_math::vector_math.dart::Quaternion"
@@ -1100,7 +1107,7 @@ class "macbear_3d::src::scene::camera.dart::M3Projection" {
 
 class "macbear_3d::src::engine::app_engine.dart::M3AppEngine" {
   {static} +M3AppEngine instance
-  +String version
+  {static} +String version
   -FlutterAngle _angle
   -FlutterAngleTexture _sourceTexture
   {static} +Vector3 backgroundColor
