@@ -20,8 +20,10 @@ class CubeScene_01 extends M3Scene {
 
   @override
   fm.Widget buildUI(fm.BuildContext context) {
-    const String info = '''
+    const String info =
+        '''
 Welcome to 麥克熊 3D.
+${M3AppEngine.version}
 
 Click buttons to test examples.
   1. Cube scene

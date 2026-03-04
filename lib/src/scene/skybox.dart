@@ -43,25 +43,36 @@ class M3Skybox {
     final scale = camEye.farClip / 4;
     Matrix4 boxMatrix = Matrix4.identity();
     // rotate axisX 90 degree: up from axisY to axisZ
-    boxMatrix.setRotation(M3Constants.rotXPos90);
-    // boxMatrix.scaleByVector3(Vector3.all(-scale));
-    boxMatrix.scaleByVector3(Vector3.all(10));
+    boxMatrix.setRotation(M3Constants.rotXNeg90);
+    boxMatrix.scaleByVector3(Vector3.all(-scale));
     boxMatrix.setTranslation(camEye.position);
 
     prog.setMatrices(camEye, boxMatrix);
     prog.setMaterial(mtr, Vector4(1, 1, 1, 1));
     M3Resources.debugFrustum.draw(prog, bSolid: true);
 
-    // draw on target for debug
-    boxMatrix.setTranslation(camEye.target);
+    _texCubemap.unbind();
+    return true;
+  }
+
+  static bool drawDebug(M3Camera camEye, Matrix4 boxMatrix, M3Material mtr) {
+    final prog = M3Resources.programSkybox!;
 
     gl.depthMask(true);
+    gl.disable(WebGL.DEPTH_TEST);
+    gl.disable(WebGL.CULL_FACE);
+    gl.disable(WebGL.BLEND);
+    // pre-draw
+    gl.useProgram(prog.program);
+
+    Matrix4 mat = boxMatrix;
+
+    // draw on target for debug
     gl.enable(WebGL.DEPTH_TEST);
-    prog.setMatrices(camEye, boxMatrix);
-    prog.setMaterial(mtr, Vector4(1, 1, 0, 1));
+    prog.setMatrices(camEye, mat);
+    prog.setMaterial(mtr, Vector4(1, 1, 1, 1));
     M3Resources.debugFrustum.draw(prog, bSolid: true);
 
-    _texCubemap.unbind();
     return true;
   }
 }

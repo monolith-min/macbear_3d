@@ -71,6 +71,20 @@ abstract class M3Scene {
     entities.add(entity);
   }
 
+  void addAxisGizmo(Vector3 position, {double scale = 1.0, double length = 1.0}) {
+    final xAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3((length + 1) / 2, 0, 0));
+    xAxisMesh.scale = Vector3(length, scale, scale);
+    xAxisMesh.color = Vector4(1, 0, 0, 1);
+
+    final yAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3(0, (length + 1) / 2, 0));
+    yAxisMesh.scale = Vector3(scale, length, scale);
+    yAxisMesh.color = Vector4(0, 1, 0, 1);
+
+    final zAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3(0, 0, (length + 1) / 2));
+    zAxisMesh.scale = Vector3(scale, scale, length);
+    zAxisMesh.color = Vector4(0, 0, 1, 1);
+  }
+
   double _totalTime = 0.0;
   double get totalTime => _totalTime;
 
@@ -95,23 +109,27 @@ abstract class M3Scene {
     }
   }
 
-  void applyReflectionCubemap(M3Program prog, M3Texture? cubemap) {
+  void _bindReflection(M3Texture? cubemap) {
+    if (cubemap != null) {
+      cubemap.bind();
+    } else {
+      if (skybox != null) {
+        skybox!.mtr.texDiffuse.bind();
+      } else {
+        M3Resources.texDefaultCube.bind();
+      }
+    }
+  }
+
+  void _applyReflectionCubemap(M3Program prog, M3Texture? cubemap) {
     final shaderOptions = M3AppEngine.instance.renderEngine.options.shader;
     if (prog is M3ProgramLighting && shaderOptions.pbr && shaderOptions.ibl) {
       if (M3Program.isLocationValid(prog.uniformSamplerEnvironment)) {
-        gl.activeTexture(WebGL.TEXTURE2);
+        gl.uniform1i(prog.uniformSamplerEnvironment, 2);
+        gl.activeTexture(WebGL.TEXTURE2); // bind cubemap to GL_TEXTURE2
+        _bindReflection(cubemap);
 
-        if (cubemap != null) {
-          cubemap.bind();
-        } else {
-          if (skybox != null) {
-            skybox!.mtr.texDiffuse.bind();
-          } else {
-            M3Resources.texDefaultCube.bind();
-          }
-          gl.uniform1i(prog.uniformSamplerEnvironment, 2);
-          gl.activeTexture(WebGL.TEXTURE0); // Reset for setMaterial
-        }
+        gl.activeTexture(WebGL.TEXTURE0); // restore back to GL_TEXTURE0
       }
     }
   }
@@ -123,7 +141,7 @@ abstract class M3Scene {
     prog.applyCamera(camera);
 
     // apply reflection cubemap
-    applyReflectionCubemap(prog, skybox?.mtr.texDiffuse);
+    _applyReflectionCubemap(prog, skybox?.mtr.texDiffuse);
 
     final stats = M3AppEngine.instance.renderEngine.stats;
     for (final entity in entities) {
@@ -144,14 +162,14 @@ abstract class M3Scene {
 
       // pre-reflection probe
       if (entity.reflectionProbe != null) {
-        applyReflectionCubemap(prog, entity.reflectionProbe!.texCubemap);
+        _applyReflectionCubemap(prog, entity.reflectionProbe!.texCubemap);
       }
 
       mesh.geom.draw(prog, bSolid: bSolid);
 
       // post-reflection probe
       if (entity.reflectionProbe != null) {
-        applyReflectionCubemap(prog, null);
+        _applyReflectionCubemap(prog, null);
       }
       // statistics
       if (stats.enabled) {
@@ -161,6 +179,8 @@ abstract class M3Scene {
       }
     }
   }
+
+  void renderDebug() {}
 
   void renderReflection() {
     if (M3Resources.programSkyboxReflect == null) {
@@ -193,11 +213,20 @@ abstract class M3Scene {
       prog.setMaterial(mesh.mtr, reflectColor);
       // Override SamplerDiffuse with skybox cubemap for reflection lookup
       gl.activeTexture(WebGL.TEXTURE0);
-      skybox!.mtr.texDiffuse.bind();
 
       prog.setSkinning(mesh.skin);
 
+      // pre-reflection probe
+      if (entity.reflectionProbe != null) {
+        _bindReflection(entity.reflectionProbe!.texCubemap);
+      }
+
       mesh.geom.draw(prog, bSolid: true);
+
+      // post-reflection probe
+      if (entity.reflectionProbe != null) {
+        _bindReflection(null);
+      }
 
       // statistics
       final stats = M3AppEngine.instance.renderEngine.stats;

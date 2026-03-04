@@ -4,16 +4,23 @@ import '../../macbear_3d.dart';
 class M3ReflectionProbe {
   Vector3 position;
   final _camCapture = M3Camera();
-  M3Entity? _captureEntity; // ignore capture entity
+  M3Entity? excludeEntity; // ignore capture entity
 
   int texSize = 128;
   M3Texture? texCubemap;
   M3Framebuffer? _fbo;
+  bool isMirror = true;
 
-  M3ReflectionProbe({required this.position, this.texSize = 128}) {
+  M3ReflectionProbe({
+    required this.position,
+    this.texSize = 128,
+    this.isMirror = true,
+    double near = 0.1,
+    double far = 200.0,
+  }) {
     // Temporary camera with 90 degree FOV
     _camCapture.csmCount = 0;
-    _camCapture.setViewport(0, 0, texSize, texSize, fovy: 90.0, near: 0.1, far: 200.0);
+    _camCapture.setViewport(0, 0, texSize, texSize, fovy: 90.0, near: near, far: far);
     _fbo ??= M3Framebuffer(texSize, texSize, useDepthTexture: false);
     texCubemap ??= M3Texture.createEmptyCubemap(texSize);
   }
@@ -30,23 +37,22 @@ class M3ReflectionProbe {
     final renderEngine = M3AppEngine.instance.renderEngine;
     final gl = renderEngine.gl;
 
-    // Cache framebuffer and empty cubemap if needed
-
+    double mirrorX = isMirror ? -1 : 1;
     final targets = [
-      Vector3(1, 0, 0),
-      Vector3(-1, 0, 0),
-      Vector3(0, 1, 0),
-      Vector3(0, -1, 0),
+      Vector3(mirrorX, 0, 0),
+      Vector3(-mirrorX, 0, 0),
       Vector3(0, 0, 1),
       Vector3(0, 0, -1),
+      Vector3(0, -1, 0),
+      Vector3(0, 1, 0),
     ];
     final ups = [
-      Vector3(0, -1, 0),
-      Vector3(0, -1, 0),
-      Vector3(0, 0, 1),
+      Vector3(0, 0, -1),
       Vector3(0, 0, -1),
       Vector3(0, -1, 0),
-      Vector3(0, -1, 0),
+      Vector3(0, 1, 0),
+      Vector3(0, 0, -1),
+      Vector3(0, 0, -1),
     ];
     final faces = [
       WebGL.TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -67,18 +73,21 @@ class M3ReflectionProbe {
       // Clear
       gl.clearColor(0, 0, 0, 1);
       gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
-      if (i > 3) {
-        break;
-      }
+
       // Setup camera
       _camCapture.setLookat(position, position + targets[i], ups[i]);
+
+      if (isMirror) {
+        _camCapture.refreshProjectionMatrix();
+        _camCapture.projectionMatrix.scaleByVector3(Vector3(-1, 1, 1));
+      }
 
       // Render skybox
       if (scene.skybox != null) {
         scene.skybox!.drawSkybox(_camCapture);
       }
       // set default GL state
-      gl.frontFace(WebGL.CCW);
+      gl.frontFace(isMirror ? WebGL.CW : WebGL.CCW);
       gl.enable(WebGL.DEPTH_TEST);
       gl.enable(WebGL.CULL_FACE);
       gl.depthMask(true);
@@ -88,17 +97,20 @@ class M3ReflectionProbe {
       gl.blendFunc(WebGL.SRC_ALPHA, WebGL.ONE_MINUS_SRC_ALPHA); // WebGL.ONE
 
       // ignore entity
-      if (_captureEntity != null) {
-        scene.entities.remove(_captureEntity!);
+      if (excludeEntity != null) {
+        scene.entities.remove(excludeEntity!);
       }
       // Render scene
       scene.render(prog, _camCapture, bSolid: true);
 
-      if (_captureEntity != null) {
-        scene.entities.add(_captureEntity!);
+      if (excludeEntity != null) {
+        scene.entities.add(excludeEntity!);
       }
     }
-
+    if (texCubemap!.generateMipmaps) {
+      texCubemap!.bind();
+      gl.generateMipmap(WebGL.TEXTURE_CUBE_MAP);
+    }
     // Restore state
     renderEngine.bindDefaultFramebuffer();
   }

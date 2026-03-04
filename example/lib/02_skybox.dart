@@ -7,11 +7,10 @@ class SkyboxScene_02 extends M3Scene {
   GraphicsInfo? _gpuInfo;
 
   late M3ReflectionProbe _probe;
+  late M3Entity _center;
   late M3Entity _orbit1;
   late M3Entity _orbit2;
   double orbitAngle = 0.0;
-
-  late M3Texture texYoshi;
 
   @override
   Future<void> load() async {
@@ -23,34 +22,21 @@ class SkyboxScene_02 extends M3Scene {
 
     camera.setEuler(pi / 6, -pi / 6, 0, distance: 8);
 
-    // 01: sample cubemap
-    // skybox = M3Skybox(M3Texture.createSampleCubemap());
-    // 02: sample cubemap
-    final strPrefix = 'example/nvlobby_';
-    final strExt = 'jpg';
-    skybox = await M3Skybox.createCubemap(
-      '${strPrefix}xpos.$strExt',
-      '${strPrefix}xneg.$strExt',
-      '${strPrefix}ypos.$strExt',
-      '${strPrefix}yneg.$strExt',
-      '${strPrefix}zpos.$strExt',
-      '${strPrefix}zneg.$strExt',
-    );
+    // 02-1: sample cubemap
+    skybox = M3Skybox(M3Texture.createSampleCubemap());
 
-    texYoshi = await M3Texture.loadTexture('example/nvlobby_zneg.jpg');
-
-    M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
-    // 02: ball geometry
+    // 02-2: ball geometry
+    M3Texture texGrid = M3Texture.createCheckerboard(size: 10);
     final ballMesh = M3Mesh(M3Resources.unitSphere);
     ballMesh.mtr
       ..texDiffuse = texGrid
       ..reflection = 0.3
       ..metallic = 0.8
       ..roughness = 0.2;
-    final ball = addMesh(ballMesh, Vector3.zero());
-    ball.scale = Vector3.all(3);
+    _center = addMesh(ballMesh, Vector3.zero());
+    _center.scale = Vector3.all(3);
 
-    final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(10.0))), Vector3(0, 0, -5));
+    final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(5.0))), Vector3(0, 0, -5));
     M3Texture texGround = M3Texture.createCheckerboard(
       size: 2,
       lightColor: Vector4(0.65, 0.45, 0.25, 1),
@@ -58,19 +44,7 @@ class SkyboxScene_02 extends M3Scene {
     );
     plane.mesh!.mtr.texDiffuse = texGround;
 
-    final xAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), Vector3(10, 0, -2));
-    xAxisMesh.scale = Vector3(16, 0.5, 0.5);
-    xAxisMesh.color = Vector4(1, 0, 0, 1);
-
-    final yAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), Vector3(0, 10, -2));
-    yAxisMesh.scale = Vector3(0.5, 16, 0.5);
-    yAxisMesh.color = Vector4(0, 1, 0, 1);
-
-    final zAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), Vector3(0, 0, 10));
-    zAxisMesh.scale = Vector3(0.5, 0.5, 16);
-    zAxisMesh.color = Vector4(0, 0, 1, 1);
-
-    // 03: orbit around
+    // 02-3: orbit around
     final meshSphere = M3Mesh(M3Resources.unitSphere);
     final meshTorus = M3Mesh(M3TorusGeom(0.6, 0.2));
     meshSphere.mtr
@@ -88,10 +62,11 @@ class SkyboxScene_02 extends M3Scene {
       ..rotation.setEuler(0, pi / 7, 0)
       ..color = Vector4(0.0, 1.0, 0.3, 1.0);
 
-    // 04: reflection probe
-    _probe = M3ReflectionProbe(position: ball.position);
+    // 02-4: reflection probe
+    _probe = M3ReflectionProbe(position: _center.position, near: 1.0, far: 100.0);
+    _probe.excludeEntity = _center;
 
-    ball.reflectionProbe = _probe;
+    _center.reflectionProbe = _probe;
   }
 
   @override
@@ -103,22 +78,9 @@ class SkyboxScene_02 extends M3Scene {
       child: Container(
         padding: const EdgeInsets.all(8),
         color: Colors.black54,
-        child: Text(
-          _gpuInfo.toString(),
-          style: const TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'monospace'),
-        ),
+        child: Text(_gpuInfo.toString(), style: const TextStyle(color: Colors.blue, fontSize: 12)),
       ),
     );
-  }
-
-  @override
-  void render2D() {
-    super.render2D();
-
-    Matrix4 mat2D = Matrix4.identity();
-
-    mat2D.setTranslation(Vector3(10.0, 200.0, 0.0));
-    M3Shape2D.drawImage(texYoshi, mat2D, color: Vector4(0, 1, 1, 1));
   }
 
   @override
@@ -130,6 +92,10 @@ class SkyboxScene_02 extends M3Scene {
 
     _orbit2.position = Vector3(3 * cos(orbitAngle * 0.7), 0, 4 * sin(orbitAngle * 0.7));
 
+    _center.rotation = Quaternion.euler(orbitAngle * 0.1, orbitAngle * 0.2, orbitAngle * 0.3);
+    _center.position = Vector3(1 * cos(orbitAngle), 0, 1 * sin(orbitAngle));
+
+    _probe.position = _center.position;
     _probe.capture(this);
   }
 }

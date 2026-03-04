@@ -107,6 +107,9 @@ class M3RenderEngine {
       scene.render(M3Resources.programSimple!, scene.camera, bSolid: false);
     }
 
+    // draw debug: only implement when needed
+    scene.renderDebug();
+
     // draw Helper
     if (options.debug.showHelpers) {
       scene.renderHelper();

@@ -116,7 +116,7 @@ class M3Texture {
   }
 
   static M3Texture createEmptyCubemap(int size) {
-    M3Texture tex = M3Texture(isCubemap: true, generateMipmaps: false);
+    M3Texture tex = M3Texture(isCubemap: true, generateMipmaps: true);
     tex.name = "empty_cubemap_${size}x$size";
     tex.texW = size;
     tex.texH = size;
