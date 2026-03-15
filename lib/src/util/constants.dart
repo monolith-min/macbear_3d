@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart' hide Matrix4;
+
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../../macbear_3d.dart' hide Colors;
 
 enum M3Axis { x, y, z }
 
@@ -57,4 +59,28 @@ class M3Constants {
     ..specular = Vector3(0.5, 0.5, 0.5)
     ..shininess = 64
     ..reflection = 0.9;
+}
+
+// package: local font asset
+class M3Package {
+  static String? name = "macbear_3d";
+
+  // fixed width font
+  static TextStyle textStyleRobotoMono({double fontSize = 32}) {
+    TextStyle style = TextStyle(
+      fontFamily: 'RobotoMono',
+      package: name, // 強制使用 package 命名空間
+      fontSize: fontSize,
+      color: Colors.white,
+      letterSpacing: 1.1, // 這裡設定字距，數值越大間隔越開
+      height: 1.1,
+      // shadows: const [Shadow(blurRadius: 1, offset: Offset(1, 1))],
+    );
+
+    return style;
+  }
+
+  static String asset(String path) {
+    return 'packages/$name/$path';
+  }
 }

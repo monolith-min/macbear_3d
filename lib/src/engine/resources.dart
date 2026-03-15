@@ -36,6 +36,8 @@ class M3Resources {
   // Unit geometries
   // ------------------------------
   static final unitCube = M3BoxGeom(1.0, 1.0, 1.0);
+  static final unitBone = M3OctahedralGeom(0.5, bias: Vector3(-0.6, 0, 0));
+  static final unitOctahedral = M3OctahedralGeom(0.5);
   static final unitSphere = M3SphereGeom(0.5);
 
   // ------------------------------
@@ -101,6 +103,8 @@ class M3Resources {
     debugView;
 
     unitCube;
+    unitBone;
+    unitOctahedral;
     unitSphere;
     debugPrint('M3Resources: unit geometries initialized');
 
@@ -194,6 +198,8 @@ class M3Resources {
     debugView.dispose();
 
     unitCube.dispose();
+    unitBone.dispose();
+    unitOctahedral.dispose();
     unitSphere.dispose();
 
     // 2D

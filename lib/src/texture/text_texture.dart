@@ -2,25 +2,21 @@ part of 'texture.dart';
 
 class M3TextTexture extends M3Texture {
   String text;
-  final String _fontFamily;
-  final double _fontSize;
-  Color color = const Color(0xFFFFFFFF);
+  TextStyle style;
 
-  M3TextTexture._(this.text, {double fontSize = 32, String fontFamily = 'Arial'})
-    : _fontFamily = fontFamily,
-      _fontSize = fontSize,
+  M3TextTexture._(this.text, {TextStyle? style})
+    : style = style ?? const TextStyle(color: Color(0xFFFFFFFF), fontSize: 32, fontFamily: 'Arial'),
       super(isCubemap: false) {
-    name = "font($_fontSize, $_fontFamily): [$text]";
+    name = "font(${this.style.fontSize}, ${this.style.fontFamily}): [$text]";
   }
 
   static Future<M3TextTexture> createFixed(
     String text, {
     int width = 256,
     int height = 256,
-    double fontSize = 32,
-    String fontFamily = 'Arial',
+    TextStyle? style,
   }) async {
-    final tex = M3TextTexture._(text, fontSize: fontSize, fontFamily: fontFamily);
+    final tex = M3TextTexture._(text, style: style);
     tex.name = "createFixed: ${tex.name}";
     tex.texW = width;
     tex.texH = height;
@@ -42,15 +38,12 @@ class M3TextTexture extends M3Texture {
     final canvas = ui.Canvas(recorder, Rect.fromLTWH(0, 0, texW.toDouble(), texH.toDouble()));
 
     // 背景透明
-    final paint = Paint()..color = Color(0x00000000);
+    final paint = Paint()..color = const Color(0x00000000);
     canvas.drawRect(Rect.fromLTWH(0, 0, texW.toDouble(), texH.toDouble()), paint);
 
     // 畫文字
     final textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(color: color, fontSize: _fontSize, fontFamily: _fontFamily),
-      ),
+      text: TextSpan(text: text, style: style),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout(maxWidth: texW.toDouble());
@@ -62,8 +55,8 @@ class M3TextTexture extends M3Texture {
   }
 
   // size depends on text content
-  static Future<M3TextTexture> createFromText(String text, {double fontSize = 32, String fontFamily = 'Arial'}) async {
-    final tex = M3TextTexture._(text, fontSize: fontSize, fontFamily: fontFamily);
+  static Future<M3TextTexture> createFromText(String text, {TextStyle? style}) async {
+    final tex = M3TextTexture._(text, style: style);
     tex.name = "createFromText: ${tex.name}";
     await tex._createTextureFromLabel(text);
     debugPrint(tex.toString());
@@ -78,17 +71,7 @@ class M3TextTexture extends M3Texture {
     final canvas = Canvas(recorder);
 
     final textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          fontFamily: _fontFamily, // Courier, RobotoMono
-          fontSize: _fontSize,
-          color: Colors.white,
-          letterSpacing: 1.1, // 這裡設定字距，數值越大間隔越開
-          height: 1.1,
-          // shadows: const [Shadow(blurRadius: 1, offset: Offset(1, 1))],
-        ),
-      ),
+      text: TextSpan(text: text, style: style),
       textDirection: TextDirection.ltr,
     )..layout();
 

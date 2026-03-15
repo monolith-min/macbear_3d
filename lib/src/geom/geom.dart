@@ -16,6 +16,7 @@ part 'primitive/box_geom.dart';
 part 'primitive/capsule_geom.dart';
 part 'primitive/cylinder_geom.dart';
 part 'primitive/ellipsoid_geom.dart';
+part 'primitive/octahedral_geom.dart';
 part 'primitive/plane_geom.dart';
 part 'primitive/pyramid_geom.dart';
 part 'primitive/sphere_geom.dart';

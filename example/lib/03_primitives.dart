@@ -71,6 +71,10 @@ class PrimitivesScene_03 extends M3Scene {
     // 03-7: capsule geometry
     final capsule = addMesh(M3Mesh(M3CapsuleGeom(0.3, 1)), Vector3(-2, 2, 0));
     capsule.mesh!.mtr.texDiffuse = texGrid2;
+
+    // 03-8: octahedral geometry
+    final octahedral = addMesh(M3Mesh(M3OctahedralGeom(0.5)), Vector3(0, 0, 1.5));
+    octahedral.mesh!.mtr.texDiffuse = texGrid2;
   }
 
   @override

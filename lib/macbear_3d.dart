@@ -3,6 +3,11 @@ export 'src/export.dart';
 
 export 'src/2d/shape_2d.dart';
 export 'src/2d/sprite_2d.dart';
+export 'src/2d/text_2d.dart';
+export 'src/anim/bvh_animator.dart';
+export 'src/anim/bvh_data.dart';
+export 'src/anim/bvh_parser.dart';
+export 'src/anim/bvh_skeleton.dart';
 export 'src/engine/app_engine.dart';
 export 'src/engine/render_engine.dart';
 export 'src/engine/resource_manager.dart';

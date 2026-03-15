@@ -60,21 +60,29 @@ class M3Framebuffer {
     }
 
     // Check status
-    final status = gl.checkFramebufferStatus(WebGL.FRAMEBUFFER);
-    if (status != WebGL.FRAMEBUFFER_COMPLETE) {
-      debugPrint("Framebuffer not complete: $status");
-    }
+    _checkStatus();
+  }
+
+  void _checkStatus() {
+    assert(() {
+      final status = gl.checkFramebufferStatus(WebGL.FRAMEBUFFER);
+      if (status != WebGL.FRAMEBUFFER_COMPLETE) {
+        debugPrint("FBO error: $status");
+      }
+
+      return true;
+    }());
   }
 
   void bindFace(int faceTarget, WebGLTexture colorTexture) {
-    gl.bindFramebuffer(WebGL.FRAMEBUFFER, _fbo);
+    bind();
     gl.framebufferTexture2D(WebGL.FRAMEBUFFER, WebGL.COLOR_ATTACHMENT0, faceTarget, colorTexture, 0);
-    gl.viewport(0, 0, frameW, frameH);
   }
 
   void bind() {
     gl.bindFramebuffer(WebGL.FRAMEBUFFER, _fbo);
     gl.viewport(0, 0, frameW, frameH);
+    _checkStatus();
   }
 
   void dispose() {

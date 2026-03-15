@@ -78,7 +78,7 @@ class SkyboxScene_02 extends M3Scene {
       child: Container(
         padding: const EdgeInsets.all(8),
         color: Colors.black54,
-        child: Text(_gpuInfo.toString(), style: const TextStyle(color: Colors.blue, fontSize: 12)),
+        child: Text(_gpuInfo.toString(), style: const TextStyle(color: Colors.yellow, fontSize: 12)),
       ),
     );
   }

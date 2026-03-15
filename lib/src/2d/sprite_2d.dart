@@ -1,18 +1,16 @@
 // Macbear3D engine
 import '../../macbear_3d.dart';
 
-part 'text_2d.dart';
-
 /// A 2D sprite with texture atlas support (row x column grid).
 class M3Sprite2D {
   final M3Rectangle2D _rect = M3Rectangle2D();
   M3Material mtr = M3Material();
 
-  late double _spriteW;
-  late double _spriteH;
+  late double spriteW;
+  late double spriteH;
 
-  late double _cellW;
-  late double _cellH;
+  late double cellW;
+  late double cellH;
 
   // sample: row x col = (4 x 3)
   // 0 1 2 3
@@ -23,21 +21,21 @@ class M3Sprite2D {
 
   M3Sprite2D(M3Texture tex, {this.rowCount = 1, this.colCount = 1}) {
     mtr.texDiffuse = tex;
-    _cellW = tex.texW.toDouble() / rowCount;
-    _cellH = tex.texH.toDouble() / colCount;
+    cellW = tex.texW.toDouble() / rowCount;
+    cellH = tex.texH.toDouble() / colCount;
 
-    _spriteW = _cellW;
-    _spriteH = _cellH;
+    spriteW = cellW;
+    spriteH = cellH;
 
     if (rowCount > 1) {
-      _spriteW -= 1;
+      spriteW -= 1;
     }
 
     if (colCount > 1) {
-      _spriteH -= 1;
+      spriteH -= 1;
     }
 
-    _rect.setRectangle(0, 0, _spriteW, _spriteH);
+    _rect.setRectangle(0, 0, spriteW, spriteH);
     _rect.mappingUV(0, 0, tex.texW.toDouble(), tex.texH.toDouble());
     _rect.createVBO(WebGL.STATIC_DRAW);
     debugPrint(_rect.toString());
@@ -56,7 +54,7 @@ class M3Sprite2D {
     mtr.texMatrix[6] = offsetX;
     mtr.texMatrix[7] = offsetY;
 
-    M3Shape2D.prog2D.setMaterial(mtr, color ?? Colors.white);
+    M3Shape2D.prog2D.setMaterial(mtr, color ?? Vector4(1, 1, 1, 1));
     M3Shape2D.prog2D.setModelMatrix(mMatrix);
 
     // draw shape2D

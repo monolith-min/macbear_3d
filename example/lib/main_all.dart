@@ -15,10 +15,12 @@ import '07_physics.dart';
 import '08_text_3d.dart';
 import '09_pbr_test.dart';
 import '10_terrain.dart';
+import '11_bvh.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // M3Package.name = null; // remove it when release
   M3AppEngine.instance.onDidInit = onDidInit;
   M3AppEngine.backgroundColor = Vector3(0.1, 0.2, 0.6);
 
@@ -32,14 +34,13 @@ Future<void> main() async {
 
 Future<void> onDidInit() async {
   debugPrint('main_all.dart: onDidInit');
-
-  final renderEngine = M3AppEngine.instance.renderEngine;
-  renderEngine.createShadowMap(width: 2048, height: 4096);
+  final appEngine = M3AppEngine.instance;
+  appEngine.renderEngine.createShadowMap(width: 2048, height: 4096);
 
   // ignore: unused_local_variable
   final scene00 = StarterScene_00();
   final initScene = CubeScene_01();
-  await M3AppEngine.instance.setScene(initScene);
+  await appEngine.setScene(initScene);
 }
 
 class MainApp extends StatelessWidget {
@@ -430,6 +431,16 @@ class _MainPageState extends State<MainPage> {
               _loadScene(TerrainScene_10());
             },
             child: const Icon(Icons.terrain),
+          ),
+          const SizedBox(width: 6),
+          FloatingActionButton(
+            heroTag: 'scene_11',
+            backgroundColor: _selectedSceneIndex == 11 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 11;
+              _loadScene(BvhScene_11());
+            },
+            child: const Text('BVH'),
           ),
         ],
       ),

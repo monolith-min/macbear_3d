@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Colors, Matrix4;
 import 'package:macbear_3d/macbear_3d.dart';
 
 void main() {
+  // M3Package.name = null; // remove it when release
   M3AppEngine.instance.onDidInit = onDidInit;
 
   runApp(const MyApp());
@@ -13,6 +14,7 @@ Future<void> onDidInit() async {
   debugPrint('main.dart: onDidInit');
   final appEngine = M3AppEngine.instance;
   appEngine.renderEngine.createShadowMap(width: 1024, height: 1024);
+
   await appEngine.setScene(MyScene());
 }
 

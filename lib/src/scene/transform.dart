@@ -4,11 +4,38 @@ import 'package:vector_math/vector_math.dart';
 ///
 /// Lazily recomputes the world matrix when marked dirty.
 class M3Transform {
-  Vector3 position = Vector3.zero();
-  Quaternion rotation = Quaternion.identity();
-  Vector3 scale = Vector3.all(1);
+  Vector3 _position = Vector3.zero();
+  Quaternion _rotation = Quaternion.identity();
+  Vector3 _scale = Vector3.all(1);
 
-  M3Transform? parent;
+  Vector3 get position => _position;
+  set position(Vector3 v) {
+    _position = v;
+    markDirty();
+  }
+
+  Quaternion get rotation => _rotation;
+  set rotation(Quaternion q) {
+    _rotation = q;
+    markDirty();
+  }
+
+  Vector3 get scale => _scale;
+  set scale(Vector3 v) {
+    _scale = v;
+    markDirty();
+  }
+
+  M3Transform? _parent;
+  M3Transform? get parent => _parent;
+  set parent(M3Transform? p) {
+    if (_parent == p) return;
+    _parent?.children.remove(this);
+    _parent = p;
+    _parent?.children.add(this);
+    markDirty();
+  }
+
   final List<M3Transform> children = [];
 
   bool _dirty = true;
@@ -31,7 +58,7 @@ class M3Transform {
   }
 
   void _rebuild() {
-    final local = Matrix4.compose(position, rotation, scale);
+    final local = Matrix4.compose(_position, _rotation, _scale);
     _worldMatrix = parent != null ? parent!.worldMatrix * local : local;
     _dirty = false;
   }

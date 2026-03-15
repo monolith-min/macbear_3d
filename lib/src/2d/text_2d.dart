@@ -1,4 +1,6 @@
-part of 'sprite_2d.dart';
+import 'package:flutter/material.dart' hide Matrix4;
+// Macbear3D engine
+import '../../macbear_3d.dart' hide Colors;
 
 /// ASCII text renderer using a monospaced font texture atlas.
 class M3Text2D extends M3Sprite2D {
@@ -13,9 +15,8 @@ class M3Text2D extends M3Sprite2D {
 
   static Future<M3Text2D> createText2D({double fontSize = 32}) async {
     // 'RobotoMono': 'assets/fonts/RobotoMono', 'Courier New': for windows
-    String fontFamily = 'RobotoMono';
-    M3Texture tex = await M3TextTexture.createFromText(_ascii, fontSize: fontSize, fontFamily: fontFamily);
-
+    TextStyle style = M3Package.textStyleRobotoMono(fontSize: fontSize);
+    M3Texture tex = await M3TextTexture.createFromText(_ascii, style: style);
     M3Text2D text2D = M3Text2D(tex);
 
     return text2D;
@@ -27,7 +28,7 @@ class M3Text2D extends M3Sprite2D {
       final char = text[i];
       if (char == '\n') {
         offset.x = 0;
-        offset.y += _spriteH;
+        offset.y += spriteH;
       } else {
         final charIndex = char.codeUnitAt(0) - firstChar;
         final textMatrix = Matrix4.copy(mMatrix);
@@ -35,7 +36,7 @@ class M3Text2D extends M3Sprite2D {
 
         // draw sprite by index
         super.draw(textMatrix, index: charIndex, color: color);
-        offset.x += _cellW;
+        offset.x += cellW;
       }
     }
   }
