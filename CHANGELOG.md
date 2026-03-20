@@ -1,3 +1,10 @@
+## 0.7.1
+
+* Update:
+  * **Assets**: Moved fonts into the package assets (`assets/fonts`).
+  * **BVH Loader**: Added support for Biovision Hierarchy (BVH) files.
+  * **Bone Mesh**: Added `M3OctahedralGeom` for bone visualization.
+
 ## 0.7.0
 
 * Update:

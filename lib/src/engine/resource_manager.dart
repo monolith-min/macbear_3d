@@ -62,7 +62,7 @@ class M3ResourceManager {
   /// 2. Otherwise, it treats [path] as a local asset and uses [rootBundle].
   ///
   /// This method is the primary portal for remote/local resource bridging.
-  Future<ByteBuffer> loadBuffer(String path) async {
+  static Future<ByteBuffer> loadBuffer(String path) async {
     final isUrl = path.startsWith('http://') || path.startsWith('https://');
 
     if (isUrl) {
@@ -73,7 +73,7 @@ class M3ResourceManager {
       return response.bodyBytes.buffer;
     } else {
       // Asset path normalization: Ensure it starts with 'assets/' for rootBundle
-      final fullPath = path.startsWith('assets/') ? path : 'assets/$path';
+      final fullPath = path.startsWith('assets/') || path.startsWith('packages/') ? path : 'assets/$path';
       final data = await rootBundle.load(fullPath);
       return data.buffer;
     }

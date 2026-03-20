@@ -24,8 +24,8 @@ Preview the `main_all.dart` example live in your browser!
 - **Resource Management**: Efficient centralized loading and caching for textures, meshes, and fonts.
 
 ### 🎨 Rendering & Visuals
-- **Model Loaders**: Native support for **glTF/GLB** and **OBJ** formats.
-- **Skeletal Animation**: Full support for skinned meshes and bone-based animations.
+- **Model Loaders**: Native support for **glTF/GLB**, **OBJ**, and **BVH** formats.
+- **Skeletal Animation**: Full support for skinned meshes and bone-based animations (including `M3OctahedralGeom` for bone visualization).
 - **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)**, **PBR (Physically Based Rendering)** and **IBL (Image-Based Lighting)** support.
 - **Dynamic Reflection Probe**: Added `M3ReflectionProbe` for real-time cubemap capture and dynamic reflections.
 - **Terrain System**: Procedural terrain generation using Perlin Noise.
@@ -60,7 +60,7 @@ Add `macbear_3d` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.7.0
+  macbear_3d: ^0.7.1
 ```
 
 ## Usage
@@ -149,6 +149,14 @@ output to uml/macbear_3d.puml
 ## Contributing
 
 Contributions are welcome! Please feel free to check the [issues](https://github.com/macbearchen/macbear_3d/issues) or submit a Pull Request.
+
+## Credits
+
+### Motion Capture Data
+This motion capture data is licensed by mocapdata.com, Eyes, JAPAN Co. Ltd. under the Creative Commons Attribution 2.1 Japan License.
+To view a copy of this license, contact mocapdata.com, Eyes, JAPAN Co. Ltd. or visit http://creativecommons.org/licenses/by/2.1/jp/ .
+http://mocapdata.com/
+(C) Copyright Eyes, JAPAN Co. Ltd. 2008-2009.
 
 ## License
 

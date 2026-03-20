@@ -16,12 +16,14 @@ class BvhScene_11 extends M3Scene {
     // BVH resource: Biovision hierarchical data
     // https://theorangeduck.com/media/uploads/BVHView/bvhview.html
     // http://lo-th.github.io/olympe/BVH_player.html
+    // BVH data from mocapdata.com:
+    // This motion capture data is licensed by mocapdata.com, Eyes, JAPAN Co. Ltd. under the Creative Commons Attribution 2.1 Japan License.
+    // To view a copy of this license, contact mocapdata.com, Eyes, JAPAN Co. Ltd. or visit http://creativecommons.org/licenses/by/2.1/jp/ .
     // http://mocapdata.com/
+    // (C) Copyright Eyes, JAPAN Co. Ltd. 2008-2009.
     // Load and parse BVH from assets
-    final filaname = 'assets/example/bvh/01_02.bvh';
-    final filaname2 = 'assets/example/bvh/example.bvh';
-    final filaname3 = 'assets/example/bvh/baseball-05-lead-yokoyama.bvh';
-    final bvhString = await rootBundle.loadString(filaname3);
+    final bvhFile = 'assets/example/karate-03-spin kick-yokoyama.bvh';
+    final bvhString = await rootBundle.loadString(bvhFile);
     final bvhData = BvhParser.parse(bvhString);
     skeleton = BvhSkeleton(bvhData);
     skeleton?.rootTransform.scale = Vector3.all(0.025);
@@ -29,7 +31,7 @@ class BvhScene_11 extends M3Scene {
     skeleton?.rootTransform.rotation = Quaternion.fromRotation(M3Constants.rotXPos90);
     skeleton?.addToScene(this);
 
-    final plane = addMesh(M3Mesh(M3PlaneGeom(50, 50, uvScale: Vector2.all(5.0))), Vector3(0, 0, -5));
+    final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(5.0))), Vector3(0, 0, 0));
     plane.color = Vector4(0.1, 1.0, 0.3, 1.0);
   }
 

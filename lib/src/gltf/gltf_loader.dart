@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:flutter/services.dart' show rootBundle;
-
-import '../texture/texture.dart';
+// Macbear3D engine
+import '../../macbear_3d.dart';
 import 'gltf_parser.dart';
 
 /// Loader for glTF and GLB 3D model files from assets or binary data.
@@ -13,10 +11,8 @@ import 'gltf_parser.dart';
 class M3GltfLoader {
   /// Loads a glTF or GLB file from the assets folder.
   static Future<GltfDocument> load(String path) async {
-    // Normalizing asset path
-    final fullPath = path.startsWith('assets/') ? path : 'assets/$path';
-    final bytes = await rootBundle.load(fullPath);
-    return loadFromBytes(bytes.buffer.asUint8List(), path);
+    final bytes = await M3ResourceManager.loadBuffer(path);
+    return loadFromBytes(bytes.asUint8List(), path);
   }
 
   /// Entry point for parsing glTF/GLB data from raw bytes.

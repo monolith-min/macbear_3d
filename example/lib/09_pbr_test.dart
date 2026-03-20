@@ -8,7 +8,7 @@ class PbrTestScene_09 extends M3Scene {
     if (isLoaded) return;
     await super.load();
 
-    camera.setEuler(0, -pi / 4, 0, distance: 15);
+    camera.setEuler(-pi / 12, -pi / 8, 0, distance: 15);
 
     final sphereGeom = M3Resources.unitSphere;
 
@@ -61,7 +61,7 @@ class PbrTestScene_09 extends M3Scene {
     super.update(delta);
 
     // rotate light
-    light.setEuler(light.euler.yaw + delta * 0.1, -pi / 5, 0, distance: light.distanceToTarget);
+    light.setEuler(light.euler.yaw + delta * 0.1, -pi / 3, 0, distance: light.distanceToTarget);
 
     // Rotate camera slowly
     // camera.setEuler(

@@ -103,7 +103,7 @@ class M3Mesh {
   /// and the source (asset or remote URL).
   static Future<M3Mesh> load(String path) async {
     // Centrally fetch raw bytes via ResourceManager
-    final buffer = await M3AppEngine.instance.resourceManager.loadBuffer(path);
+    final buffer = await M3ResourceManager.loadBuffer(path);
 
     // Normalize extension for detection (ignoring URL query params)
     final ext = path.split('.').last.toLowerCase().split('?').first;

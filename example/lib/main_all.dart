@@ -145,7 +145,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Macbear 3D Engine - Powered by ANGLE')),
+      // appBar: AppBar(title: const Text('Macbear 3D Engine - Powered by ANGLE')),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,

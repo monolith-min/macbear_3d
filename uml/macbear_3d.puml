@@ -61,6 +61,63 @@ class "macbear_3d::src::mesh::obj_loader.dart::M3ObjLoader" {
   {static} -void _processVertex()
 }
 
+class "macbear_3d::src::anim::bvh_data.dart::BvhJoint" {
+  +String name
+  +Vector3 offset
+  +List<String> channels
+  +List<BvhJoint> children
+  +int? channelOffset
+  +bool isEndSite
+  +String toString()
+}
+
+"macbear_3d::src::anim::bvh_data.dart::BvhJoint" o-- "vector_math::vector_math.dart::Vector3"
+
+class "macbear_3d::src::anim::bvh_data.dart::BvhData" {
+  +BvhJoint root
+  +int frameCount
+  +double frameTime
+  +List<BvhJoint> allJoints
+  +List<List<double>> frames
+  +double duration
+  +String toString()
+}
+
+"macbear_3d::src::anim::bvh_data.dart::BvhData" o-- "macbear_3d::src::anim::bvh_data.dart::BvhJoint"
+
+class "macbear_3d::src::anim::bvh_parser.dart::BvhParser" {
+  {static} +BvhData parse()
+}
+
+class "macbear_3d::src::anim::bvh_skeleton.dart::BvhSkeleton" {
+  +BvhData data
+  +BvhAnimator animator
+  +Map<BvhJoint, M3Transform> jointTransforms
+  +List<M3Entity> jointEntities
+  +List<M3Entity> boneEntities
+  +M3Transform rootTransform
+  +void addToScene()
+  -void _createHierarchy()
+  +void update()
+  -void _syncEntities()
+}
+
+"macbear_3d::src::anim::bvh_skeleton.dart::BvhSkeleton" o-- "macbear_3d::src::anim::bvh_data.dart::BvhData"
+"macbear_3d::src::anim::bvh_skeleton.dart::BvhSkeleton" o-- "macbear_3d::src::anim::bvh_animator.dart::BvhAnimator"
+"macbear_3d::src::anim::bvh_skeleton.dart::BvhSkeleton" o-- "macbear_3d::src::scene::transform.dart::M3Transform"
+
+class "macbear_3d::src::anim::bvh_animator.dart::BvhAnimator" {
+  +BvhData data
+  -double _time
+  +bool isPlaying
+  +bool loop
+  +double speed
+  +void update()
+  -void _applyJointAnimation()
+}
+
+"macbear_3d::src::anim::bvh_animator.dart::BvhAnimator" o-- "macbear_3d::src::anim::bvh_data.dart::BvhData"
+
 class "macbear_3d::src::util::platform::platform_info.dart::GraphicsInfo" {
   +String vendor
   +String renderer
@@ -90,6 +147,12 @@ class "macbear_3d::src::util::constants.dart::M3Constants" {
 "macbear_3d::src::util::constants.dart::M3Constants" o-- "vector_math::vector_math.dart::Matrix3"
 "macbear_3d::src::util::constants.dart::M3Constants" o-- "vector_math::vector_math.dart::Matrix4"
 "macbear_3d::src::util::constants.dart::M3Constants" o-- "macbear_3d::src::texture::material.dart::M3Material"
+
+class "macbear_3d::src::util::constants.dart::M3Package" {
+  {static} +String? name
+  {static} +TextStyle textStyleRobotoMono()
+  {static} +String asset()
+}
 
 class "macbear_3d::src::util::constants.dart::M3Axis" {
   +int index
@@ -494,6 +557,11 @@ class "macbear_3d::src::geom::geom.dart::M3EllipsoidGeom" {
 
 "macbear_3d::src::geom::geom.dart::M3Geom" <|-- "macbear_3d::src::geom::geom.dart::M3EllipsoidGeom"
 
+class "macbear_3d::src::geom::geom.dart::M3OctahedralGeom" {
+}
+
+"macbear_3d::src::geom::geom.dart::M3Geom" <|-- "macbear_3d::src::geom::geom.dart::M3OctahedralGeom"
+
 class "macbear_3d::src::geom::geom.dart::M3PlaneGeom" {
   {static} +double formulaZ()
 }
@@ -794,9 +862,7 @@ class "macbear_3d::src::texture::texture.dart::M3Texture" {
 
 class "macbear_3d::src::texture::texture.dart::M3TextTexture" {
   +String text
-  -String _fontFamily
-  -double _fontSize
-  +Color color
+  +TextStyle style
   {static} +dynamic createFixed()
   +dynamic updateText()
   -dynamic _updateTexture()
@@ -805,7 +871,7 @@ class "macbear_3d::src::texture::texture.dart::M3TextTexture" {
   -dynamic _createTextureFromLabel()
 }
 
-"macbear_3d::src::texture::texture.dart::M3TextTexture" o-- "dart::ui::Color"
+"macbear_3d::src::texture::texture.dart::M3TextTexture" o-- "flutter::src::painting::text_style.dart::TextStyle"
 "macbear_3d::src::texture::texture.dart::M3Texture" <|-- "macbear_3d::src::texture::texture.dart::M3TextTexture"
 
 abstract class "macbear_3d::src::texture::ktx_info.dart::M3GL" {
@@ -880,13 +946,17 @@ class "macbear_3d::src::physics::physics_engine.dart::M3PhysicsEngine" {
 "macbear_3d::src::physics::physics_engine.dart::M3PhysicsEngine" o-- "oimo_physics::core::world_core.dart::World"
 
 class "macbear_3d::src::scene::transform.dart::M3Transform" {
+  -Vector3 _position
+  -Quaternion _rotation
+  -Vector3 _scale
+  -M3Transform? _parent
+  +List<M3Transform> children
+  -bool _dirty
+  -Matrix4 _worldMatrix
   +Vector3 position
   +Quaternion rotation
   +Vector3 scale
   +M3Transform? parent
-  +List<M3Transform> children
-  -bool _dirty
-  -Matrix4 _worldMatrix
   +bool isDirty
   +Matrix4 worldMatrix
   +void markDirty()
@@ -1175,6 +1245,7 @@ class "macbear_3d::src::engine::framebuffer.dart::M3Framebuffer" {
   -Renderbuffer? _depthRenderbuffer
   +RenderingContext gl
   +WebGLTexture depthTexture
+  -void _checkStatus()
   +void bindFace()
   +void bind()
   +void dispose()
@@ -1216,6 +1287,8 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
   {static} +M3SphereGeom debugDot
   {static} +M3PlaneGeom debugView
   {static} +M3BoxGeom unitCube
+  {static} +M3OctahedralGeom unitBone
+  {static} +M3OctahedralGeom unitOctahedral
   {static} +M3SphereGeom unitSphere
   {static} -M3Shape2D? _line
   {static} -M3Shape2D? _triangle
@@ -1246,8 +1319,9 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3BoxGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3SphereGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3PlaneGeom"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3OctahedralGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::shape_2d.dart::M3Shape2D"
-"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::sprite_2d.dart::M3Text2D"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::text_2d.dart::M3Text2D"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::shape_2d.dart::M3Rectangle2D"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3Program"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::program::program.dart::M3ProgramEye"
@@ -1263,7 +1337,7 @@ class "macbear_3d::src::engine::resource_manager.dart::M3ResourceManager" {
   +Map<String, M3TrueTypeParser> fonts
   +dynamic loadMesh()
   +dynamic loadFont()
-  +dynamic loadBuffer()
+  {static} +dynamic loadBuffer()
 }
 
 class "macbear_3d::src::engine::render_engine.dart::M3RenderEngine" {
@@ -1332,10 +1406,10 @@ class "macbear_3d::src::engine::render_engine.dart::M3RenderStats" {
 class "macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" {
   -M3Rectangle2D _rect
   +M3Material mtr
-  -double _spriteW
-  -double _spriteH
-  -double _cellW
-  -double _cellH
+  +double spriteW
+  +double spriteH
+  +double cellW
+  +double cellH
   +int rowCount
   +int colCount
   +void dispose()
@@ -1345,7 +1419,7 @@ class "macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" {
 "macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" o-- "macbear_3d::src::2d::shape_2d.dart::M3Rectangle2D"
 "macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" o-- "macbear_3d::src::texture::material.dart::M3Material"
 
-class "macbear_3d::src::2d::sprite_2d.dart::M3Text2D" {
+class "macbear_3d::src::2d::text_2d.dart::M3Text2D" {
   {static} +int firstChar
   {static} +int lastChar
   {static} -String _ascii
@@ -1353,7 +1427,7 @@ class "macbear_3d::src::2d::sprite_2d.dart::M3Text2D" {
   +void drawText()
 }
 
-"macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" <|-- "macbear_3d::src::2d::sprite_2d.dart::M3Text2D"
+"macbear_3d::src::2d::sprite_2d.dart::M3Sprite2D" <|-- "macbear_3d::src::2d::text_2d.dart::M3Text2D"
 
 class "macbear_3d::src::2d::shape_2d.dart::M3Shape2D" {
   -int _primitiveType

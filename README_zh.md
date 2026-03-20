@@ -25,8 +25,8 @@
 - **資源管理**: 預建的高效集中式加載與快取機制（紋理、模型、字體）。
 
 ### 🎨 渲染與視覺
-- **模型加載**: 原生支援 **glTF/GLB** 與 **OBJ** 格式。
-- **骨架動畫**: 完整支援皮膚網格 (Skinned Mesh) 與基於骨骼的動畫系統。
+- **模型加載**: 原生支援 **glTF/GLB**、**OBJ** 與 **BVH (骨架動畫)** 格式。
+- **骨架動畫**: 完整支援皮膚網格 (Skinned Mesh) 與基於骨骼的動畫系統 (包含 `M3OctahedralGeom` 骨骼視覺化)。
 - **進階光照**: 支援動態光照、**級聯陰影貼圖 (CSM)**、**PBR (實體渲染)** 與 **IBL (環境光照)**。
 - **動態反射探針**: 加入 `M3ReflectionProbe` 實作即時環境捕捉與動態反射。
 - **地形系統**: 使用 Perlin Noise 實現程序化地形生成。
@@ -43,7 +43,7 @@
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.7.0
+  macbear_3d: ^0.7.1
 ```
 
 ## 快速上手
@@ -107,6 +107,13 @@ class MyScene extends M3Scene {
 ## 參與貢獻
 
 歡迎任何形式的貢獻！如果您發現 Bug 或有新功能建議，請隨時提交 [Issues](https://github.com/macbearchen/macbear_3d/issues) 或 Pull Request。
+
+## 鳴謝 (Credits)
+
+This motion capture data is licensed by mocapdata.com, Eyes, JAPAN Co. Ltd. under the Creative Commons Attribution 2.1 Japan License.
+To view a copy of this license, contact mocapdata.com, Eyes, JAPAN Co. Ltd. or visit http://creativecommons.org/licenses/by/2.1/jp/ .
+http://mocapdata.com/
+(C) Copyright Eyes, JAPAN Co. Ltd. 2008-2009.
 
 ## 開源協議
 
