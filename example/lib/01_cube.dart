@@ -30,13 +30,11 @@ Click buttons to test examples.
   2. Skybox scene
   3. Primitives scene
   4. Obj teapot scene
-  5. GLTF scene
+  5. Animated scene: Gltf, BVH
   6. Shadow for large scene
   7. Physics scene
   8. Text 3D scene
-  9. PBR Test scene
-  10. Terrain scene
-  11. BVH scene''';
+  9. PBR Test scene''';
     return fm.Positioned(
       top: 50,
       left: 8,

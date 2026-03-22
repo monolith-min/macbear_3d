@@ -9,12 +9,14 @@ import '01_cube.dart';
 import '02_skybox.dart';
 import '03_primitives.dart';
 import '04_obj_teapot.dart';
-import '05_gltf.dart';
+import '05_animated.dart';
 import '06_shadowmap.dart';
 import '07_physics.dart';
 import '08_text_3d.dart';
 import '09_pbr_test.dart';
+// ignore: unused_import
 import '10_terrain.dart';
+// ignore: unused_import
 import '11_bvh.dart';
 
 Future<void> main() async {
@@ -378,7 +380,7 @@ class _MainPageState extends State<MainPage> {
             backgroundColor: _selectedSceneIndex == 5 ? Colors.lightGreen : null,
             onPressed: () {
               _selectedSceneIndex = 5;
-              _loadScene(GlftScene_05());
+              _loadScene(AnimatedScene_05());
             },
             child: const Icon(Icons.filter_5),
           ),
@@ -421,26 +423,6 @@ class _MainPageState extends State<MainPage> {
               _loadScene(PbrTestScene_09());
             },
             child: const Icon(Icons.filter_9),
-          ),
-          const SizedBox(width: 6),
-          FloatingActionButton(
-            heroTag: 'scene_10',
-            backgroundColor: _selectedSceneIndex == 10 ? Colors.lightGreen : null,
-            onPressed: () {
-              _selectedSceneIndex = 10;
-              _loadScene(TerrainScene_10());
-            },
-            child: const Icon(Icons.terrain),
-          ),
-          const SizedBox(width: 6),
-          FloatingActionButton(
-            heroTag: 'scene_11',
-            backgroundColor: _selectedSceneIndex == 11 ? Colors.lightGreen : null,
-            onPressed: () {
-              _selectedSceneIndex = 11;
-              _loadScene(BvhScene_11());
-            },
-            child: const Text('BVH'),
           ),
         ],
       ),

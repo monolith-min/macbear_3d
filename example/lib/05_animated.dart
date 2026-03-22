@@ -2,12 +2,16 @@
 import 'main_all.dart';
 
 // ignore: camel_case_types
-class GlftScene_05 extends M3Scene {
+class AnimatedScene_05 extends M3Scene {
+  // Gltf models
   M3Entity? _duck;
   M3Entity? _man;
   M3Entity? _fox;
   int _foxAnimIndex = 0;
   double _foxAnimTimer = 0.0;
+
+  // BVH skeleton
+  BvhSkeleton? skeleton;
 
   @override
   Future<void> load() async {
@@ -15,7 +19,7 @@ class GlftScene_05 extends M3Scene {
     await super.load();
 
     camera.setLookat(Vector3(10, 0, 0), Vector3(0, 0, 1), Vector3(0, 0, 1));
-    camera.setEuler(pi / 6, -pi / 6, 0, distance: 10);
+    camera.setEuler(pi / 6, -pi / 6, 0, distance: 12);
 
     M3Texture texGround = M3Texture.createCheckerboard(
       size: 10,
@@ -73,6 +77,22 @@ class GlftScene_05 extends M3Scene {
 
     // set background color
     M3AppEngine.backgroundColor = Vector3(0.3, 0.1, 0.3);
+
+    // BVH resource: Biovision hierarchical data
+    // https://theorangeduck.com/media/uploads/BVHView/bvhview.html
+    // http://lo-th.github.io/olympe/BVH_player.html
+    // BVH data from mocapdata.com:
+    // This motion capture data is licensed by mocapdata.com, Eyes, JAPAN Co. Ltd. under the Creative Commons Attribution 2.1 Japan License.
+    // To view a copy of this license, contact mocapdata.com, Eyes, JAPAN Co. Ltd. or visit http://creativecommons.org/licenses/by/2.1/jp/ .
+    // http://mocapdata.com/
+    // (C) Copyright Eyes, JAPAN Co. Ltd. 2008-2009.
+    // Load and parse BVH from assets
+    final bvhFile = 'assets/example/karate-03-spin kick-yokoyama.bvh';
+    skeleton = await BvhSkeleton.load(bvhFile);
+    skeleton?.rootTransform.scale = Vector3.all(0.025);
+    skeleton?.rootTransform.position = Vector3(0, -4, 0);
+    skeleton?.rootTransform.rotation = Quaternion.fromRotation(M3Constants.rotXPos90);
+    skeleton?.addToScene(this);
   }
 
   @override
@@ -100,5 +120,7 @@ class GlftScene_05 extends M3Scene {
       final quatYPos90 = Quaternion.euler(0, pi / 2, 0);
       _duck!.rotation = quatYPos90 * Quaternion.euler(angle, 0, 0);
     }
+
+    skeleton?.update(delta);
   }
 }

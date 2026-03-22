@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 // Macbear3D engine
 import '../../macbear_3d.dart';
+import 'bvh_data.dart';
+import 'bvh_parser.dart';
 
 /// Visualizes a BVH skeleton using joint spheres and bone boxes.
 class BvhSkeleton {
@@ -9,6 +13,13 @@ class BvhSkeleton {
   final List<M3Entity> jointEntities = [];
   final List<M3Entity> boneEntities = [];
   final M3Transform rootTransform = M3Transform();
+
+  static Future<BvhSkeleton> load(String path) async {
+    final bytes = await M3ResourceManager.loadBuffer(path);
+    final bvhString = utf8.decode(bytes.asUint8List());
+    final bvhData = BvhParser.parse(bvhString);
+    return BvhSkeleton(bvhData);
+  }
 
   BvhSkeleton(this.data) {
     animator = BvhAnimator(data);

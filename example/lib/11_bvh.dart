@@ -1,5 +1,4 @@
 // ignore_for_file: file_names
-import 'package:flutter/services.dart' show rootBundle;
 import 'main_all.dart';
 
 // ignore: camel_case_types
@@ -23,9 +22,7 @@ class BvhScene_11 extends M3Scene {
     // (C) Copyright Eyes, JAPAN Co. Ltd. 2008-2009.
     // Load and parse BVH from assets
     final bvhFile = 'assets/example/karate-03-spin kick-yokoyama.bvh';
-    final bvhString = await rootBundle.loadString(bvhFile);
-    final bvhData = BvhParser.parse(bvhString);
-    skeleton = BvhSkeleton(bvhData);
+    skeleton = await BvhSkeleton.load(bvhFile);
     skeleton?.rootTransform.scale = Vector3.all(0.025);
     skeleton?.rootTransform.position = Vector3.zero();
     skeleton?.rootTransform.rotation = Quaternion.fromRotation(M3Constants.rotXPos90);

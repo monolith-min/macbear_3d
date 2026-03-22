@@ -29,7 +29,7 @@ class M3Resources {
   static final debugAxis = M3DebugAxisGeom(size: 0.5);
   static final debugSphere = M3DebugSphereGeom(radius: 1.0);
   static final debugFrustum = M3BoxGeom(2.0, 2.0, 2.0);
-  static final debugDot = M3SphereGeom(0.1, widthSegments: 4, heightSegments: 2);
+  static final debugDot = M3SphereGeom(0.25, widthSegments: 4, heightSegments: 2);
   static final debugView = M3PlaneGeom(1.6, 1.6, widthSegments: 5, heightSegments: 4);
 
   // ------------------------------

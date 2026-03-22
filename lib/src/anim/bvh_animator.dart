@@ -1,5 +1,6 @@
 // Macbear3D engine
 import '../../macbear_3d.dart';
+import 'bvh_data.dart';
 
 /// Handles playback and interpolation of BVH motion data.
 class BvhAnimator {
