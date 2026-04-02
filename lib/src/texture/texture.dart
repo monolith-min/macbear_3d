@@ -10,7 +10,7 @@ import 'package:video_player/video_player.dart';
 import '../../macbear_3d.dart' hide Colors;
 import 'ktx_info.dart';
 import '../util/video/video_helper.dart';
-import 'package:m3_video_bridge/m3_video_bridge.dart';
+import '../video_bridge/video_bridge.dart';
 
 // parts for texture
 part 'text_texture.dart';

@@ -6,7 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import flutter_angle
-import m3_video_bridge
+import macbear_3d
 import video_player_avfoundation
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {

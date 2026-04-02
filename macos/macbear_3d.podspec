@@ -3,9 +3,9 @@
 # Run `pod lib lint m3_video_bridge.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'm3_video_bridge'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.name             = 'macbear_3d'
+  s.version          = '0.7.1'
+  s.summary          = 'Macbear 3D engine with video bridge.'
   s.description      = <<-DESC
 A new Flutter plugin project.
                        DESC

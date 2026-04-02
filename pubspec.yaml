@@ -34,8 +34,7 @@ dependencies:
   vector_math: ^2.2.0
   web: ^1.1.1
   video_player: ^2.11.1
-  m3_video_bridge:
-    path: ./m3_video_bridge
+  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +47,16 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.macbear.m3_video_bridge
+        pluginClass: M3VideoBridgePlugin
+      macos:
+        pluginClass: M3VideoBridgePlugin
+      ios:
+        pluginClass: M3VideoBridgePlugin
+
   assets:
     - assets/fonts/RobotoMono/
 
