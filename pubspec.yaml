@@ -9,7 +9,7 @@ topics:
   - opengl
   - glsl
   - macbear
-  - matrix
+  - gltf
 
 screenshots:
   - description: 'Macbear 3D Engine'
@@ -33,6 +33,9 @@ dependencies:
   oimo_physics: ^0.0.4
   vector_math: ^2.2.0
   web: ^1.1.1
+  video_player: ^2.11.1
+  m3_video_bridge:
+    path: ./m3_video_bridge
 
 dev_dependencies:
   flutter_test:

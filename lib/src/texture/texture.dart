@@ -1,13 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:video_player/video_player.dart';
 
 // Macbear3D engine
 import '../../macbear_3d.dart' hide Colors;
 import 'ktx_info.dart';
+import '../util/video/video_helper.dart';
+import 'package:m3_video_bridge/m3_video_bridge.dart';
 
-// part for texture
+// parts for texture
 part 'text_texture.dart';
+part 'external_texture.dart';
 
 /// WebGL texture wrapper supporting 2D and cubemap textures.
 ///
@@ -32,7 +39,10 @@ class M3Texture {
   final bool generateMipmaps;
   int texW = 32;
   int texH = 32;
-  int get target => isCubemap ? WebGL.TEXTURE_CUBE_MAP : WebGL.TEXTURE_2D;
+  int get target {
+    if (isCubemap) return WebGL.TEXTURE_CUBE_MAP;
+    return WebGL.TEXTURE_2D;
+  }
 
   M3Texture({this.isCubemap = false, this.generateMipmaps = true}) {
     _texture = gl.createTexture();
@@ -322,6 +332,7 @@ class M3Texture {
     bind();
     gl.texImage2D(faceTarget, 0, pixelFormat, texW, texH, 0, pixelFormat, WebGL.UNSIGNED_BYTE, pixels);
     if (generateMipmaps && !isCubemap) gl.generateMipmap(target);
+    pixels.dispose();
   }
 
   static Future<M3Texture> createWoodTexture({int size = 512}) async {

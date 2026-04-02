@@ -2,6 +2,7 @@
 // ignore: constant_identifier_names
 const String TexturedLighting_frag = r"""
 #version 300 es
+
 // TexturedLighting frag-shader: ES3 //////////
 #ifndef ENABLE_PIXEL_LIGHTING
 
@@ -29,8 +30,7 @@ lowp vec4 ComputePixelUnlit(in lowp vec4 texDiffuse)
 #endif // ENABLE_PIXEL_LIGHTING
 
 in mediump vec2 TextureCoordOut;
-
-uniform sampler2D SamplerDiffuse;		// GL_TEXTURE0
+uniform sampler2D SamplerDiffuse;	// GL_TEXTURE0
 
 #ifdef ENABLE_FOG
 in mediump float FogDensity;		// fog density [0,1]
@@ -57,6 +57,10 @@ out vec4 fragColor;
 void main(void)
 {
 	lowp vec4 texResult = texture(SamplerDiffuse, TextureCoordOut);	// tex-lookup
+#ifdef ENABLE_TEXTURE0_BGRA	// iOS, macOS: CVPixelBuffer is BGRA, not RGBA
+	texResult = texResult.bgra;
+#endif // ENABLE_TEXTURE0_BGRA
+
 #ifdef ENABLE_ALPHA_TEST
 	if (texResult.a < 0.5)
 		discard;

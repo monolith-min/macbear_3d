@@ -156,16 +156,29 @@ abstract class M3Scene {
         continue;
       }
 
-      prog.setMatrices(camera, entity.matrix);
-      prog.setMaterial(mesh.mtr, entity.color);
-      prog.setSkinning(mesh.skin);
+      M3Program activeProg = prog;
+      if (prog is M3ProgramLighting &&
+          mesh.mtr.texDiffuse is M3ExternalTexture &&
+          M3Resources.programExternalOES != null) {
+        activeProg = M3Resources.programExternalOES!;
+        gl.useProgram(activeProg.program);
+      }
+
+      activeProg.setMatrices(camera, entity.matrix);
+      activeProg.setMaterial(mesh.mtr, entity.color);
+      activeProg.setSkinning(mesh.skin);
 
       // pre-reflection probe
       if (entity.reflectionProbe != null) {
-        _applyReflectionCubemap(prog, entity.reflectionProbe!.texCubemap);
+        _applyReflectionCubemap(activeProg, entity.reflectionProbe!.texCubemap);
       }
 
-      mesh.geom.draw(prog, bSolid: bSolid);
+      mesh.geom.draw(activeProg, bSolid: bSolid);
+
+      // Restore program if it was switched
+      if (activeProg != prog) {
+        gl.useProgram(prog.program);
+      }
 
       // post-reflection probe
       if (entity.reflectionProbe != null) {

@@ -5,10 +5,17 @@ PODS:
     - FlutterMacOS
   - FlutterAngle (0.0.8)
   - FlutterMacOS (1.0.0)
+  - m3_video_bridge (0.0.1):
+    - FlutterMacOS
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - flutter_angle (from `Flutter/ephemeral/.symlinks/plugins/flutter_angle/darwin`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - m3_video_bridge (from `Flutter/ephemeral/.symlinks/plugins/m3_video_bridge/macos`)
+  - video_player_avfoundation (from `Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -19,11 +26,17 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_angle/darwin
   FlutterMacOS:
     :path: Flutter/ephemeral
+  m3_video_bridge:
+    :path: Flutter/ephemeral/.symlinks/plugins/m3_video_bridge/macos
+  video_player_avfoundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin
 
 SPEC CHECKSUMS:
   flutter_angle: fd425c2f11c130891a5e87a0dad8de8815413b43
   FlutterAngle: c810891af800750361b1d0e7cc944f2338d5ae18
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  m3_video_bridge: 968db8cfcae1356f56f4ede282d5e88918defdf6
+  video_player_avfoundation: 7993f492ae0bd77edaea24d9dc051d8bb2cd7c86
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
 

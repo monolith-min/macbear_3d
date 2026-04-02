@@ -28,6 +28,10 @@ void getGLExtensions() {
   }
 }
 
+void getEGLExtensions() {
+  debugPrint("EGL info not available on Web (using WebGL)");
+}
+
 GraphicsInfo getGpuInfo() {
   final gl = getWebGL();
   if (gl == null) {

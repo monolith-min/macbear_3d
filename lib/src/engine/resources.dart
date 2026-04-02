@@ -1,4 +1,5 @@
 // Macbear3D engine
+import 'dart:io';
 import '../../macbear_3d.dart';
 
 import '../shaders_gen/Rect.es3.frag.g.dart';
@@ -11,6 +12,8 @@ import '../shaders_gen/Skybox.es3.vert.g.dart';
 import '../shaders_gen/SkyboxReflect.es3.vert.g.dart';
 import '../shaders_gen/TexturedLighting.es3.frag.g.dart';
 import '../shaders_gen/TexturedLighting.es3.vert.g.dart';
+import '../shaders_gen/Unlit.es3.frag.g.dart';
+import '../shaders_gen/Unlit.es3.vert.g.dart';
 // GLSL functions
 import '../shaders_gen/glsl/Pixel.es3.frag.g.dart';
 import '../shaders_gen/glsl/Skinning.es3.vert.g.dart';
@@ -79,6 +82,8 @@ class M3Resources {
   static M3Program? programSkybox;
   static M3Program? programRectangle;
   static M3ProgramEye? programSkyboxReflect;
+  static M3Program? programExternalOES; // external texture: video streaming
+  // with lighting
   static M3ProgramLighting? programSimpleLighting;
   static M3ProgramLighting? programTexture;
   static M3ProgramShadowmap? programShadowmap;
@@ -123,6 +128,23 @@ class M3Resources {
     programSkyboxReflect = M3ProgramEye(_SkinNormal_vert + SkyboxReflect_vert, Skybox_frag);
     programSimpleLighting = M3ProgramLighting(_SkinNormal_vert + SimpleLighting_vert, Simple_frag);
 
+    // external texture: video streaming
+    String fsUnlit = Unlit_frag;
+    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
+      // iOS, macOS: format BGRA
+      // fsUnlit = '#define ENABLE_TEXTURE0_BGRA \n$fsUnlit';
+
+      // Android: external OES unable to use SurfaceTexture
+      // ANGLE use libEGL_angle.so, Android use libEGL.so
+      // so discard to use external OES
+      /* String fsExternalOES = '''
+#extension GL_OES_EGL_image_external_essl3 : require
+#define ENABLE_EXTERNAL_OES
+'''; */
+    }
+    programExternalOES = M3Program(Unlit_vert, fsUnlit);
+
+    // lighting related programs
     setLightingProgram(M3ShaderOptions());
 
     debugPrint('+++ M3Resources init done+++');

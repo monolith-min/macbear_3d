@@ -71,5 +71,6 @@ class PlatformInfo {
     });
 
     getGLExtensions();
+    getEGLExtensions();
   }
 }

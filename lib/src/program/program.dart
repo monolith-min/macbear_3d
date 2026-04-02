@@ -115,13 +115,32 @@ class M3Program {
 
   String _ensureVersionAtStart(String source) {
     const versionHeader = "#version 300 es";
-    if (source.contains(versionHeader)) {
-      // Remove all occurrences of the version header
-      String cleanSource = source.replaceAll(versionHeader, "").trim();
-      // Prepend it to the start
-      return "$versionHeader\n$cleanSource";
+    String cleanSource = source;
+
+    // 1. Find and remove all #version headers
+    bool hasVersion = false;
+    if (cleanSource.contains(versionHeader)) {
+      cleanSource = cleanSource.replaceAll(versionHeader, "");
+      hasVersion = true;
     }
-    return source;
+
+    // 2. Find and remove all #extension headers
+    final extensionRegExp = RegExp(r"^#extension\s+.+:(enable|require).*$", multiLine: true);
+    final Iterable<Match> matches = extensionRegExp.allMatches(cleanSource);
+    final List<String> extensions = matches.map((m) => m.group(0)!.trim()).toList();
+    cleanSource = cleanSource.replaceAll(extensionRegExp, "");
+
+    // 3. Rebuild source: #version first, then #extensions, then the rest
+    final buffer = StringBuffer();
+    if (hasVersion) {
+      buffer.writeln(versionHeader);
+    }
+    for (final ext in extensions) {
+      buffer.writeln(ext);
+    }
+    buffer.write(cleanSource.trim());
+
+    return buffer.toString();
   }
 
   void initLocation() {

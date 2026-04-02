@@ -1,3 +1,4 @@
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 
 // Macbear3D engine
@@ -18,6 +19,7 @@ import '09_pbr_test.dart';
 import '10_terrain.dart';
 // ignore: unused_import
 import '11_bvh.dart';
+import '12_video_texture.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,10 +41,10 @@ Future<void> onDidInit() async {
   final appEngine = M3AppEngine.instance;
   appEngine.renderEngine.createShadowMap(width: 2048, height: 4096);
 
-  // ignore: unused_local_variable
   final scene00 = StarterScene_00();
+  final scene12 = VideoTextureScene_12();
   final initScene = CubeScene_01();
-  await appEngine.setScene(initScene);
+  await appEngine.setScene(scene12);
 }
 
 class MainApp extends StatelessWidget {
@@ -124,7 +126,9 @@ class _MainPageState extends State<MainPage> {
 
   void setShadowMode(int mode) {
     final renderEngine = M3AppEngine.instance.renderEngine;
-    final scene = M3AppEngine.instance.activeScene!;
+    final scene = M3AppEngine.instance.activeScene;
+    if (scene == null) return;
+
     shadowMode = mode;
     switch (shadowMode) {
       case 0: // no shadow
@@ -423,6 +427,16 @@ class _MainPageState extends State<MainPage> {
               _loadScene(PbrTestScene_09());
             },
             child: const Icon(Icons.filter_9),
+          ),
+          const SizedBox(width: 6),
+          FloatingActionButton(
+            heroTag: 'scene_12',
+            backgroundColor: _selectedSceneIndex == 12 ? Colors.lightGreen : null,
+            onPressed: () {
+              _selectedSceneIndex = 12;
+              _loadScene(VideoTextureScene_12());
+            },
+            child: const Icon(Icons.video_library),
           ),
         ],
       ),

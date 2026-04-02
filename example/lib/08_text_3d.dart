@@ -19,7 +19,10 @@ class Text3DScene_08 extends M3Scene {
     // final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/OTF/NotoSansCJKtc-VF.otf';
     final isLocalFont = true;
     final fontPath = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/Variable/TTF/NotoSansCJKtc-VF.ttf';
-    final localPath = 'packages/macbear_3d/assets/fonts/RobotoMono/RobotoMono-Regular.ttf';
+    var localPath = 'assets/fonts/RobotoMono/RobotoMono-Regular.ttf';
+    if (M3Package.name != null) {
+      localPath = 'packages/${M3Package.name}/assets/fonts/RobotoMono/RobotoMono-Regular.ttf';
+    }
     // final fontPath = 'assets/NotoSansMonoCJKtc-VF.ttf';
     M3ResourceManager resManager = M3AppEngine.instance.resourceManager;
     final font = await resManager.loadFont(isLocalFont ? localPath : fontPath); // ignore: dead_code
