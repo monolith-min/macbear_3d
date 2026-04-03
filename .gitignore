@@ -30,5 +30,8 @@ migrate_working_dir/
 /build/
 /coverage/
 
-#Android
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
 android/.gradle/
