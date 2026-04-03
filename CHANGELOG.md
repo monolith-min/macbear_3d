@@ -1,3 +1,10 @@
+## 0.7.2
+
+* Update:
+  * **Video Texture**: Merged `m3_video_bridge` sub-package into the main engine.
+  * **Plugin Conversion**: `macbear_3d` is now a Flutter plugin to support native video textures on Android, iOS, and macOS.
+  * **Publishing**: Resolved path dependency issues for pub.dev publication.
+
 ## 0.7.1
 
 * Update:

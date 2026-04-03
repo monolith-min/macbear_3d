@@ -96,6 +96,7 @@ class "macbear_3d::src::anim::bvh_skeleton.dart::BvhSkeleton" {
   +List<M3Entity> jointEntities
   +List<M3Entity> boneEntities
   +M3Transform rootTransform
+  {static} +dynamic load()
   +void addToScene()
   -void _createHierarchy()
   +void update()
@@ -874,6 +875,32 @@ class "macbear_3d::src::texture::texture.dart::M3TextTexture" {
 "macbear_3d::src::texture::texture.dart::M3TextTexture" o-- "flutter::src::painting::text_style.dart::TextStyle"
 "macbear_3d::src::texture::texture.dart::M3Texture" <|-- "macbear_3d::src::texture::texture.dart::M3TextTexture"
 
+class "macbear_3d::src::texture::texture.dart::M3ExternalTexture" {
+  +dynamic source
+  +bool isPlaying
+  +GlobalKey<State<StatefulWidget>>? repaintKey
+  -bool _isCapturing
+  -bool _isNativeCodec
+  -Uint8Array? _submitPixels
+  +void dispose()
+  {static} +dynamic createVideo()
+  +dynamic initNativeBridge()
+  +dynamic releaseNativeBridge()
+  +void update()
+  -dynamic _updateTextureFromNative()
+  -dynamic _captureNativeFrame()
+  {static} +M3ExternalTexture createFromVideo()
+  +void play()
+  +void pause()
+  +void seekTo()
+  +dynamic getDuration()
+  +dynamic getPosition()
+}
+
+"macbear_3d::src::texture::texture.dart::M3ExternalTexture" o-- "flutter::src::widgets::framework.dart::GlobalKey<State<StatefulWidget>>"
+"macbear_3d::src::texture::texture.dart::M3ExternalTexture" o-- "flutter_angle::native-array::index.dart::Uint8Array"
+"macbear_3d::src::texture::texture.dart::M3Texture" <|-- "macbear_3d::src::texture::texture.dart::M3ExternalTexture"
+
 abstract class "macbear_3d::src::texture::ktx_info.dart::M3GL" {
   {static} +int COMPRESSED_RGBA_ASTC_4x4_KHR
   {static} +int COMPRESSED_RGBA_ASTC_5x4_KHR
@@ -1298,6 +1325,7 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
   {static} +M3Program? programSkybox
   {static} +M3Program? programRectangle
   {static} +M3ProgramEye? programSkyboxReflect
+  {static} +M3Program? programExternalOES
   {static} +M3ProgramLighting? programSimpleLighting
   {static} +M3ProgramLighting? programTexture
   {static} +M3ProgramShadowmap? programShadowmap
@@ -1465,6 +1493,38 @@ class "macbear_3d::src::2d::shape_2d.dart::M3Rectangle2D" {
 }
 
 "macbear_3d::src::2d::shape_2d.dart::M3Shape2D" <|-- "macbear_3d::src::2d::shape_2d.dart::M3Rectangle2D"
+
+class "macbear_3d::src::video_bridge::video_bridge.dart::M3VideoBridge" {
+  {static} -MethodChannel _channel
+  {static} +dynamic registerSurface()
+  {static} +dynamic updateSurface()
+  {static} +dynamic release()
+  {static} +dynamic play()
+  {static} +dynamic pause()
+  {static} +dynamic seekTo()
+  {static} +dynamic getDuration()
+  {static} +dynamic getPosition()
+}
+
+"macbear_3d::src::video_bridge::video_bridge.dart::M3VideoBridge" o-- "flutter::src::services::platform_channel.dart::MethodChannel"
+
+class "macbear_3d::src::video_bridge::m3_video_bridge_method_channel.dart::MethodChannelM3VideoBridge" {
+  +MethodChannel methodChannel
+  +dynamic getPlatformVersion()
+}
+
+"macbear_3d::src::video_bridge::m3_video_bridge_method_channel.dart::MethodChannelM3VideoBridge" o-- "flutter::src::services::platform_channel.dart::MethodChannel"
+"macbear_3d::src::video_bridge::m3_video_bridge_platform_interface.dart::M3VideoBridgePlatform" <|-- "macbear_3d::src::video_bridge::m3_video_bridge_method_channel.dart::MethodChannelM3VideoBridge"
+
+abstract class "macbear_3d::src::video_bridge::m3_video_bridge_platform_interface.dart::M3VideoBridgePlatform" {
+  {static} -Object _token
+  {static} -M3VideoBridgePlatform _instance
+  {static} +M3VideoBridgePlatform instance
+  +dynamic getPlatformVersion()
+}
+
+"macbear_3d::src::video_bridge::m3_video_bridge_platform_interface.dart::M3VideoBridgePlatform" o-- "macbear_3d::src::video_bridge::m3_video_bridge_platform_interface.dart::M3VideoBridgePlatform"
+"plugin_platform_interface::plugin_platform_interface.dart::PlatformInterface" <|-- "macbear_3d::src::video_bridge::m3_video_bridge_platform_interface.dart::M3VideoBridgePlatform"
 
 class "macbear_3d::src::widgets::view.dart::M3View" {
   +State<M3View> createState()
