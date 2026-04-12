@@ -62,9 +62,6 @@ class M3Entity {
     }
   }
 
-  static final Quaternion _qRotX90 = Quaternion.fromRotation(M3Constants.rotXPos90);
-  static final Quaternion _qRotXNeg90 = Quaternion.fromRotation(M3Constants.rotXNeg90);
-
   final Vector3 _prevPos = Vector3.zero();
   final Quaternion _prevRot = Quaternion.identity();
 
