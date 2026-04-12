@@ -42,3 +42,10 @@ class M3VideoBridge {
     return result ?? 0.0;
   }
 }
+
+/// Stub class for Web plugin registration.
+class M3VideoBridgePlugin {
+  static void registerWith(dynamic registrar) {
+    // No-op for web, as video bridge is handled via HtmlElementView or WebGL textures.
+  }
+}

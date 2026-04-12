@@ -6,7 +6,7 @@ class M3ExternalTexture extends M3Texture {
   bool isPlaying = false;
   GlobalKey? repaintKey;
   bool _isCapturing = false;
-  bool _isNativeCodec = (!kIsWeb && (Platform.isMacOS || Platform.isIOS));
+  bool _isNativeCodec = (PlatformInfo.isMacOS || PlatformInfo.isIOS);
 
   // shared memory for native bridge
   Uint8Array? _submitPixels;
@@ -50,7 +50,7 @@ class M3ExternalTexture extends M3Texture {
   /// Initialize the native OES texture bridge.
   Future<bool> initNativeBridge(String assetPath) async {
     if (_isNativeCodec) {
-      if (Platform.isMacOS || Platform.isIOS) {
+      if (PlatformInfo.isMacOS || PlatformInfo.isIOS) {
         // Pass the native GL texture ID to the macOS/iOS side.
         // In flutter_angle, glTexture.id is the actual GL handle.
         final int id = (glTexture as dynamic).id;
@@ -64,7 +64,7 @@ class M3ExternalTexture extends M3Texture {
   /// Release the native OES texture bridge.
   Future<void> releaseNativeBridge() async {
     if (_isNativeCodec) {
-      if (Platform.isMacOS || Platform.isIOS) {
+      if (PlatformInfo.isMacOS || PlatformInfo.isIOS) {
         await M3VideoBridge.release(textureId: (glTexture as dynamic).id);
         isPlaying = false;
       }
@@ -100,7 +100,7 @@ class M3ExternalTexture extends M3Texture {
   }
 
   Future<void> _updateTextureFromNative() async {
-    if (Platform.isMacOS || Platform.isIOS) {
+    if (PlatformInfo.isMacOS || PlatformInfo.isIOS) {
       final int id = (glTexture as dynamic).id;
       
       // Try to update the surface (Native side will try zero-copy first, then fallback to pixels)
@@ -110,7 +110,7 @@ class M3ExternalTexture extends M3Texture {
       }
     }
 
-    if (Platform.isAndroid) {
+    if (PlatformInfo.isAndroid) {
       // Native OES texture is updated directly by the native side (e.g., SurfaceTexture).
       // We trigger the latching of the next frame here.
       await M3VideoBridge.updateSurface(textureId: (glTexture as dynamic).id);

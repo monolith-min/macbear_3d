@@ -5,6 +5,11 @@ import 'package:ffi/ffi.dart'; // 需要 pkg:ffi
 // Macbear3D engine
 import '../../../macbear_3d.dart';
 
+bool isPlatformAndroid() => Platform.isAndroid;
+bool isPlatformIOS() => Platform.isIOS;
+bool isPlatformMacOS() => Platform.isMacOS;
+bool isPlatformWindows() => Platform.isWindows;
+
 String getPlatformName() {
   return Platform.operatingSystem; // Android, iOS, Windows, etc.
 }

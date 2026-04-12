@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:web/web.dart' as web;
 import 'platform_info.dart';
 
+bool isPlatformAndroid() => false;
+bool isPlatformIOS() => false;
+bool isPlatformMacOS() => false;
+bool isPlatformWindows() => false;
+
 String getPlatformName() {
   return 'Browser';
 }

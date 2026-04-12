@@ -34,6 +34,12 @@ Shading version: $shadingVersion
 }
 
 class PlatformInfo {
+  // Platform checks
+  static bool get isAndroid => isPlatformAndroid();
+  static bool get isIOS => isPlatformIOS();
+  static bool get isMacOS => isPlatformMacOS();
+  static bool get isWindows => isPlatformWindows();
+
   static String getOS() {
     return getPlatformName();
   }

@@ -1,5 +1,4 @@
 // Macbear3D engine
-import 'dart:io';
 import '../../macbear_3d.dart';
 
 import '../shaders_gen/Rect.es3.frag.g.dart';
@@ -130,7 +129,7 @@ class M3Resources {
 
     // external texture: video streaming
     String fsUnlit = Unlit_frag;
-    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
+    if (PlatformInfo.isIOS || PlatformInfo.isMacOS) {
       // iOS, macOS: format BGRA
       // fsUnlit = '#define ENABLE_TEXTURE0_BGRA \n$fsUnlit';
 

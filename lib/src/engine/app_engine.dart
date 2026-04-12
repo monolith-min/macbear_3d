@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -275,7 +273,7 @@ class M3AppEngine with ChangeNotifier {
 
     // so resize it
     final options = AngleOptions(width: width, height: height, dpr: dpr, useSurfaceProducer: true);
-    if (!kIsWeb && Platform.isAndroid) {
+    if (PlatformInfo.isAndroid) {
       await _angle.deleteTexture(_sourceTexture);
       _sourceTexture = await _angle.createTexture(options);
       // M3RenderEngine.gl = _sourceTexture.getContext();
@@ -381,7 +379,7 @@ class M3AppEngine with ChangeNotifier {
 
   Widget _flipY(Widget widgetSrc) {
     // Flip Y only for Metal/iOS, Windows
-    if (Platform.isIOS || Platform.isMacOS || Platform.isWindows) {
+    if (PlatformInfo.isIOS || PlatformInfo.isMacOS || PlatformInfo.isWindows) {
       return Transform.scale(scaleY: -1.0, child: widgetSrc);
     } else {
       return widgetSrc;

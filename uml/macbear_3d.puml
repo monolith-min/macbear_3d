@@ -129,6 +129,10 @@ class "macbear_3d::src::util::platform::platform_info.dart::GraphicsInfo" {
 
 class "macbear_3d::src::util::platform::platform_info.dart::PlatformInfo" {
   {static} -Map<int, String> _glParamNames
+  {static} +bool isAndroid
+  {static} +bool isIOS
+  {static} +bool isMacOS
+  {static} +bool isWindows
   {static} +String getOS()
   {static} +GraphicsInfo getGraphicsInfo()
   {static} +void checkGLExtensions()
@@ -1512,6 +1516,10 @@ class "macbear_3d::src::video_bridge::video_bridge.dart::M3VideoBridge" {
 }
 
 "macbear_3d::src::video_bridge::video_bridge.dart::M3VideoBridge" o-- "flutter::src::services::platform_channel.dart::MethodChannel"
+
+class "macbear_3d::src::video_bridge::video_bridge.dart::M3VideoBridgePlugin" {
+  {static} +void registerWith()
+}
 
 class "macbear_3d::src::video_bridge::m3_video_bridge_method_channel.dart::MethodChannelM3VideoBridge" {
   +MethodChannel methodChannel

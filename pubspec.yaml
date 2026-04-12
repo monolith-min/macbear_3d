@@ -56,6 +56,9 @@ flutter:
         pluginClass: M3VideoBridgePlugin
       ios:
         pluginClass: M3VideoBridgePlugin
+      web:
+        pluginClass: M3VideoBridgePlugin
+        fileName: src/video_bridge/video_bridge.dart
 
   assets:
     - assets/fonts/RobotoMono/
