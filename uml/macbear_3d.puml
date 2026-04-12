@@ -1121,7 +1121,6 @@ class "macbear_3d::src::scene::entity.dart::M3Entity" {
   +M3Mesh? mesh
   +Vector4 color
   +M3ReflectionProbe? reflectionProbe
-  +M3Axis physicsUpAxis
   +M3Bounding worldBounding
   -bool _boundsDirty
   {static} -Quaternion _qRotX90
@@ -1145,7 +1144,6 @@ class "macbear_3d::src::scene::entity.dart::M3Entity" {
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::mesh::mesh.dart::M3Mesh"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "vector_math::vector_math.dart::Vector4"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::scene::reflection_probe.dart::M3ReflectionProbe"
-"macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::util::constants.dart::M3Axis"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "macbear_3d::src::geom::geom.dart::M3Bounding"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "vector_math::vector_math.dart::Quaternion"
 "macbear_3d::src::scene::entity.dart::M3Entity" o-- "vector_math::vector_math.dart::Vector3"

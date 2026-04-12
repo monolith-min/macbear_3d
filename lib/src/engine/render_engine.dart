@@ -154,12 +154,12 @@ class M3RenderEngine {
     // Render Statistics
     Matrix4 matStats = Matrix4.identity();
     if (options.debug.showStats) {
-      matStats.setTranslation(Vector3(M3AppEngine.instance.appWidth - 50, 50, 0));
+      matStats.setTranslation(Vector3(M3AppEngine.instance.appWidth - 60, 50, 0));
       matStats.scaleByVector3(Vector3.all(0.5));
       final fpsText = engine.fps.toStringAsFixed(2);
       M3Resources.text2D.drawText(fpsText, matStats, color: Vector4(0, 1, 0, 1));
 
-      matStats.setTranslation(Vector3(M3AppEngine.instance.appWidth - 90, 66, 0));
+      matStats.setTranslation(Vector3(M3AppEngine.instance.appWidth - 100, 66, 0));
       matStats.scaleByVector3(Vector3.all(0.9));
       // Render Stats
       M3Resources.text2D.drawText(stats.toString(), matStats, color: Vector4(1, 1, 1, 1));

@@ -14,10 +14,6 @@ class M3Entity {
 
   M3ReflectionProbe? reflectionProbe;
 
-  // render up axis is always Z, physics up axis is Y or Z
-  // if physicsUpAxis is Y, then rotate -90 degree on X-axis
-  M3Axis physicsUpAxis = M3Axis.z;
-
   // visibility culling
   M3Bounding worldBounding = M3Bounding();
   bool _boundsDirty = true;
@@ -123,12 +119,8 @@ class M3Entity {
       );
     }
     lerpRot.normalize();
+    _transform.rotation = lerpRot;
 
-    if (physicsUpAxis == M3Axis.y) {
-      _transform.rotation = lerpRot * _qRotXNeg90;
-    } else {
-      _transform.rotation = lerpRot;
-    }
     _transform.markDirty();
     _boundsDirty = true;
   }
@@ -136,11 +128,7 @@ class M3Entity {
   void syncToPhysics() {
     if (rigidBody == null) return;
     rigidBody!.position = _transform.position;
-    if (physicsUpAxis == M3Axis.y) {
-      rigidBody!.orientation = _transform.rotation * _qRotX90;
-    } else {
-      rigidBody!.orientation = _transform.rotation;
-    }
+    rigidBody!.orientation = _transform.rotation;
   }
 
   // convenience getters/setters

@@ -3,9 +3,7 @@ import 'main_all.dart';
 
 // ignore: camel_case_types
 class PhysicsScene_07 extends M3Scene {
-  final _geomCube = M3BoxGeom(1.0, 1.0, 1.0);
-  final _geomBall = M3SphereGeom(0.5);
-  final _geomCylinder = M3CylinderGeom(0.5, 0.5, 1.0);
+  final _geomCylinder = M3CylinderGeom(0.5, 0.5, 1.0, axis: M3Axis.y);
 
   // constructor
   @override
@@ -21,6 +19,16 @@ class PhysicsScene_07 extends M3Scene {
 
     light.setEuler(0, -pi / 3, 0, distance: light.distanceToTarget); // rotate light
 
+    M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
+    final cubeMesh = M3Mesh(M3Resources.unitCube);
+    cubeMesh.mtr.texDiffuse = texGrid;
+
+    final ballMesh = M3Mesh(M3Resources.unitSphere);
+    ballMesh.mtr.texDiffuse = texGrid;
+
+    final cylinderMesh = M3Mesh(_geomCylinder);
+    cylinderMesh.mtr.texDiffuse = texGrid;
+
     // 07-1: physics static ground
     final phyEngine = M3AppEngine.instance.physicsEngine;
     phyEngine.addGround(10, 10, 2);
@@ -34,7 +42,7 @@ class PhysicsScene_07 extends M3Scene {
       pos.z += 1.5; // drop from sky
 
       // visual entity
-      final entity = addMesh(M3Mesh(_geomCube), pos)..color = arrayColor[i];
+      final entity = addMesh(cubeMesh, pos)..color = arrayColor[i];
       entity.rigidBody = phyEngine.addBox(1, 1, 1, position: pos);
     }
 
@@ -43,7 +51,7 @@ class PhysicsScene_07 extends M3Scene {
       // drop from sky
       final pos = arrayPos[i].clone() + Vector3(0.3, 0.6, 3.0);
 
-      final entity = addMesh(M3Mesh(_geomBall), pos)..color = arrayColor[i];
+      final entity = addMesh(ballMesh, pos)..color = arrayColor[i];
       entity.rigidBody = phyEngine.addSphere(0.5, position: pos);
     }
 
@@ -52,8 +60,7 @@ class PhysicsScene_07 extends M3Scene {
       // drop from sky
       final pos = Vector3(i - 0.2, i + 0.3, i + 6.5);
 
-      final entity = addMesh(M3Mesh(_geomCylinder), pos)..color = arrayColor[i];
-      entity.physicsUpAxis = M3Axis.y;
+      final entity = addMesh(cylinderMesh, pos)..color = arrayColor[i];
       entity.rigidBody = phyEngine.addCylinder(0.5, 1.0, position: pos);
     }
 

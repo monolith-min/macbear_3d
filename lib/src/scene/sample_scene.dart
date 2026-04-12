@@ -4,7 +4,7 @@ part of 'scene.dart';
 class SampleScene extends M3Scene {
   final _geomCube = M3Resources.unitCube;
   final _geomSphere = M3Resources.unitSphere;
-  final _geomCylinder = M3CylinderGeom(0.5, 0.5, 1.0);
+  final _geomCylinder = M3CylinderGeom(0.5, 0.5, 1.0, axis: M3Axis.y);
   final _geomPlane = M3PlaneGeom(20.0, 20.0, widthSegments: 50, heightSegments: 50, uvScale: Vector2(10.0, 10.0));
 
   // constructor
@@ -82,12 +82,10 @@ class SampleScene extends M3Scene {
               mesh = M3Mesh(_geomCylinder);
               mesh.mtr.texDiffuse = texGrid2;
               rb = phyEngine.addCylinder(0.5, 1.0, density: 1.0, position: pos);
-              phyUpAxis = M3Axis.y;
               break;
           }
           M3Entity entity = addMesh(mesh, pos)..color = meshColor;
           entity.rigidBody = rb;
-          entity.physicsUpAxis = phyUpAxis;
         }
       }
     }

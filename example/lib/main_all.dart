@@ -42,7 +42,7 @@ Future<void> onDidInit() async {
   // final scene00 = StarterScene_00();
   // final scene03 = PrimitivesScene_03();
   // final scene09 = PbrTestScene_09();
-  final scene09 = MassiveScene();
+  final testScene = SampleScene();
   final initScene = CubeScene_01();
   await appEngine.setScene(initScene);
 }
@@ -154,7 +154,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Macbear 3D Engine - Powered by ANGLE')),
+      // appBar: AppBar(title: const Text('Macbear 3D Engine - Powered by ANGLE')),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
@@ -170,7 +170,7 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         children: [
           const M3View(),
-          Positioned(top: 3, right: 3, child: getTimeScaleWidget()),
+          Positioned(top: 10, right: 5, child: getTimeScaleWidget()),
           if (M3AppEngine.instance.activeScene != null)
             M3AppEngine.instance.activeScene!.buildUI(context) ?? const SizedBox.shrink(),
         ],

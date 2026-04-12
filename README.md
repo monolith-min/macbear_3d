@@ -28,12 +28,14 @@ Preview the `main_all.dart` example live in your browser!
 - **Skeletal Animation**: Full support for skinned meshes and bone-based animations (including `M3OctahedralGeom` for bone visualization).
 - **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)**, **PBR (Physically Based Rendering)** and **IBL (Image-Based Lighting)** support.
 - **Dynamic Reflection Probe**: Added `M3ReflectionProbe` for real-time cubemap capture and dynamic reflections.
-- **Terrain System**: Procedural terrain generation using Perlin Noise.
+- **Flexible Geometries**: Added `M3Axis` support for Torus, Capsule, Cylinder, and Plane for custom orientation.
+- **Resource Management**: Centralized system for loading and caching assets (geometries, meshes, textures, fonts).
 - **Text Rendering**: Generate 3D geometry from TrueType/OpenType fonts with alignment fixes for Web.
 
 ### ⚙️ Physics & Interaction
 - **Integrated Physics**: Seamless integration with the **oimo_physics** rigid body physics engine.
 - **Collision Detection**: Automatic AABB and Bounding Sphere calculation.
+- **Interaction**: Keyboard zoom support (+, -) and multi-touch orbit control.
 - **Touch Input**: Built-in interaction handling for 3D objects and orbit control.
 
 <p align="center">
@@ -60,7 +62,7 @@ Add `macbear_3d` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.7.1
+  macbear_3d: ^0.7.2
 ```
 
 ## Usage

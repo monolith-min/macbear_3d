@@ -1,6 +1,11 @@
 ## 0.7.2
 
 * Update:
+  * **Geometry**: Added `M3Axis axis` support for Torus, Capsule, Cylinder, and Plane geometries for flexible base orientation.
+  * **Input**: Added keyboard zoom support (+, -) in `M3CameraOrbitController`.
+  * **Rendering**: Integrated `renderShadowMap` into `M3RenderEngine` and refined shadow map API.
+  * **Cleanup**: Removed `physicsUpAxis` from `M3Entity` (geometry orientation now handled at the mesh/buffer level).
+  * **Scene**: Added `MassiveScene` for engine stress testing.
   * **Video Texture**: Merged `m3_video_bridge` sub-package into the main engine.
   * **Plugin Conversion**: `macbear_3d` is now a Flutter plugin to support native video textures on Android, iOS, and macOS.
   * **Publishing**: Resolved path dependency issues for pub.dev publication.
