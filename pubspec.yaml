@@ -13,11 +13,7 @@ topics:
 
 screenshots:
   - description: 'Macbear 3D Engine'
-    path: img/scene08.png
-  - description: 'GLTF animator'
-    path: img/scene05_gltf.gif
-  - description: 'Cartoon shader'
-    path: img/cartoon.png
+    path: uml/logo.png
 
 environment:
   sdk: ^3.10.0
