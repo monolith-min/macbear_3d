@@ -57,6 +57,12 @@ class M3RenderEngine {
     gl.lineWidth(dpr * 2.0);
   }
 
+  void renderShadowMap(M3Scene scene) {
+    if (!options.debug.wireframe && options.shadows && _shadowMap != null) {
+      _shadowMap!.renderDepth(scene, scene.light);
+    }
+  }
+
   void renderScene(M3Scene scene) {
     stats.reset();
     stats.frames++;
@@ -68,8 +74,8 @@ class M3RenderEngine {
 
     // set default GL state
     gl.frontFace(WebGL.CCW);
-    gl.enable(WebGL.DEPTH_TEST);
     gl.enable(WebGL.CULL_FACE);
+    gl.enable(WebGL.DEPTH_TEST);
     gl.depthMask(true);
     gl.depthFunc(WebGL.LEQUAL);
 
@@ -78,20 +84,17 @@ class M3RenderEngine {
 
     if (!options.debug.wireframe) {
       M3ProgramLighting progLight = M3Resources.programTexture!; // texture shader
-      // M3ProgramLighting progLight = M3Resources.programSimpleLighting!; // texture shader
-      // Render Shadow Map
-      if (options.shadows && _shadowMap != null) {
-        _shadowMap!.renderDepthPass(scene, scene.light);
+      // M3ProgramLighting progLight = M3Resources.programSimpleLighting!; // for debug
 
-        M3ProgramShadow progShadow = M3Resources.programShadowmap!;
-        // cascaded shadow mapping
-        if (scene.light.cascades.isNotEmpty) {
-          progShadow = M3Resources.programShadowCSM!;
-        }
-        progLight = progShadow;
+      if (options.shadows && _shadowMap != null) {
+        // select shadow map shader: single or cascaded
+        final M3ProgramShadow progShadow = scene.light.cascades.isEmpty
+            ? M3Resources.programShadowmap!
+            : M3Resources.programShadowCSM!;
         // bind shadowmap texture
         gl.useProgram(progShadow.program);
         progShadow.bindShadow(_shadowMap!.depthTexture);
+        progLight = progShadow;
       }
 
       progLight.applyLight(scene.light);

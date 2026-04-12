@@ -122,3 +122,49 @@ class SampleScene extends M3Scene {
     M3Resources.text2D.drawText(sampleString, mat2D, color: Vector4(0, 0.9, 0, 1));
   }
 }
+
+class MassiveScene extends M3Scene {
+  @override
+  Future<void> load() async {
+    if (isLoaded) return;
+    await super.load();
+
+    camera.setEuler(-pi / 12, -pi / 8, 0, distance: 30);
+
+    final sphereGeom = M3Resources.unitSphere;
+
+    for (int i = 0; i < 10; i++) {
+      for (int j = 0; j < 10; j++) {
+        for (int k = 0; k < 10; k++) {
+          final mesh = M3Mesh(sphereGeom);
+          mesh.mtr.diffuse = Vector4(0.0, 1.0, 0.0, 1.0); // Green base color
+          mesh.mtr.reflection = i / 9;
+          mesh.mtr.metallic = i / 9;
+          mesh.mtr.roughness = max(j / 9, 0.05); // Avoid zero roughness for GGX
+
+          double x = (i - 4.5) * 2;
+          double y = (j - 4.5) * 2;
+          double z = (k - 4.5) * 2 + 12;
+
+          final ball = addMesh(M3Mesh(M3Resources.unitSphere), Vector3(x, y, z));
+          final cube = addMesh(M3Mesh(M3Resources.unitCube), Vector3(x + 1, y + 1, z + 1));
+          ball.color = Vector4(0.0, 1.0, 0.0, 1.0);
+          cube.color = Vector4(0.0, 1.0, 1.0, 1.0);
+        }
+      }
+    }
+
+    // Add a ground plane
+    final geomPlane = M3PlaneGeom(50, 50, widthSegments: 10, heightSegments: 10, uvScale: Vector2.all(10.0));
+    final plane = addMesh(M3Mesh(geomPlane), Vector3(0, 0, -2));
+    M3Texture texGround = M3Texture.createCheckerboard(
+      size: 2,
+      lightColor: Vector4(.7, 1, .5, 1),
+      darkColor: Vector4(.5, 0.8, .3, 1),
+    );
+    plane.mesh!.mtr.texDiffuse = texGround;
+
+    // 02: sample cubemap
+    skybox = M3Skybox(M3Texture.createSampleCubemap());
+  }
+}

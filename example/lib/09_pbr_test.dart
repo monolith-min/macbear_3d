@@ -8,7 +8,7 @@ class PbrTestScene_09 extends M3Scene {
     if (isLoaded) return;
     await super.load();
 
-    camera.setEuler(-pi / 12, -pi / 8, 0, distance: 15);
+    camera.setEuler(-pi / 12, -pi / 8, 0, distance: 30);
 
     final sphereGeom = M3Resources.unitSphere;
 

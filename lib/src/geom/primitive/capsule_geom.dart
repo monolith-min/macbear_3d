@@ -10,6 +10,7 @@ class M3CapsuleGeom extends M3Geom {
     int radiusSegments = M3Geom.radialSegments,
     int heightSegments = 1,
     int capSegments = 8,
+    M3Axis axis = M3Axis.z,
   }) {
     radiusSegments = max(radiusSegments, 3);
     heightSegments = max(heightSegments, 1);
@@ -28,23 +29,38 @@ class M3CapsuleGeom extends M3Geom {
     final uvs = _uvs!;
     final halfHeight = height * 0.5;
 
+    final rot = Matrix3.identity();
+    if (axis == M3Axis.x) {
+      rot.setRotationY(pi / 2);
+    } else if (axis == M3Axis.y) {
+      rot.setRotationX(-pi / 2);
+    }
+
+    Vector3 transform(double cx, double cy, double h) {
+      final v = Vector3(cx, cy, h);
+      if (axis != M3Axis.z) {
+        rot.transform(v);
+      }
+      return v;
+    }
+
     int index = 0;
     for (int i = 0; i < totalRings; i++) {
-      double z, ringRadius, phi;
+      double h, ringRadius, phi;
 
       if (i <= capSegments) {
         // Top cap (phi from 0 to pi/2)
         phi = (pi * 0.5) * (i / capSegments);
-        z = halfHeight + radius * cos(phi);
+        h = halfHeight + radius * cos(phi);
         ringRadius = radius * sin(phi);
       } else if (i <= capSegments + heightSegments) {
         // Cylindrical part
-        z = halfHeight - height * ((i - capSegments) / heightSegments);
+        h = halfHeight - height * ((i - capSegments) / heightSegments);
         ringRadius = radius;
       } else {
         // Bottom cap (phi from pi/2 to pi)
         phi = (pi * 0.5) + (pi * 0.5) * ((i - (capSegments + heightSegments)) / capSegments);
-        z = -halfHeight + radius * cos(phi);
+        h = -halfHeight + radius * cos(phi);
         ringRadius = radius * sin(phi);
       }
 
@@ -56,16 +72,16 @@ class M3CapsuleGeom extends M3Geom {
         double x = ringRadius * cos(angleA);
         double y = ringRadius * sin(angleA);
 
-        vertices[index] = Vector3(x, y, z);
+        vertices[index] = transform(x, y, h);
 
         // Normal calculation
         if (i < capSegments) {
-          normals[index] = (Vector3(x, y, z - halfHeight)).normalized();
+          normals[index] = transform(x, y, h - halfHeight).normalized();
         } else if (i > capSegments + heightSegments) {
-          normals[index] = (Vector3(x, y, z + halfHeight)).normalized();
+          normals[index] = transform(x, y, h + halfHeight).normalized();
         } else {
           // Cylindrical part or equator rings
-          normals[index] = Vector3(cos(angleA), sin(angleA), 0);
+          normals[index] = transform(cos(angleA), sin(angleA), 0);
         }
 
         uvs[index] = Vector2(ratioA, 1.0 - ratioB);

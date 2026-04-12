@@ -119,5 +119,17 @@ class M3CameraOrbitController extends M3InputController {
     if (moveDelta != Vector3.zero()) {
       camera.move(moveDelta);
     }
+
+    // zoom keys
+    final zoomSpeed = 2.0 * dt;
+    if (keyboard.isPressed(LogicalKeyboardKey.equal) ||
+        keyboard.isPressed(LogicalKeyboardKey.add) ||
+        keyboard.isPressed(LogicalKeyboardKey.numpadAdd)) {
+      applyZoom(M3PinchInfo(1 + zoomSpeed, Vector2.zero(), 0));
+    }
+    if (keyboard.isPressed(LogicalKeyboardKey.minus) ||
+        keyboard.isPressed(LogicalKeyboardKey.numpadSubtract)) {
+      applyZoom(M3PinchInfo(1 - zoomSpeed, Vector2.zero(), 0));
+    }
   }
 }

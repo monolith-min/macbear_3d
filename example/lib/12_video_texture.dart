@@ -29,7 +29,7 @@ class VideoTextureScene_12 extends M3Scene {
     final web1 = 'https://www.w3schools.com/tags/mov_bbb.mp4';
     final web2 = 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
     // Initial video source
-    videoTexture2 = await M3ExternalTexture.createVideo(web1);
+    videoTexture2 = await M3ExternalTexture.createVideo(video480);
     videoTexture = await M3ExternalTexture.createVideo(web2);
 
     if (videoTexture != null) {

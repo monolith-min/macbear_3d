@@ -1077,6 +1077,12 @@ class "macbear_3d::src::scene::scene.dart::SampleScene" {
 "macbear_3d::src::scene::scene.dart::SampleScene" o-- "macbear_3d::src::geom::geom.dart::M3PlaneGeom"
 "macbear_3d::src::scene::scene.dart::M3Scene" <|-- "macbear_3d::src::scene::scene.dart::SampleScene"
 
+class "macbear_3d::src::scene::scene.dart::MassiveScene" {
+  +dynamic load()
+}
+
+"macbear_3d::src::scene::scene.dart::M3Scene" <|-- "macbear_3d::src::scene::scene.dart::MassiveScene"
+
 class "macbear_3d::src::scene::skybox.dart::M3Skybox" {
   +M3Material mtr
   -M3Texture _texCubemap
@@ -1294,7 +1300,7 @@ class "macbear_3d::src::engine::shadow_map.dart::M3ShadowMap" {
   +M3Texture texDepth
   +String toString()
   +void dispose()
-  +void renderDepthPass()
+  +void renderDepth()
   +void drawDebugDepth()
 }
 
@@ -1379,6 +1385,7 @@ class "macbear_3d::src::engine::render_engine.dart::M3RenderEngine" {
   +void createShadowMap()
   +void bindDefaultFramebuffer()
   +void setViewport()
+  +void renderShadowMap()
   +void renderScene()
   +void render2D()
 }

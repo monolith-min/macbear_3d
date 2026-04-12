@@ -12,6 +12,7 @@ class M3CylinderGeom extends M3Geom {
     int radiusSegments = M3Geom.radialSegments,
     int heightSegments = 1,
     double creaseAngle = 40.0,
+    M3Axis axis = M3Axis.z,
   }) {
     radiusSegments = max(radiusSegments, 3);
     final bool smooth = (360.0 / radiusSegments) <= creaseAngle;
@@ -140,7 +141,19 @@ class M3CylinderGeom extends M3Geom {
 
     // Initialize buffers
     _init(vertexCount: allVertices.length, withNormals: true, withUV: true);
+
+    final rot = Matrix3.identity();
+    if (axis == M3Axis.x) {
+      rot.setRotationY(pi / 2);
+    } else if (axis == M3Axis.y) {
+      rot.setRotationX(-pi / 2);
+    }
+
     for (int i = 0; i < allVertices.length; i++) {
+      if (axis != M3Axis.z) {
+        rot.transform(allVertices[i]);
+        rot.transform(allNormals[i]);
+      }
       _vertices![i] = allVertices[i];
       _normals![i] = allNormals[i];
       _uvs![i] = allUvs[i];

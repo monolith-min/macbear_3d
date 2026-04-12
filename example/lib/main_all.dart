@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_import, unused_local_variable
 import 'package:flutter/material.dart';
 
 // Macbear3D engine
@@ -15,9 +15,7 @@ import '06_shadowmap.dart';
 import '07_physics.dart';
 import '08_text_3d.dart';
 import '09_pbr_test.dart';
-// ignore: unused_import
 import '10_terrain.dart';
-// ignore: unused_import
 import '11_bvh.dart';
 import '12_video_texture.dart';
 
@@ -41,10 +39,12 @@ Future<void> onDidInit() async {
   final appEngine = M3AppEngine.instance;
   appEngine.renderEngine.createShadowMap(width: 2048, height: 4096);
 
-  final scene00 = StarterScene_00();
-  final scene12 = VideoTextureScene_12();
+  // final scene00 = StarterScene_00();
+  // final scene03 = PrimitivesScene_03();
+  // final scene09 = PbrTestScene_09();
+  final scene09 = MassiveScene();
   final initScene = CubeScene_01();
-  await appEngine.setScene(scene12);
+  await appEngine.setScene(initScene);
 }
 
 class MainApp extends StatelessWidget {
@@ -138,8 +138,11 @@ class _MainPageState extends State<MainPage> {
       case 1: // shadowmap
         renderEngine.options.shadows = true;
         scene.camera.csmCount = 0;
+        final halfView = 8;
+        scene.light.target = Vector3.zero();
+        scene.light.setViewport(-halfView, -halfView, halfView * 2, halfView * 2, fovy: 0, far: 50);
+        scene.light.setEuler(pi / 5, -pi / 3, 0, distance: 30); // rotate light
         scene.light.refreshProjectionMatrix();
-        scene.light.setLookat(Vector3(2, 0, 8), Vector3.zero(), Vector3(0, 0, 1));
         break;
       case 2: // cascade shadow map
         renderEngine.options.shadows = true;
@@ -151,7 +154,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text('Macbear 3D Engine - Powered by ANGLE')),
+      appBar: AppBar(title: const Text('Macbear 3D Engine - Powered by ANGLE')),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,

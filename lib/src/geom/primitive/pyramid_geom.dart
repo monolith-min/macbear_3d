@@ -4,7 +4,7 @@ part of '../geom.dart';
 ///
 /// The base is centered at Z=-depth/2 and the apex is at Z=+depth/2.
 class M3PyramidGeom extends M3Geom {
-  M3PyramidGeom(double width, double height, double depth) {
+  M3PyramidGeom(double width, double height, double depth, {M3Axis axis = M3Axis.z}) {
     // initialize
     _init(vertexCount: 16, withNormals: true, withUV: true);
     name = "Pyramid";
@@ -12,59 +12,78 @@ class M3PyramidGeom extends M3Geom {
     double hy = height / 2;
     double hz = depth / 2;
 
+    final rot = Matrix3.identity();
+    if (axis == M3Axis.x) {
+      rot.setRotationY(pi / 2);
+    } else if (axis == M3Axis.y) {
+      rot.setRotationX(-pi / 2);
+    }
+
+    Vector3 transform(double x, double y, double z) {
+      final v = Vector3(x, y, z);
+      if (axis != M3Axis.z) {
+        rot.transform(v);
+      }
+      return v;
+    }
+
     // vertices
     final vertices = _vertices!;
-    vertices[0] = Vector3(-hx, -hy, -hz);
-    vertices[1] = Vector3(hx, -hy, -hz);
-    vertices[2] = Vector3(-hx, hy, -hz);
-    vertices[3] = Vector3(hx, hy, -hz);
+    vertices[0] = transform(-hx, -hy, -hz);
+    vertices[1] = transform(hx, -hy, -hz);
+    vertices[2] = transform(-hx, hy, -hz);
+    vertices[3] = transform(hx, hy, -hz);
 
-    vertices[4] = Vector3(0, 0, hz);
-    vertices[5] = vertices[0];
-    vertices[6] = vertices[1];
+    vertices[4] = transform(0, 0, hz);
+    vertices[5] = transform(-hx, -hy, -hz);
+    vertices[6] = transform(hx, -hy, -hz);
 
-    vertices[7] = vertices[4];
-    vertices[8] = vertices[1];
-    vertices[9] = vertices[3];
+    vertices[7] = transform(0, 0, hz);
+    vertices[8] = transform(hx, -hy, -hz);
+    vertices[9] = transform(hx, hy, -hz);
 
-    vertices[10] = vertices[4];
-    vertices[11] = vertices[3];
-    vertices[12] = vertices[2];
+    vertices[10] = transform(0, 0, hz);
+    vertices[11] = transform(hx, hy, -hz);
+    vertices[12] = transform(-hx, hy, -hz);
 
-    vertices[13] = vertices[4];
-    vertices[14] = vertices[2];
-    vertices[15] = vertices[0];
+    vertices[13] = transform(0, 0, hz);
+    vertices[14] = transform(-hx, hy, -hz);
+    vertices[15] = transform(-hx, -hy, -hz);
 
     // normals
     if (_normals != null) {
       final normals = _normals!;
-      Vector3 negativeZ = Vector3(0, 0, -1);
+      final vNegZ = transform(0, 0, -1);
 
-      normals[0] = negativeZ;
-      normals[1] = negativeZ;
-      normals[2] = negativeZ;
-      normals[3] = negativeZ;
+      normals[0] = vNegZ;
+      normals[1] = vNegZ.clone();
+      normals[2] = vNegZ.clone();
+      normals[3] = vNegZ.clone();
 
       final dir0 = vertices[0] - vertices[4];
       final dir1 = vertices[1] - vertices[4];
       final dir2 = vertices[2] - vertices[4];
       final dir3 = vertices[3] - vertices[4];
 
-      normals[4] = dir0.cross(dir1).normalized();
-      normals[5] = normals[4];
-      normals[6] = normals[4];
+      final nBack = dir0.cross(dir1).normalized();
+      normals[4] = nBack;
+      normals[5] = nBack.clone();
+      normals[6] = nBack.clone();
 
-      normals[7] = dir1.cross(dir3).normalized();
-      normals[8] = normals[7];
-      normals[9] = normals[7];
+      final nRight = dir1.cross(dir3).normalized();
+      normals[7] = nRight;
+      normals[8] = nRight.clone();
+      normals[9] = nRight.clone();
 
-      normals[10] = dir3.cross(dir2).normalized();
-      normals[11] = normals[10];
-      normals[12] = normals[10];
+      final nFront = dir3.cross(dir2).normalized();
+      normals[10] = nFront;
+      normals[11] = nFront.clone();
+      normals[12] = nFront.clone();
 
-      normals[13] = dir2.cross(dir0).normalized();
-      normals[14] = normals[13];
-      normals[15] = normals[13];
+      final nLeft = dir2.cross(dir0).normalized();
+      normals[13] = nLeft;
+      normals[14] = nLeft.clone();
+      normals[15] = nLeft.clone();
     }
 
     // texture coordinate(u,v)
@@ -92,6 +111,7 @@ class M3PyramidGeom extends M3Geom {
       uvs[14] = uvs[2];
       uvs[15] = uvs[0];
     }
+
     // vertex buffer object
     _createVBO();
     localBounding.sphere.radius = Vector3(hx, hy, hz).length;
@@ -101,7 +121,7 @@ class M3PyramidGeom extends M3Geom {
       _M3Indices(
         WebGL.TRIANGLES,
         Uint16Array.fromList([
-          0, 2, 1, 1, 2, 3, // buttom face
+          0, 2, 1, 1, 2, 3, // bottom face
           4, 5, 6, // back face
           7, 8, 9, // right face
           10, 11, 12, // front face
@@ -121,4 +141,5 @@ class M3PyramidGeom extends M3Geom {
       ),
     );
   }
+
 }

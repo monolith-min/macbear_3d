@@ -19,6 +19,7 @@ class M3PlaneGeom extends M3Geom {
     Vector2? uvScale,
     Function(double x, double y)? onVertex,
     bool flipFace = false,
+    M3Axis axis = M3Axis.z,
   }) {
     int numVert = (widthSegments + 1) * (heightSegments + 1);
     // initialize
@@ -36,6 +37,21 @@ class M3PlaneGeom extends M3Geom {
     int i, j, index = 0;
     final hx = width * 0.5, hy = height * 0.5;
 
+    final rot = Matrix3.identity();
+    if (axis == M3Axis.x) {
+      rot.setRotationY(pi / 2);
+    } else if (axis == M3Axis.y) {
+      rot.setRotationX(-pi / 2);
+    }
+
+    Vector3 transform(double x, double y, double z) {
+      final v = Vector3(x, y, z);
+      if (axis != M3Axis.z) {
+        rot.transform(v);
+      }
+      return v;
+    }
+
     // vertices: position, texUV
     for (i = 0; i <= heightSegments; i++) {
       double ratioY = i.toDouble() / heightSegments;
@@ -46,12 +62,13 @@ class M3PlaneGeom extends M3Geom {
         if (onVertex != null) {
           z = onVertex(x, y);
         }
-        vertices[index] = Vector3(x, y, z);
+        vertices[index] = transform(x, y, z);
         uvs[index] = Vector2(ratioX * uvScale.x, ratioY * uvScale.y);
 
         index++;
       }
     }
+
     // normals
     index = 0;
     for (i = 0; i < heightSegments; i++) {

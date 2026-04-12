@@ -8,8 +8,8 @@ topics:
   - angle
   - opengl
   - glsl
-  - macbear
   - gltf
+  - macbear
 
 screenshots:
   - description: 'Macbear 3D Engine'

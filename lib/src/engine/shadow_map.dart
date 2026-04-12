@@ -31,20 +31,27 @@ class M3ShadowMap {
     _framebuffer.dispose();
   }
 
-  void renderDepthPass(M3Scene scene, M3Light light) {
+  void renderDepth(M3Scene scene, M3Light light) {
     final renderEngine = M3AppEngine.instance.renderEngine;
     final stats = renderEngine.stats;
     final bool wasStatsEnabled = stats.enabled;
     stats.enabled = false;
 
     _framebuffer.bind();
-    gl.clear(WebGL.DEPTH_BUFFER_BIT);
+    // set shadow GL state
+    gl.frontFace(WebGL.CCW);
+    gl.enable(WebGL.CULL_FACE);
+    gl.enable(WebGL.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.depthFunc(WebGL.LEQUAL);
+
     gl.disable(WebGL.BLEND);
     gl.enable(WebGL.POLYGON_OFFSET_FILL);
     // render front-face and positive offset to avoid shadow acne
-    // gl.frontFace(WebGL.CCW);
     // gl.polygonOffset(.3, .2);
     gl.polygonOffset(1.1, 4.0);
+
+    gl.clear(WebGL.DEPTH_BUFFER_BIT);
 
     if (light.isDirectional) {
       light.updateShadowCascades(scene.cameras[0]);
@@ -70,6 +77,7 @@ class M3ShadowMap {
       scene.render(_prog, light);
     }
 
+    // recover to default GL state
     gl.polygonOffset(0, 0);
     gl.disable(WebGL.POLYGON_OFFSET_FILL);
     gl.enable(WebGL.BLEND);

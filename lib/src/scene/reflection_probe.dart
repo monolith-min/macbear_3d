@@ -88,8 +88,8 @@ class M3ReflectionProbe {
       }
       // set default GL state
       gl.frontFace(isMirror ? WebGL.CW : WebGL.CCW);
-      gl.enable(WebGL.DEPTH_TEST);
       gl.enable(WebGL.CULL_FACE);
+      gl.enable(WebGL.DEPTH_TEST);
       gl.depthMask(true);
       gl.depthFunc(WebGL.LEQUAL);
 

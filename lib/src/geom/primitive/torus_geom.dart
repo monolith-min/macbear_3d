@@ -9,6 +9,7 @@ class M3TorusGeom extends M3Geom {
     double tube, { // r
     int radialSegments = M3Geom.radialSegments,
     int tubularSegments = M3Geom.radialSegments,
+    M3Axis axis = M3Axis.z,
   }) {
     radialSegments = max(radialSegments, 3);
     tubularSegments = max(tubularSegments, 3);
@@ -23,6 +24,13 @@ class M3TorusGeom extends M3Geom {
     final uvs = _uvs!;
     int index = 0;
 
+    final rot = Matrix3.identity();
+    if (axis == M3Axis.x) {
+      rot.setRotationY(pi / 2);
+    } else if (axis == M3Axis.y) {
+      rot.setRotationX(-pi / 2);
+    }
+
     // vertices: position, normal, texture coordinate(u,v)
     for (int i = 0; i <= radialSegments; i++) {
       final u = i / radialSegments * pi * 2;
@@ -34,12 +42,19 @@ class M3TorusGeom extends M3Geom {
         final y = (radius + tube * cos(v)) * sin(u);
         final z = tube * sin(v);
 
-        vertices[index] = Vector3(x, y, z);
-
         final nx = cos(v) * cos(u);
         final ny = cos(v) * sin(u);
         final nz = sin(v);
-        normals[index] = Vector3(nx, ny, nz);
+
+        final vPos = Vector3(x, y, z);
+        final vNorm = Vector3(nx, ny, nz);
+        if (axis != M3Axis.z) {
+          rot.transform(vPos);
+          rot.transform(vNorm);
+        }
+
+        vertices[index] = vPos;
+        normals[index] = vNorm;
 
         uvs[index] = Vector2(i / radialSegments, j / tubularSegments);
 
