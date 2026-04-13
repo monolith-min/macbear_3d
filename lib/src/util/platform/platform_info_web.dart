@@ -11,6 +11,9 @@ String getPlatformName() {
   return 'Browser';
 }
 
+/// Mock flag for web consistency.
+bool useAngleAndroid = true;
+
 web.WebGLRenderingContext? getWebGL() {
   final canvas = web.document.createElement('canvas') as web.HTMLCanvasElement;
   // Try WebGL 2 first

@@ -44,6 +44,11 @@ class PlatformInfo {
     return getPlatformName();
   }
 
+  /// Controls whether ANGLE (GLES-over-Vulkan/Backend) is used on Android.
+  /// Set this to false to force native OpenGLES.
+  static bool get useAngle => useAngleAndroid;
+  static set useAngle(bool value) => useAngleAndroid = value;
+
   // GPU info: Vendor, Renderer, GLSL version
   static GraphicsInfo getGraphicsInfo() {
     final info = getGpuInfo();

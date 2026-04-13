@@ -4,6 +4,7 @@ import 'package:ffi/ffi.dart'; // 需要 pkg:ffi
 
 // Macbear3D engine
 import '../../../macbear_3d.dart';
+import 'platform_info_vulkan.dart';
 
 bool isPlatformAndroid() => Platform.isAndroid;
 bool isPlatformIOS() => Platform.isIOS;
@@ -13,6 +14,10 @@ bool isPlatformWindows() => Platform.isWindows;
 String getPlatformName() {
   return Platform.operatingSystem; // Android, iOS, Windows, etc.
 }
+
+/// Global flag to control ANGLE usage on Android.
+/// Can be set before engine initialization.
+bool useAngleAndroid = true;
 
 void getGLExtensions() {
   final gl = M3AppEngine.instance.renderEngine.gl;
@@ -85,20 +90,21 @@ void _printExtensionList(String extensions) {
 
 DynamicLibrary? _loadGLESv2Lib() {
   if (Platform.isMacOS || Platform.isIOS) {
-    // 當 Framework 被正確 Embed 時，可以直接透過名稱載入
-    // 系統會在 Frameworks 目錄中搜尋
     try {
       return DynamicLibrary.open('libGLESv2.framework/libGLESv2');
     } catch (e) {
-      // 備用路徑
       return DynamicLibrary.open('libGLESv2');
     }
   } else if (Platform.isAndroid) {
-    try {
-      return DynamicLibrary.open('libGLESv2_angle.so');
-    } catch (e) {
-      // 備用路徑
-      return null;
+    if (useAngleAndroid) {
+      try {
+        return DynamicLibrary.open('libGLESv2_angle.so');
+      } catch (e) {
+        // Fallback to native
+        return DynamicLibrary.open('libGLESv2.so');
+      }
+    } else {
+      return DynamicLibrary.open('libGLESv2.so');
     }
   } else if (Platform.isWindows) {
     try {
@@ -108,7 +114,7 @@ DynamicLibrary? _loadGLESv2Lib() {
     }
   }
 
-  return null; // unsupported platform
+  return null;
 }
 
 DynamicLibrary? _loadEGLLib() {
@@ -119,9 +125,13 @@ DynamicLibrary? _loadEGLLib() {
       return DynamicLibrary.open('libEGL');
     }
   } else if (Platform.isAndroid) {
-    try {
-      return DynamicLibrary.open('libEGL_angle.so');
-    } catch (e) {
+    if (useAngleAndroid) {
+      try {
+        return DynamicLibrary.open('libEGL_angle.so');
+      } catch (e) {
+        return DynamicLibrary.open('libEGL.so');
+      }
+    } else {
       return DynamicLibrary.open('libEGL.so');
     }
   } else if (Platform.isWindows) {
@@ -144,6 +154,18 @@ String safeGetString(Pointer<Uint8> ptr) {
 }
 
 GraphicsInfo getGpuInfo() {
+  if (Platform.isAndroid) {
+    bool hasVulkan = PlatformInfoVulkan.shouldInitVulkan();
+    debugPrint("--- Android GPU Detection ---");
+    debugPrint("Vulkan Support Detected: $hasVulkan");
+    debugPrint("Current useAngle setting: $useAngleAndroid");
+
+    // Optional: Auto-disable ANGLE if Vulkan is missing and useAngle is true
+    // if (useAngleAndroid && !hasVulkan) {
+    //   debugPrint("Warning: Vulkan not detected. Consider setting PlatformInfo.useAngle = false for native GLES.");
+    // }
+  }
+
   final glesLib = _loadGLESv2Lib();
   if (glesLib == null) {
     return const GraphicsInfo(vendor: "None", renderer: "None", version: "None", shadingVersion: "None");
