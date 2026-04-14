@@ -39,6 +39,21 @@ final class VkInstanceCreateInfo extends Struct {
   external Pointer<Pointer<Utf8>> ppEnabledExtensionNames;
 }
 
+final class VkPhysicalDeviceProperties extends Struct {
+  @Uint32()
+  external int apiVersion;
+  @Uint32()
+  external int driverVersion;
+  @Uint32()
+  external int vendorID;
+  @Uint32()
+  external int deviceID;
+  @Int32()
+  external int deviceType;
+  @Array(256)
+  external Array<Uint8> deviceName;
+}
+
 // --- FFI 函式簽名 ---
 typedef NativeCreateInstance = Int32 Function(Pointer<VkInstanceCreateInfo>, Pointer<Void>, Pointer<Pointer<Void>>);
 typedef DartCreateInstance = int Function(Pointer<VkInstanceCreateInfo>, Pointer<Void>, Pointer<Pointer<Void>>);
@@ -48,6 +63,9 @@ typedef DartDestroyInstance = void Function(Pointer<Void>, Pointer<Void>);
 
 typedef NativeEnumeratePhysicalDevices = Int32 Function(Pointer<Void>, Pointer<Uint32>, Pointer<Pointer<Void>>);
 typedef DartEnumeratePhysicalDevices = int Function(Pointer<Void>, Pointer<Uint32>, Pointer<Pointer<Void>>);
+
+typedef NativeGetPhysicalDeviceProperties = Void Function(Pointer<Void>, Pointer<VkPhysicalDeviceProperties>);
+typedef DartGetPhysicalDeviceProperties = void Function(Pointer<Void>, Pointer<VkPhysicalDeviceProperties>);
 
 /// 專門負責探測平台 Vulkan 支援狀態的類別
 class PlatformInfoVulkan {
@@ -82,6 +100,8 @@ class PlatformInfoVulkan {
     final vkDestroyInstance = libVulkan.lookupFunction<NativeDestroyInstance, DartDestroyInstance>('vkDestroyInstance');
     final vkEnumeratePhysicalDevices = libVulkan
         .lookupFunction<NativeEnumeratePhysicalDevices, DartEnumeratePhysicalDevices>('vkEnumeratePhysicalDevices');
+    final vkGetPhysicalDeviceProperties = libVulkan
+        .lookupFunction<NativeGetPhysicalDeviceProperties, DartGetPhysicalDeviceProperties>('vkGetPhysicalDeviceProperties');
 
     Pointer<Void> instance = nullptr;
     final Pointer<Pointer<Void>> instancePtr = calloc<Pointer<Void>>();
@@ -112,19 +132,52 @@ class PlatformInfoVulkan {
       instance = instancePtr.value;
 
       // 4. 檢查是否有實體設備 (GPU)
-      final Pointer<Uint32> deviceCount = calloc<Uint32>();
-      vkEnumeratePhysicalDevices(instance, deviceCount, nullptr);
+      final Pointer<Uint32> deviceCountPtr = calloc<Uint32>();
+      vkEnumeratePhysicalDevices(instance, deviceCountPtr, nullptr);
 
-      if (deviceCount.value == 0) {
+      if (deviceCountPtr.value == 0) {
         vkDestroyInstance(instance, nullptr);
         return false;
       }
 
-      // --- 這裡可以進一步加入黑名單檢查 ---
-      // 雖然 GE8320 支援 Vulkan，但如果是在 Android 9 以下或特定型號，
-      // 你可以在此處透過 vkGetPhysicalDeviceProperties 獲取 GPU 名稱並過濾。
+      // 5. 獲取實體設備句柄
+      final Pointer<Pointer<Void>> devicesPtr = calloc<Pointer<Void>>(deviceCountPtr.value);
+      vkEnumeratePhysicalDevices(instance, deviceCountPtr, devicesPtr);
 
-      debugPrint("[macbear_3d] Vulkan check passed. Found ${deviceCount.value} device(s).");
+      bool compatibilityPassed = false;
+      for (int i = 0; i < deviceCountPtr.value; i++) {
+        final Pointer<Void> device = devicesPtr[i];
+
+        // 為 VkPhysicalDeviceProperties 分配足夠空間 (Vulkan 規格中此結構體很大，約 800+ bytes)
+        // 為了安全，我們分配 1024 bytes 並轉型
+        final Pointer<VkPhysicalDeviceProperties> propsPtr = calloc<Uint8>(1024).cast();
+        vkGetPhysicalDeviceProperties(device, propsPtr);
+
+        final int apiVersion = propsPtr.ref.apiVersion;
+        final int vendorID = propsPtr.ref.vendorID;
+        final String name = _decodeDeviceName(propsPtr.ref.deviceName);
+
+        debugPrint("[macbear_3d] Found GPU: $name (Vendor: 0x${vendorID.toRadixString(16)}, API: ${apiVersion >> 22}.${(apiVersion >> 12) & 0x3FF}.${apiVersion & 0xFFF})");
+
+        if (_isDeviceCompatible(vendorID, name, apiVersion)) {
+          _gpuName = name;
+          compatibilityPassed = true;
+          malloc.free(propsPtr);
+          break; // 找到一個相容的即可
+        }
+        malloc.free(propsPtr);
+      }
+
+      malloc.free(devicesPtr);
+      malloc.free(deviceCountPtr);
+
+      if (!compatibilityPassed) {
+        debugPrint("[macbear_3d] No compatible Vulkan GPU found (filtered by denylist).");
+        vkDestroyInstance(instance, nullptr);
+        return false;
+      }
+
+      debugPrint("[macbear_3d] Vulkan check passed. Using: $_gpuName");
 
       // 清理並回傳成功
       vkDestroyInstance(instance, nullptr);
@@ -140,5 +193,42 @@ class PlatformInfoVulkan {
       malloc.free(createInfo);
       malloc.free(instancePtr);
     }
+  }
+
+  /// 判定裝置相容性 (黑名單)
+  static bool _isDeviceCompatible(int vendorID, String name, int apiVersion) {
+    // 1. 基本 API 版本要求: 建議至少 Vulkan 1.1 (除非是已知穩定的 1.0 裝置)
+    // Vulkan 1.1 = (1 << 22) | (1 << 12)
+    const int vk11 = (1 << 22) | (1 << 12);
+    if (apiVersion < vk11) {
+      // 如果是早期 Mali 或 PowerVR 且只有 1.0，通常不建議使用
+      if (vendorID == 0x13B5 || vendorID == 0x1010) {
+        debugPrint("[macbear_3d] Filtering out legacy ARM/PowerVR with Vulkan 1.0");
+        return false;
+      }
+    }
+
+    // 2. 針對特定惡名昭彰的型號過濾 (例如 GE8320)
+    final String upperName = name.toUpperCase();
+    if (upperName.contains("GE8320")) {
+      debugPrint("[macbear_3d] Filtering out PowerVR GE8320 due to instability.");
+      return false;
+    }
+
+    if (upperName.contains("MALI-T")) {
+      debugPrint("[macbear_3d] Filtering out legacy Mali-T series.");
+      return false;
+    }
+
+    return true;
+  }
+
+  static String _decodeDeviceName(Array<Uint8> deviceName) {
+    final List<int> units = [];
+    for (int i = 0; i < 256; i++) {
+      if (deviceName[i] == 0) break;
+      units.add(deviceName[i]);
+    }
+    return String.fromCharCodes(units);
   }
 }

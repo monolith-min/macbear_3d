@@ -77,8 +77,11 @@ class M3AppEngine with ChangeNotifier {
 
     initKeyboard();
 
+    // auto determine rendering backend (ANGLE vs Native GLES)
+    PlatformInfo.init();
+
     // init angle: ANGLE by Google
-    await _angle.init();
+    await _angle.init(false, PlatformInfo.useAngle);
     final options = AngleOptions(width: width, height: height, dpr: dpr, useSurfaceProducer: true);
     _sourceTexture = await _angle.createTexture(options);
 

@@ -19,6 +19,16 @@ String getPlatformName() {
 /// Can be set before engine initialization.
 bool useAngleAndroid = true;
 
+void initPlatformImpl() {
+  if (Platform.isAndroid) {
+    bool hasVulkan = PlatformInfoVulkan.shouldInitVulkan();
+    useAngleAndroid = hasVulkan;
+    debugPrint("--- Android GPU Detection (init) ---");
+    debugPrint("Vulkan Support Detected: $hasVulkan");
+    debugPrint("Current useAngle setting: $useAngleAndroid");
+  }
+}
+
 void getGLExtensions() {
   final gl = M3AppEngine.instance.renderEngine.gl;
   if (!kIsWeb) {
@@ -155,15 +165,8 @@ String safeGetString(Pointer<Uint8> ptr) {
 
 GraphicsInfo getGpuInfo() {
   if (Platform.isAndroid) {
-    bool hasVulkan = PlatformInfoVulkan.shouldInitVulkan();
     debugPrint("--- Android GPU Detection ---");
-    debugPrint("Vulkan Support Detected: $hasVulkan");
     debugPrint("Current useAngle setting: $useAngleAndroid");
-
-    // Optional: Auto-disable ANGLE if Vulkan is missing and useAngle is true
-    // if (useAngleAndroid && !hasVulkan) {
-    //   debugPrint("Warning: Vulkan not detected. Consider setting PlatformInfo.useAngle = false for native GLES.");
-    // }
   }
 
   final glesLib = _loadGLESv2Lib();

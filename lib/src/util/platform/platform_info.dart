@@ -40,6 +40,10 @@ class PlatformInfo {
   static bool get isMacOS => isPlatformMacOS();
   static bool get isWindows => isPlatformWindows();
 
+  static void init() {
+    initPlatformImpl();
+  }
+
   static String getOS() {
     return getPlatformName();
   }
