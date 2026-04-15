@@ -22,10 +22,10 @@ class PbrTestScene_09 extends M3Scene {
         double roughness = j / (cols - 1);
 
         final mesh = M3Mesh(sphereGeom);
-        mesh.mtr.diffuse = Vector4(0.0, 1.0, 0.0, 1.0); // Green base color
-        mesh.mtr.reflection = metallic;
-        mesh.mtr.metallic = metallic;
-        mesh.mtr.roughness = max(roughness, 0.05); // Avoid zero roughness for GGX
+        mesh.subMeshes[0].mtr.diffuse = Vector4(0.0, 1.0, 0.0, 1.0); // Green base color
+        mesh.subMeshes[0].mtr.reflection = metallic;
+        mesh.subMeshes[0].mtr.metallic = metallic;
+        mesh.subMeshes[0].mtr.roughness = max(roughness, 0.05); // Avoid zero roughness for GGX
 
         double x = (i - (rows - 1) / 2) * spacing;
         double y = (j - (cols - 1) / 2) * spacing;
@@ -39,11 +39,14 @@ class PbrTestScene_09 extends M3Scene {
     // Add a ground plane
     final geomPlane = M3PlaneGeom(20, 20);
     final plane = addMesh(M3Mesh(geomPlane), Vector3(0, 0, -2));
-    plane.mesh!.mtr.diffuse = Vector4(0.5, 0.5, 0.5, 1.0);
-    plane.mesh!.mtr.metallic = 0.0;
-    plane.mesh!.mtr.roughness = 0.8;
+    plane.mesh!.subMeshes[0].mtr.diffuse = Vector4(0.5, 0.5, 0.5, 1.0);
+    plane.mesh!.subMeshes[0].mtr.metallic = 0.0;
+    plane.mesh!.subMeshes[0].mtr.roughness = 0.8;
 
-    // 02: sample cubemap
+    // axis
+    addMesh(M3Resources.axisMesh, Vector3(0, 0, 2));
+
+    // nvlobby cubemap
     final strPrefix = 'example/nvlobby_';
     final strExt = 'jpg';
     skybox = await M3Skybox.createCubemap(

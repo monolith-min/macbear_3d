@@ -4,6 +4,18 @@ import '../engine/resources.dart';
 import '../gltf/gltf_parser.dart';
 import 'texture.dart';
 
+/// Alpha blending modes for materials.
+enum M3AlphaMode {
+  /// Standard opaque rendering.
+  opaque,
+
+  /// Semi-transparent rendering with alpha blending.
+  blend,
+
+  /// Binary transparency (pixel is either visible or discarded).
+  mask,
+}
+
 /// Material properties for rendering (diffuse color, specular, shininess, textures).
 class M3Material {
   Vector4 diffuse = Vector4(1.0, 1.0, 1.0, 1.0);
@@ -12,6 +24,8 @@ class M3Material {
   double reflection = 0.0;
   double metallic = 0.0;
   double roughness = 0.8;
+  M3AlphaMode alphaMode = M3AlphaMode.opaque;
+  int renderOrder = 0; // manual override for fine-tuned sorting
 
   // textures
   M3Texture texDiffuse = M3Resources.texWhite;
@@ -33,6 +47,8 @@ class M3Material {
     reflection = other.reflection;
     metallic = other.metallic;
     roughness = other.roughness;
+    alphaMode = other.alphaMode;
+    renderOrder = other.renderOrder;
     texDiffuse = other.texDiffuse;
     texMatrix.setFrom(other.texMatrix);
   }
@@ -43,6 +59,11 @@ class M3Material {
     mtr.diffuse = gltfMat.baseColorFactor;
     mtr.metallic = gltfMat.metallicFactor;
     mtr.roughness = gltfMat.roughnessFactor;
+    if (gltfMat.alphaMode == 'BLEND') {
+      mtr.alphaMode = M3AlphaMode.blend;
+    } else if (gltfMat.alphaMode == 'MASK') {
+      mtr.alphaMode = M3AlphaMode.mask;
+    }
 
     // Base Color Texture
     if (gltfMat.baseColorTextureIndex != null) {

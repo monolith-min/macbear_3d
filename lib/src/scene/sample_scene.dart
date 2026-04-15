@@ -69,17 +69,17 @@ class SampleScene extends M3Scene {
           switch (k % 3) {
             case 0:
               mesh = M3Mesh(_geomSphere);
-              mesh.mtr.texDiffuse = texGrid2;
+              mesh.subMeshes[0].mtr.texDiffuse = texGrid2;
               rb = phyEngine.addSphere(0.5, density: 1.0, position: pos);
               break;
             case 1:
               mesh = M3Mesh(_geomCube);
-              mesh.mtr.texDiffuse = texGrid;
+              mesh.subMeshes[0].mtr.texDiffuse = texGrid;
               rb = phyEngine.addBox(1.0, 1.0, 1.0, density: 1.0, position: pos);
               break;
             default:
               mesh = M3Mesh(_geomCylinder);
-              mesh.mtr.texDiffuse = texGrid2;
+              mesh.subMeshes[0].mtr.texDiffuse = texGrid2;
               rb = phyEngine.addCylinder(0.5, 1.0, density: 1.0, position: pos);
               break;
           }
@@ -92,9 +92,10 @@ class SampleScene extends M3Scene {
     // sample cubemap
     skybox = M3Skybox(M3Texture.createSampleCubemap(gridCount: 11));
 
-    meshPlane.mesh!.mtr.texDiffuse = texGround;
-    meshPlane.mesh!.mtr.specular = Vector3.zero();
-    meshPlane.mesh!.mtr.shininess = 1;
+    meshPlane.mesh!.subMeshes[0].mtr
+      ..texDiffuse = texGround
+      ..specular = Vector3.zero()
+      ..shininess = 1;
   }
 
   @override
@@ -134,10 +135,11 @@ class MassiveScene extends M3Scene {
       for (int j = 0; j < 10; j++) {
         for (int k = 0; k < 10; k++) {
           final mesh = M3Mesh(sphereGeom);
-          mesh.mtr.diffuse = Vector4(0.0, 1.0, 0.0, 1.0); // Green base color
-          mesh.mtr.reflection = i / 9;
-          mesh.mtr.metallic = i / 9;
-          mesh.mtr.roughness = max(j / 9, 0.05); // Avoid zero roughness for GGX
+          mesh.subMeshes[0].mtr
+            ..diffuse = Vector4(0.0, 1.0, 0.0, 1.0)
+            ..reflection = i / 9
+            ..metallic = i / 9
+            ..roughness = max(j / 9, 0.05); // Avoid zero roughness for GGX
 
           double x = (i - 4.5) * 2;
           double y = (j - 4.5) * 2;
@@ -159,7 +161,7 @@ class MassiveScene extends M3Scene {
       lightColor: Vector4(.7, 1, .5, 1),
       darkColor: Vector4(.5, 0.8, .3, 1),
     );
-    plane.mesh!.mtr.texDiffuse = texGround;
+    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
 
     // 02: sample cubemap
     skybox = M3Skybox(M3Texture.createSampleCubemap());

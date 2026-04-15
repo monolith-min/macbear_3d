@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart' hide Colors;
+import '../m3_internal.dart' hide Colors;
 import 'ktx_info.dart';
 import '../util/video/video_helper.dart';
 import '../video_bridge/video_bridge.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Matrix4;
 
 // Macbear3D engine
-import '../../macbear_3d.dart' hide Colors;
+import '../m3_internal.dart' hide Colors;
 
 enum M3Axis { x, y, z }
 

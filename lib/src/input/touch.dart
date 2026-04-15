@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 part 'input_controller.dart';
 

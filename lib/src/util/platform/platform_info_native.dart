@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart'; // 需要 pkg:ffi
 
 // Macbear3D engine
-import '../../../macbear_3d.dart';
+import '../../m3_internal.dart';
 import 'platform_info_vulkan.dart';
 
 bool isPlatformAndroid() => Platform.isAndroid;

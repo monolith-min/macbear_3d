@@ -1,11 +1,23 @@
 import 'dart:convert';
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 import '../gltf/gltf_loader.dart';
 import '../gltf/gltf_parser.dart';
 import 'obj_loader.dart';
 import 'animator.dart';
+
+class M3SubMesh {
+  /// The material properties (textures, colors, etc.)
+  M3Material mtr;
+
+  /// The geometric data (vertices, indices, etc.)
+  M3Geom geom;
+
+  Matrix4 localMatrix = Matrix4.identity();
+
+  M3SubMesh(this.geom, {M3Material? material}) : mtr = material ?? M3Material();
+}
 
 /// Skeletal animation skin data containing bone matrices and inverse bind matrices.
 ///
@@ -76,11 +88,7 @@ class M3Skin {
 /// This class acts as the primary container for a renderable 3D object and supports
 /// loading from various file formats (.obj, .gltf, .glb).
 class M3Mesh {
-  /// The material properties (textures, colors, etc.) for this mesh.
-  M3Material mtr;
-
-  /// The geometric data (vertices, indices, etc.) for this mesh.
-  M3Geom geom;
+  List<M3SubMesh> subMeshes = [];
 
   /// Optional initial transform from glTF mesh node.
   Matrix4 initMatrix = Matrix4.identity();
@@ -95,7 +103,11 @@ class M3Mesh {
   List<GltfNode>? nodes;
 
   /// Creates a mesh from the given geometry and optional material/skin.
-  M3Mesh(this.geom, {M3Material? material, this.skin}) : mtr = material ?? M3Material();
+  M3Mesh(M3Geom? geom, {M3Material? material, this.skin}) {
+    if (geom != null) {
+      subMeshes.add(M3SubMesh(geom, material: material));
+    }
+  }
 
   /// Loads a model from a file path or URL.
   ///
@@ -126,22 +138,26 @@ class M3Mesh {
   ///
   /// Currently only processes the first primitive of the first mesh in the document.
   static M3Mesh _meshFromGltfDoc(dynamic doc) {
-    // 1. Extract basic geometry
-    final primitive = doc.meshes[0].primitives[0];
-    final geom = M3GltfGeom.fromPrimitive(primitive);
-
-    // 2. Process Material if available
-    M3Material? mtr;
-    if (primitive.materialIndex != null && primitive.materialIndex! < doc.materials.length) {
-      mtr = M3Material.fromGltf(doc.materials[primitive.materialIndex!], doc);
+    // 1. Process all primitives of the first mesh (primary use case)
+    final List<M3SubMesh> primitives = [];
+    if (doc.meshes.isNotEmpty) {
+      final gltfMesh = doc.meshes[0];
+      for (final primitive in gltfMesh.primitives) {
+        final geom = M3GltfGeom.fromPrimitive(primitive);
+        M3Material? mtr;
+        if (primitive.materialIndex != null && primitive.materialIndex! < doc.materials.length) {
+          mtr = M3Material.fromGltf(doc.materials[primitive.materialIndex!], doc);
+        }
+        primitives.add(M3SubMesh(geom, material: mtr));
+      }
     }
 
-    // 3. Process Skeletal Animation Skin if available
+    // 2. Process Skeletal Animation Skin if available
     M3Skin? skin;
-    int? skinIndex = primitive.skinIndex;
+    int? skinIndex;
 
     Matrix4 matNode = Matrix4.identity();
-    // Search for a node that references this mesh
+    // Search for a node that references the first mesh
     for (final node in doc.nodes) {
       if (node.meshIndex == 0) {
         if (node.skinIndex != null) {
@@ -175,11 +191,12 @@ class M3Mesh {
       );
     }
 
-    final mesh = M3Mesh(geom, material: mtr, skin: skin);
+    final mesh = M3Mesh(null, skin: skin);
+    mesh.subMeshes = primitives;
     mesh.initMatrix.setFrom(matNode);
     mesh.nodes = doc.nodes;
 
-    // 4. Initialize Animator
+    // 3. Initialize Animator
     if (doc.animations.isNotEmpty) {
       final nodeMap = {for (int i = 0; i < doc.nodes.length; i++) i: doc.nodes[i]};
       mesh.animator = M3Animator((doc.animations as List).cast<GltfAnimation>(), nodeMap.cast<int, GltfNode>());
@@ -203,7 +220,10 @@ class M3Mesh {
         ? skin!.clone((skin!.jointNodes as List<GltfNode>).map((n) => nodeCloneMap[n]!).toList())
         : null;
 
-    final clonedMesh = M3Mesh(geom, material: mtr, skin: clonedSkin);
+    final clonedMesh = M3Mesh(null, skin: clonedSkin);
+    for (final sub in subMeshes) {
+      clonedMesh.subMeshes.add(M3SubMesh(sub.geom, material: sub.mtr)..localMatrix.setFrom(sub.localMatrix));
+    }
     clonedMesh.initMatrix.setFrom(initMatrix);
     clonedMesh.nodes = clonedNodes;
 

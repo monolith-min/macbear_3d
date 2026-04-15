@@ -4,7 +4,7 @@ import 'platform_info_native.dart'
     if (dart.library.js_interop) 'platform_info_web.dart';
 
 // Macbear3D engine
-import '../../../macbear_3d.dart';
+import '../../m3_internal.dart';
 
 class GraphicsInfo {
   final String vendor;

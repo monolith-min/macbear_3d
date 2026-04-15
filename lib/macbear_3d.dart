@@ -1,12 +1,10 @@
-export 'src/engine/framebuffer.dart';
-export 'src/export.dart';
-
 export 'src/2d/shape_2d.dart';
 export 'src/2d/sprite_2d.dart';
 export 'src/2d/text_2d.dart';
 export 'src/anim/bvh_animator.dart';
 export 'src/anim/bvh_skeleton.dart';
 export 'src/engine/app_engine.dart';
+export 'src/engine/framebuffer.dart';
 export 'src/engine/render_engine.dart';
 export 'src/engine/resource_manager.dart';
 export 'src/engine/resources.dart';
@@ -16,6 +14,7 @@ export 'src/mesh/mesh.dart';
 export 'src/physics/physics_engine.dart';
 export 'src/program/program.dart';
 export 'src/scene/reflection_probe.dart';
+export 'src/scene/render_pipeline.dart';
 export 'src/scene/scene.dart';
 export 'src/scene/transform.dart';
 export 'src/texture/material.dart';

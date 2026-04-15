@@ -15,7 +15,7 @@ class PrimitivesScene_03 extends M3Scene {
     // 01: add box geometry
     final box = addMesh(M3Mesh(M3BoxGeom(1.0, 1.0, 1.0)), Vector3.zero());
     M3Texture texGrid = M3Texture.createCheckerboard(size: 5);
-    box.mesh!.mtr.texDiffuse = texGrid;
+    box.mesh!.subMeshes[0].mtr.texDiffuse = texGrid;
 
     M3Texture texGrid2 = M3Texture.createCheckerboard(size: 6);
 
@@ -38,59 +38,57 @@ class PrimitivesScene_03 extends M3Scene {
       lightColor: Vector4(.7, 1, .5, 1),
       darkColor: Vector4(.5, 0.8, .3, 1),
     );
-    plane.mesh!.mtr.texDiffuse = texGround;
+    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
 
     // 03-2: sphere geometry
     final sphere = addMesh(M3Mesh(M3SphereGeom(0.5)), Vector3(2, 0, 0));
-    sphere.mesh!.mtr.texDiffuse = texGrid2;
-
-    final sphere2 = addMesh(M3Mesh(M3SphereGeom(1)), Vector3(0, 8, 1))..color = Vector4(1, 0, 0, 1);
-    final sphere3 = addMesh(M3Mesh(M3SphereGeom(1.5)), Vector3(-6, 6, 1.5))..color = Vector4(0, 1, 0, 1);
-    sphere2.mesh!.mtr.texDiffuse = texGrid2;
-    sphere3.mesh!.mtr.texDiffuse = texGrid2;
+    sphere.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
 
     // 03-3: cylinder geometry
     final cylinder = addMesh(M3Mesh(M3CylinderGeom(0.2, 0.5, 1, heightSegments: 2)), Vector3(0, 2, 0));
-    cylinder.mesh!.mtr.texDiffuse = texGrid;
+    cylinder.mesh!.subMeshes[0].mtr.texDiffuse = texGrid;
     final cylY = addMesh(M3Mesh(M3CylinderGeom(0.2, 0.5, 1, heightSegments: 2, axis: M3Axis.y)), Vector3(0, 2, 1.5));
-    cylY.mesh!.mtr.texDiffuse = texGrid;
+    cylY.mesh!.subMeshes[0].mtr.texDiffuse = texGrid;
     final cylX = addMesh(M3Mesh(M3CylinderGeom(0.2, 0.5, 1, heightSegments: 2, axis: M3Axis.x)), Vector3(0, 2, 2.5));
-    cylX.mesh!.mtr.texDiffuse = texGrid;
+    cylX.mesh!.subMeshes[0].mtr.texDiffuse = texGrid;
 
     final cyliFlat = addMesh(M3Mesh(M3CylinderGeom(0.2, 0.5, 1, heightSegments: 2, creaseAngle: 1)), Vector3(-1, 2, 0));
-    cyliFlat.mesh!.mtr.texDiffuse = texGrid;
+    cyliFlat.mesh!.subMeshes[0].mtr.texDiffuse = texGrid;
 
     // 03-4: torus geometry
     final torus = addMesh(M3Mesh(M3TorusGeom(0.5, 0.2)), Vector3(-2, 0, 0));
-    torus.mesh!.mtr.texDiffuse = texGrid2;
+    torus.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
     final torusY = addMesh(M3Mesh(M3TorusGeom(0.5, 0.2, axis: M3Axis.y)), Vector3(-2, 0, 2));
-    torusY.mesh!.mtr.texDiffuse = texGrid2;
+    torusY.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
     final torusX = addMesh(M3Mesh(M3TorusGeom(0.5, 0.2, axis: M3Axis.x)), Vector3(-2, 0, 4));
-    torusX.mesh!.mtr.texDiffuse = texGrid2;
+    torusX.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
 
     // 03-5: pyramid geometry
     _pyramid = addMesh(M3Mesh(M3PyramidGeom(1, 1, 1)), Vector3(0, -2, 0));
-    _pyramid!.mesh!.mtr.texDiffuse = texGrid2;
+    _pyramid!.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
     final pyramidY = addMesh(M3Mesh(M3PyramidGeom(0.6, 0.6, 1, axis: M3Axis.y)), Vector3(0, -2, 1));
-    pyramidY.mesh!.mtr.texDiffuse = texGrid2;
+    pyramidY.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
     final pyramidX = addMesh(M3Mesh(M3PyramidGeom(0.6, 0.6, 1, axis: M3Axis.x)), Vector3(0, -2, 2));
-    pyramidX.mesh!.mtr.texDiffuse = texGrid2;
+    pyramidX.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
 
     // 03-6: ellipsoid geometry
     final ellipsoid = addMesh(M3Mesh(M3EllipsoidGeom(0.9, 0.6, 0.3)), Vector3(2, 2, 0));
-    ellipsoid.mesh!.mtr.texDiffuse = texGrid2;
+    ellipsoid.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
 
     // 03-7: capsule geometry
     final capsule = addMesh(M3Mesh(M3CapsuleGeom(0.3, 1)), Vector3(-2, 2, 0));
-    capsule.mesh!.mtr.texDiffuse = texGrid2;
+    capsule.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
     final capsuleY = addMesh(M3Mesh(M3CapsuleGeom(0.3, 1, axis: M3Axis.y)), Vector3(-2, 2, 1.5));
-    capsuleY.mesh!.mtr.texDiffuse = texGrid2;
+    capsuleY.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
     final capsuleX = addMesh(M3Mesh(M3CapsuleGeom(0.3, 1, axis: M3Axis.x)), Vector3(-2, 2, 2.5));
-    capsuleX.mesh!.mtr.texDiffuse = texGrid2;
+    capsuleX.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
 
     // 03-8: octahedral geometry
     final octahedral = addMesh(M3Mesh(M3OctahedralGeom(0.5)), Vector3(0, 0, 1.5));
-    octahedral.mesh!.mtr.texDiffuse = texGrid2;
+    octahedral.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
+
+    // 03-9: axis
+    addMesh(M3Resources.axisMesh, Vector3.zero());
   }
 
   @override

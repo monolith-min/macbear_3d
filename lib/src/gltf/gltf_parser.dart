@@ -157,6 +157,8 @@ class GltfMaterial {
   final int? baseColorTextureIndex; // index of textures
   final double metallicFactor;
   final double roughnessFactor;
+  final String alphaMode; // "OPAQUE", "MASK", "BLEND"
+  final double alphaCutoff;
 
   GltfMaterial({
     required this.name,
@@ -164,6 +166,8 @@ class GltfMaterial {
     this.baseColorTextureIndex,
     this.metallicFactor = 1.0,
     this.roughnessFactor = 1.0,
+    this.alphaMode = 'OPAQUE',
+    this.alphaCutoff = 0.5,
   });
 
   static GltfMaterial parse(Map<String, dynamic> json) {
@@ -201,6 +205,8 @@ class GltfMaterial {
       baseColorTextureIndex: texIndex,
       metallicFactor: metallic,
       roughnessFactor: roughness,
+      alphaMode: json['alphaMode'] as String? ?? 'OPAQUE',
+      alphaCutoff: (json['alphaCutoff'] as num?)?.toDouble() ?? 0.5,
     );
   }
 }

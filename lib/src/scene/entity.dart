@@ -1,7 +1,7 @@
 import 'package:oimo_physics/oimo_physics.dart' as oimo;
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 /// A scene entity representing a renderable object with transform and physics.
 ///
@@ -19,30 +19,33 @@ class M3Entity {
   bool _boundsDirty = true;
 
   void updateBounds() {
-    if (_boundsDirty && mesh != null) {
-      final localBounding = mesh!.geom.localBounding;
-      final localAabb = localBounding.aabb;
+    if (_boundsDirty && mesh != null && mesh!.subMeshes.isNotEmpty) {
       final worldAabb = worldBounding.aabb;
 
       // Transform 8 corners of local AABB to world space
       worldAabb.min.setValues(double.infinity, double.infinity, double.infinity);
       worldAabb.max.setValues(double.negativeInfinity, double.negativeInfinity, double.negativeInfinity);
 
-      final matWorldMesh = matrix * mesh!.initMatrix;
+      for (final sub in mesh!.subMeshes) {
+        final localBounding = sub.geom.localBounding;
+        final localAabb = localBounding.aabb;
+        final matWorldSub = matrix * mesh!.initMatrix * sub.localMatrix;
 
-      final v = Vector3.zero();
-      for (int i = 0; i < 8; i++) {
-        v.setValues(
-          (i & 1) == 0 ? localAabb.min.x : localAabb.max.x,
-          (i & 2) == 0 ? localAabb.min.y : localAabb.max.y,
-          (i & 4) == 0 ? localAabb.min.z : localAabb.max.z,
-        );
-        matWorldMesh.transform3(v);
-        worldAabb.hullPoint(v);
+        final v = Vector3.zero();
+        for (int i = 0; i < 8; i++) {
+          v.setValues(
+            (i & 1) == 0 ? localAabb.min.x : localAabb.max.x,
+            (i & 2) == 0 ? localAabb.min.y : localAabb.max.y,
+            (i & 4) == 0 ? localAabb.min.z : localAabb.max.z,
+          );
+          matWorldSub.transform3(v);
+          worldAabb.hullPoint(v);
+        }
       }
 
       // If skin exists, also hull all bone world positions
       if (mesh!.skin != null) {
+        final v = Vector3.zero();
         for (int i = 0; i < mesh!.skin!.boneCount; i++) {
           final jointNode = mesh!.skin!.jointNodes![i];
           v.setFrom(jointNode.worldMatrix.getTranslation());
@@ -51,13 +54,10 @@ class M3Entity {
         }
       }
 
-      final worldPosition = localBounding.sphere.center.clone();
-      matWorldMesh.transform3(worldPosition);
-      worldBounding.sphere.center.setFrom(worldPosition);
-
-      // radius: max scale * local radius
-      final maxScale = max(_transform.scale.x, max(_transform.scale.y, _transform.scale.z));
-      worldBounding.sphere.radius = localBounding.sphere.radius * maxScale;
+      // Update world sphere center from AABB center for simplicity in multi-submesh case
+      worldBounding.sphere.center.setFrom(worldAabb.center);
+      // radius: max distance from center to AABB corners
+      worldBounding.sphere.radius = (worldAabb.max - worldAabb.min).length / 2;
       _boundsDirty = false;
     }
   }

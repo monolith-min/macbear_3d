@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 class M3View extends StatefulWidget {
   const M3View({super.key});

@@ -1,5 +1,5 @@
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 /// Shadow map renderer for real-time shadows from directional lights.
 ///

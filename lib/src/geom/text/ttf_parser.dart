@@ -2,7 +2,7 @@
 import 'package:flutter/services.dart';
 
 // Macbear3D engine
-import '../../../macbear_3d.dart';
+import '../../m3_internal.dart';
 
 /// A minimal TrueType (TTF) and OpenType (OTF) font parser to extract glyph paths for 3D reconstruction.
 ///

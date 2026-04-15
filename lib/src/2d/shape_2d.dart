@@ -1,7 +1,7 @@
 import 'package:vector_math/vector_math_lists.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 // part for shape2D
 part 'rectangle_2d.dart';

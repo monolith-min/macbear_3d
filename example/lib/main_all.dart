@@ -1,9 +1,11 @@
 // ignore_for_file: unused_import, unused_local_variable
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math.dart' hide Colors;
 
 // Macbear3D engine
-import 'package:macbear_3d/macbear_3d.dart' hide Colors;
-export 'package:macbear_3d/macbear_3d.dart';
+import 'package:macbear_3d/macbear_3d.dart';
+export 'package:macbear_3d/src/m3_internal.dart';
 
 import '00_starter.dart';
 import '01_cube.dart';
@@ -42,7 +44,7 @@ Future<void> onDidInit() async {
   // final scene00 = StarterScene_00();
   // final scene03 = PrimitivesScene_03();
   // final scene09 = PbrTestScene_09();
-  final testScene = SampleScene();
+  // final testScene = SampleScene();
   final initScene = CubeScene_01();
   await appEngine.setScene(initScene);
 }

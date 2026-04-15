@@ -28,7 +28,7 @@ class SkyboxScene_02 extends M3Scene {
     // 02-2: ball geometry
     M3Texture texGrid = M3Texture.createCheckerboard(size: 10);
     final ballMesh = M3Mesh(M3Resources.unitSphere);
-    ballMesh.mtr
+    ballMesh.subMeshes[0].mtr
       ..texDiffuse = texGrid
       ..reflection = 0.3
       ..metallic = 0.8
@@ -42,12 +42,12 @@ class SkyboxScene_02 extends M3Scene {
       lightColor: Vector4(0.65, 0.45, 0.25, 1),
       darkColor: Vector4(0.36, 0.22, 0.12, 1),
     );
-    plane.mesh!.mtr.texDiffuse = texGround;
+    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
 
     // 02-3: orbit around
     final meshSphere = M3Mesh(M3Resources.unitSphere);
     final meshTorus = M3Mesh(M3TorusGeom(0.6, 0.2));
-    meshSphere.mtr
+    meshSphere.subMeshes[0].mtr
       ..reflection = 0.0
       ..metallic = 0.0
       ..roughness = 1.0;

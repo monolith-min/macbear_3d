@@ -1,5 +1,5 @@
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 import 'shadow_map.dart';
 

@@ -14,6 +14,10 @@ class CubeScene_01 extends M3Scene {
     // 01: box geometry
     addMesh(M3Mesh(M3BoxGeom(1.0, 1.0, 1.0)), Vector3.zero());
 
+    // axis
+    addMesh(M3Resources.axisMesh, Vector3.zero());
+
+    // ground plane
     final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(5.0))), Vector3(0, 0, -1));
     plane.color = Vector4(0.1, 1.0, 0.3, 1.0);
   }

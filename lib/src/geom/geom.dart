@@ -3,9 +3,10 @@ import 'dart:typed_data';
 import 'package:vector_math/vector_math_lists.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 import '../gltf/gltf_parser.dart';
 
+import 'primitive/height_field.dart';
 import 'text/ear_clipping.dart';
 import 'text/ttf_parser.dart';
 

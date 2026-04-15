@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 // Macbear3D engine
-import '../../macbear_3d.dart' hide Colors;
+import '../m3_internal.dart' hide Colors;
 import '../input/keyboard.dart';
 
 /// The main application engine singleton that manages the Flutter-ANGLE context.

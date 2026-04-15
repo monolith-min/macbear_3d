@@ -29,7 +29,7 @@ class AnimatedScene_05 extends M3Scene {
     // plane geometry
 
     final plane = addMesh(M3Mesh(M3PlaneGeom(20, 20, uvScale: Vector2.all(8.0))), Vector3(0, 0, 0));
-    plane.mesh!.mtr.texDiffuse = texGround;
+    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
 
     // 05-1: GLTF model - using M3Mesh.load()
     final meshGltf = await M3Mesh.load('example/CesiumMan.glb');

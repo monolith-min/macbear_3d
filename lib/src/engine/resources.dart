@@ -1,5 +1,5 @@
 // Macbear3D engine
-import '../../macbear_3d.dart';
+import '../m3_internal.dart';
 
 import '../shaders_gen/Rect.es3.frag.g.dart';
 import '../shaders_gen/Rect.es3.vert.g.dart';
@@ -24,6 +24,56 @@ class M3Resources {
   static final texWhite = M3Texture.createSolidColor(Vector4(1, 1, 1, 1));
   static final texNormal = M3Texture.createSolidColor(Vector4(0.5, 0.5, 1, 1));
   static final texDefaultCube = M3Texture.createDefaultIBLCube();
+
+  // axis mesh
+  static M3Mesh? _axisMesh;
+  static M3Mesh get axisMesh {
+    if (_axisMesh == null) {
+      List<M3SubMesh> subMeshes = [];
+      final mtrRed = M3Material()
+        ..diffuse = Vector4(1, 0, 0, 1)
+        ..metallic = 0
+        ..reflection = 0
+        ..roughness = 1
+        ..shininess = 1
+        ..specular = Vector3(0, 0, 0);
+      final mtrGreen = mtrRed.clone()..diffuse = Vector4(0, 1, 0, 1);
+      final mtrBlue = mtrRed.clone()..diffuse = Vector4(0, 0, 1, 1);
+
+      // 3 axes
+      final axisX = M3SubMesh(unitCube, material: mtrRed);
+      axisX.localMatrix.scaleByVector3(Vector3(10, 0.1, 0.1));
+      subMeshes.add(axisX);
+      final axisY = M3SubMesh(unitCube, material: mtrGreen);
+      axisY.localMatrix.scaleByVector3(Vector3(0.1, 10, 0.1));
+      subMeshes.add(axisY);
+      final axisZ = M3SubMesh(unitCube, material: mtrBlue);
+      axisZ.localMatrix.scaleByVector3(Vector3(0.1, 0.1, 10));
+      subMeshes.add(axisZ);
+
+      // 3 arrows
+      final arrowScale = Vector3(0.4, 0.4, 0.4);
+      final arrowX = M3SubMesh(M3PyramidGeom(1, 1, 1, axis: M3Axis.x), material: mtrRed);
+      arrowX.localMatrix
+        ..translateByVector3(Vector3(5, 0, 0))
+        ..scaleByVector3(arrowScale);
+      subMeshes.add(arrowX);
+      final arrowY = M3SubMesh(M3PyramidGeom(1, 1, 1, axis: M3Axis.y), material: mtrGreen);
+      arrowY.localMatrix
+        ..translateByVector3(Vector3(0, 5, 0))
+        ..scaleByVector3(arrowScale);
+      subMeshes.add(arrowY);
+      final arrowZ = M3SubMesh(M3PyramidGeom(1, 1, 1, axis: M3Axis.z), material: mtrBlue);
+      arrowZ.localMatrix
+        ..translateByVector3(Vector3(0, 0, 5))
+        ..scaleByVector3(arrowScale);
+      subMeshes.add(arrowZ);
+
+      _axisMesh = M3Mesh(null);
+      _axisMesh!.subMeshes = subMeshes;
+    }
+    return _axisMesh!;
+  }
 
   // ------------------------------
   // Geometries: debug
@@ -98,6 +148,9 @@ class M3Resources {
     texNormal;
     texDefaultCube;
     debugPrint('M3Resources: basic textures initialized');
+
+    // Mesh
+    axisMesh;
 
     // Geometries
     debugAxis;

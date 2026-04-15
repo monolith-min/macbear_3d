@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart' hide Colors, Matrix4;
+import 'package:vector_math/vector_math.dart';
 
 // Macbear3D engine
 import 'package:macbear_3d/macbear_3d.dart';

@@ -21,13 +21,13 @@ class PhysicsScene_07 extends M3Scene {
 
     M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
     final cubeMesh = M3Mesh(M3Resources.unitCube);
-    cubeMesh.mtr.texDiffuse = texGrid;
+    cubeMesh.subMeshes[0].mtr.texDiffuse = texGrid;
 
     final ballMesh = M3Mesh(M3Resources.unitSphere);
-    ballMesh.mtr.texDiffuse = texGrid;
+    ballMesh.subMeshes[0].mtr.texDiffuse = texGrid;
 
     final cylinderMesh = M3Mesh(_geomCylinder);
-    cylinderMesh.mtr.texDiffuse = texGrid;
+    cylinderMesh.subMeshes[0].mtr.texDiffuse = texGrid;
 
     // 07-1: physics static ground
     final phyEngine = M3AppEngine.instance.physicsEngine;
@@ -74,7 +74,7 @@ class PhysicsScene_07 extends M3Scene {
       lightColor: Vector4(.7, 1, .5, 1),
       darkColor: Vector4(.5, 0.8, .3, 1),
     );
-    plane.mesh!.mtr.texDiffuse = texGround;
+    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
   }
 
   @override

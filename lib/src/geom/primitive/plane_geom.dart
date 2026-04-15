@@ -9,17 +9,25 @@ class M3PlaneGeom extends M3Geom {
     return 0.0;
   }
 
+  // plane width, height
+  Function(double, double)? funcVertex;
+  double width;
+  double height;
+  int widthSegments; // columns X
+  int heightSegments; // rows Y
+  M3Axis axis; // plane axis
+
   // vertex order: row-major align by X-axis (-sx/2 ~ sx/2), column from (sy/2 ~ -sy/2)
   // default face-flip(false) means face-up; face-flip(true) means face-down
   M3PlaneGeom(
-    double width,
-    double height, {
-    int widthSegments = 6,
-    int heightSegments = 6,
+    this.width,
+    this.height, {
+    this.widthSegments = 6,
+    this.heightSegments = 6,
     Vector2? uvScale,
     Function(double x, double y)? onVertex,
     bool flipFace = false,
-    M3Axis axis = M3Axis.z,
+    this.axis = M3Axis.z,
   }) {
     int numVert = (widthSegments + 1) * (heightSegments + 1);
     // initialize
@@ -61,6 +69,16 @@ class M3PlaneGeom extends M3Geom {
         x = width * ratioX - hx;
         if (onVertex != null) {
           z = onVertex(x, y);
+        } else {
+          z = 0;
+        }
+
+        // test height field for physics
+        if (index == 0) {
+          z = 2;
+        }
+        if (index == widthSegments) {
+          z = 4;
         }
         vertices[index] = transform(x, y, z);
         uvs[index] = Vector2(ratioX * uvScale.x, ratioY * uvScale.y);
@@ -148,5 +166,40 @@ class M3PlaneGeom extends M3Geom {
       }
     }
     _edgeIndices.add(_M3Indices(WebGL.LINES, lines));
+  }
+
+  M3HeightField toHeightField() {
+    double x, y, z = 0;
+    int i, j, index = 0;
+    final data = Float32List(_vertexCount);
+    final hx = width * 0.5, hy = height * 0.5;
+
+    // vertices: position, texUV
+    for (i = 0; i <= heightSegments; i++) {
+      double ratioY = i.toDouble() / heightSegments;
+      y = hy - height * ratioY;
+      for (j = 0; j <= widthSegments; j++) {
+        double ratioX = j.toDouble() / widthSegments;
+        x = width * ratioX - hx;
+        if (funcVertex != null) {
+          z = funcVertex!(x, y);
+        } else {
+          z = 0;
+        }
+
+        // test height field for physics
+        if (index == 0) {
+          z = 2;
+        }
+        if (index == widthSegments) {
+          z = 4;
+        }
+        data[index] = z;
+        index++;
+      }
+    }
+
+    final cellSize = Vector2(width / widthSegments, height / heightSegments);
+    return M3HeightField(data, cellSize, 1.0);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Matrix4;
 // Macbear3D engine
-import '../../macbear_3d.dart' hide Colors;
+import '../m3_internal.dart' hide Colors;
 
 /// ASCII text renderer using a monospaced font texture atlas.
 class M3Text2D extends M3Sprite2D {
