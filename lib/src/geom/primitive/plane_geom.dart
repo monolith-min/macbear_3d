@@ -75,10 +75,10 @@ class M3PlaneGeom extends M3Geom {
 
         // test height field for physics
         if (index == 0) {
-          z = 2;
+          // z = 2;
         }
         if (index == widthSegments) {
-          z = 4;
+          // z = 4;
         }
         vertices[index] = transform(x, y, z);
         uvs[index] = Vector2(ratioX * uvScale.x, ratioY * uvScale.y);

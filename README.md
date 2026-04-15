@@ -21,18 +21,20 @@ Preview the `main_all.dart` example live in your browser!
 ### 🚀 Core Engine
 - **Powered by ANGLE**: Direct **OpenGL ES 3.0** access via Google's ANGLE for high performance.
 - **Scene Graph**: Flexible Entity-Component architecture and multi-camera support.
-- **Resource Management**: Efficient centralized loading and caching for textures, meshes, and fonts.
+- **Resource Management**: Efficient centralized loading and caching for textures, meshes, and fonts, including `M3Resources.axisMesh` for coordinate systems.
+- **Multi-Geometry Support**: Added `multi-M3SubMesh` to support multiple geometries within a single `M3Mesh`.
 
 ### 🎨 Rendering & Visuals
 - **Model Loaders**: Native support for **glTF/GLB**, **OBJ**, and **BVH** formats.
 - **Skeletal Animation**: Full support for skinned meshes and bone-based animations (including `M3OctahedralGeom` for bone visualization).
-- **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)**, **PBR (Physically Based Rendering)** and **IBL (Image-Based Lighting)** support.
+- **Advanced Lighting**: Dynamic lighting with **Cascaded Shadow Mapping (CSM)**, **PBR (Physically Based Rendering)** and **IBL (Image-Based Lighting)** support. Improved `RenderPipeline` with enhanced support for opaque and transparency materials.
 - **Dynamic Reflection Probe**: Added `M3ReflectionProbe` for real-time cubemap capture and dynamic reflections.
 - **Flexible Geometries**: Added `M3Axis` support for Torus, Capsule, Cylinder, and Plane for custom orientation.
 - **Resource Management**: Centralized system for loading and caching assets (geometries, meshes, textures, fonts).
 - **Text Rendering**: Generate 3D geometry from TrueType/OpenType fonts with alignment fixes for Web.
 
 ### ⚙️ Physics & Interaction
+- **Android Stability**: Automated selection between Vulkan and OpenGLES for optimal compatibility.
 - **Integrated Physics**: Seamless integration with the **oimo_physics** rigid body physics engine.
 - **Collision Detection**: Automatic AABB and Bounding Sphere calculation.
 - **Interaction**: Keyboard zoom support (+, -) and multi-touch orbit control.
@@ -62,7 +64,7 @@ Add `macbear_3d` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  macbear_3d: ^0.7.2
+  macbear_3d: ^0.8.0
 ```
 
 ## Usage

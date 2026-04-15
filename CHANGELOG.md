@@ -1,3 +1,13 @@
+## 0.8.0
+
+* Update:
+  * **Geometry**: Added `M3HeightField` for storing height data, and `multi-M3SubMesh` to support multiple geometries within a single `M3Mesh`.
+  * **Resource**: Added `M3Resources.axisMesh` for coordinate system visualization.
+  * **Rendering**: Improved `RenderPipeline` with enhanced support for opaque and transparency materials.
+  * **Stability**: Implemented automated selection between Vulkan and OpenGLES for optimal Android stability and performance.
+  * **Core Engine**: Refactored internal architecture and optimized scene graph management.
+  * **Platform**: Removed direct `dart:io` dependencies to improve web and cross-platform compatibility.
+
 ## 0.7.2
 
 * Update:
