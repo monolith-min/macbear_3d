@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_relative_lib_imports
 import 'package:flutter_test/flutter_test.dart';
 import 'package:macbear_3d/macbear_3d.dart';
+import 'package:vector_math/vector_math.dart';
 
 void main() {
   group('M3Transform', () {

@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class M3VideoBridge {
   static const MethodChannel _channel = MethodChannel('com.macbear.angle_test/video');
 
   static Future<bool> registerSurface({required int textureId, required String assetPath}) async {
-    print("*** registerSurface $textureId $assetPath");
+    debugPrint("*** registerSurface $textureId $assetPath");
     final bool? result = await _channel.invokeMethod('registerSurface', {
       'textureId': textureId,
       'assetPath': assetPath,

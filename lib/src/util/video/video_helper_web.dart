@@ -54,33 +54,33 @@ void updateTextureFromVideo(dynamic gl, int target, dynamic video) {
 }
 
 void videoPlay(dynamic source) {
-  if (source is web.HTMLVideoElement) {
-    source.play();
+  if (source != null) {
+    (source as web.HTMLVideoElement).play();
   }
 }
 
 void videoPause(dynamic source) {
-  if (source is web.HTMLVideoElement) {
-    source.pause();
+  if (source != null) {
+    (source as web.HTMLVideoElement).pause();
   }
 }
 
 void videoSeekTo(dynamic source, Duration duration) {
-  if (source is web.HTMLVideoElement) {
-    source.currentTime = duration.inMilliseconds / 1000.0;
+  if (source != null) {
+    (source as web.HTMLVideoElement).currentTime = duration.inMilliseconds / 1000.0;
   }
 }
 
 double videoGetDuration(dynamic source) {
-  if (source is web.HTMLVideoElement) {
-    return source.duration.toDouble();
+  if (source != null) {
+    return (source as web.HTMLVideoElement).duration.toDouble();
   }
   return 0.0;
 }
 
 double videoGetPosition(dynamic source) {
-  if (source is web.HTMLVideoElement) {
-    return source.currentTime.toDouble();
+  if (source != null) {
+    return (source as web.HTMLVideoElement).currentTime.toDouble();
   }
   return 0.0;
 }

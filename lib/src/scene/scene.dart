@@ -299,11 +299,6 @@ abstract class M3Scene {
 
       final mesh = entity.mesh!;
 
-      Matrix4 matMesh = Matrix4.copy(entity.matrix);
-      if (mesh.skin != null) {
-        // matMesh = matMesh * mesh.skin!.jointNodes![0].worldMatrix;
-      }
-
       // origin axis
       progSimple.setMatrices(camera, entity.matrix);
       // draw axis at object origin
