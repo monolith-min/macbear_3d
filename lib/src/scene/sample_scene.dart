@@ -38,8 +38,14 @@ class SampleScene extends M3Scene {
     phyEngine.addBoundaryFence(20, 20, 10);
 
     // ground plane model
-    final meshPlane = addMesh(M3Mesh(_geomPlane), Vector3(0, 0, 0))..color = Vector4(1.0, 1.0, 1.0, 1);
-    // (optional) link meshPlane to rbGround if you want it to move, but it's static.
+    final posGround = Vector3.zero();
+    final meshPlane = addMesh(M3Mesh(_geomPlane), posGround);
+    meshPlane.mesh!.subMeshes[0].mtr
+      ..texDiffuse = texGround
+      ..setMatte();
+
+    // axis gizmo
+    addMesh(M3Resources.axisGizmoMesh, posGround + Vector3(0, 0, 0));
 
     List<Vector4> colors = [
       // Colors.lightGray,
@@ -91,11 +97,6 @@ class SampleScene extends M3Scene {
 
     // sample cubemap
     skybox = M3Skybox(M3Texture.createSampleCubemap(gridCount: 11));
-
-    meshPlane.mesh!.subMeshes[0].mtr
-      ..texDiffuse = texGround
-      ..specular = Vector3.zero()
-      ..shininess = 1;
   }
 
   @override

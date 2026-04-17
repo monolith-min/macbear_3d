@@ -83,9 +83,6 @@ class ShadowmapScene_06 extends M3Scene {
       final torus = addMesh(M3Mesh(geomTorus), Vector3(posX, 15, 2));
       torus.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
       torus.rotation.setEuler(0, rot, 0);
-
-      // 06-5: axis
-      addMesh(M3Resources.axisMesh, Vector3.zero());
     }
   }
 

@@ -43,8 +43,8 @@ class PbrTestScene_09 extends M3Scene {
     plane.mesh!.subMeshes[0].mtr.metallic = 0.0;
     plane.mesh!.subMeshes[0].mtr.roughness = 0.8;
 
-    // axis
-    addMesh(M3Resources.axisMesh, Vector3(0, 0, 2));
+    // axis gizmo
+    addMesh(M3Resources.axisGizmoMesh, Vector3(0, 0, 2));
 
     // nvlobby cubemap
     final strPrefix = 'example/nvlobby_';

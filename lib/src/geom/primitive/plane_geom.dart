@@ -168,6 +168,7 @@ class M3PlaneGeom extends M3Geom {
     _edgeIndices.add(_M3Indices(WebGL.LINES, lines));
   }
 
+  /// convert to height field
   M3HeightField toHeightField() {
     double x, y, z = 0;
     int i, j, index = 0;
@@ -175,12 +176,14 @@ class M3PlaneGeom extends M3Geom {
     final hx = width * 0.5, hy = height * 0.5;
 
     // vertices: position, texUV
-    for (i = 0; i <= heightSegments; i++) {
-      double ratioY = i.toDouble() / heightSegments;
-      y = hy - height * ratioY;
-      for (j = 0; j <= widthSegments; j++) {
-        double ratioX = j.toDouble() / widthSegments;
-        x = width * ratioX - hx;
+    for (j = 0; j <= widthSegments; j++) {
+      double ratioX = j.toDouble() / widthSegments;
+      x = width * ratioX - hx;
+      //
+      for (i = 0; i <= heightSegments; i++) {
+        double ratioY = i.toDouble() / heightSegments;
+        y = hy - height * ratioY;
+
         if (funcVertex != null) {
           z = funcVertex!(x, y);
         } else {
@@ -189,10 +192,10 @@ class M3PlaneGeom extends M3Geom {
 
         // test height field for physics
         if (index == 0) {
-          z = 2;
+          // z = 2;
         }
         if (index == widthSegments) {
-          z = 4;
+          // z = 4;
         }
         data[index] = z;
         index++;

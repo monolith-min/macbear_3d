@@ -87,8 +87,8 @@ class PrimitivesScene_03 extends M3Scene {
     final octahedral = addMesh(M3Mesh(M3OctahedralGeom(0.5)), Vector3(0, 0, 1.5));
     octahedral.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
 
-    // 03-9: axis
-    addMesh(M3Resources.axisMesh, Vector3.zero());
+    // 03-9: axis gizmo
+    addMesh(M3Resources.axisGizmoMesh, Vector3.zero());
   }
 
   @override

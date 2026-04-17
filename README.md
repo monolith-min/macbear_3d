@@ -110,12 +110,18 @@ class MyScene extends M3Scene {
 
     camera.setEuler(pi / 6, -pi / 6, 0, distance: 8);
 
-    // add geometry
+    // add box geometry
     addMesh(M3Mesh(M3BoxGeom(1.0, 1.0, 1.0)), Vector3.zero()).color = Colors.blue;
-    addMesh(M3Mesh(M3SphereGeom(0.5)), Vector3(2, 0, 0)).color = Colors.red;
-    addMesh(M3Mesh(M3TorusGeom(0.5, 0.3)), Vector3(0, 2, 0)).color = Colors.green;
-    addMesh(M3Mesh(M3CylinderGeom(0.5, 0.0, 1.0)), Vector3(0, 0, 1)).color = Colors.yellow;
-    addMesh(M3Mesh(M3PlaneGeom(5, 5)), Vector3(0, 0, -1));
+
+    // axis gizmo
+    addMesh(M3Resources.axisGizmoMesh, Vector3.zero());
+
+    // ground plane with matte material
+    final mtrGround = M3Material()
+      ..diffuse = Vector4(0.5, 0.5, 0.5, 1.0)
+      ..setMatte();
+    final groundMesh = M3Mesh(M3PlaneGeom(10, 10), material: mtrGround);
+    addMesh(groundMesh, Vector3(0, 0, -1));
   }
 }
 ```
@@ -136,12 +142,13 @@ output to uml/macbear_3d.puml
 
 - [x] Skinned Mesh
 - [x] Skeletal Animation
-- [x] Shadows improvements (Cascaded Shadow Maps)
+- [x] Cascaded Shadow Maps (CSM)
 - [x] PBR Material support (Metallic, Roughness)
 - [x] IBL (Image-Based Lighting)
 - [x] Terrain System (Perlin Noise)
 - [x] Skybox reflection via cubemap
 - [x] Dynamic Reflection Probe
+- [x] Physics Engine integration (Oimo Physics)
 - [ ] Water effect (reflection, refraction)
 - [ ] Post-processing effects (Bloom, HDR)
 - [ ] Advanced Particle System

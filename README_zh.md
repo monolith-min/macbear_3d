@@ -86,8 +86,21 @@ class MyScene extends M3Scene {
   Future<void> load() async {
     if (isLoaded) return;
     await super.load();
+
     camera.setEuler(pi / 6, -pi / 6, 0, distance: 8);
+
+    // 加入方塊幾何體
     addMesh(M3Mesh(M3BoxGeom(1.0, 1.0, 1.0)), Vector3.zero()).color = Colors.blue;
+
+    // 座標輔助器 (Axis Gizmo)
+    addMesh(M3Resources.axisGizmoMesh, Vector3.zero());
+
+    // 使用不透明 (Matte) 材質的地面
+    final mtrGround = M3Material()
+      ..diffuse = Vector4(0.5, 0.5, 0.5, 1.0)
+      ..setMatte();
+    final groundMesh = M3Mesh(M3PlaneGeom(10, 10), material: mtrGround);
+    addMesh(groundMesh, Vector3(0, 0, -1));
   }
 }
 ```
@@ -102,6 +115,7 @@ class MyScene extends M3Scene {
 - [x] 地形系統 (Perlin Noise)
 - [x] 天空盒反射 (Cubemap)
 - [x] 動態反射探針 (Dynamic Reflection Probe)
+- [x] 物理引擎整合 (Oimo Physics)
 - [ ] 水面效果 (反射、折射)
 - [ ] 後處理特效 (Bloom, HDR)
 - [ ] 進階粒子系統

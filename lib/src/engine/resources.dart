@@ -25,54 +25,91 @@ class M3Resources {
   static final texNormal = M3Texture.createSolidColor(Vector4(0.5, 0.5, 1, 1));
   static final texDefaultCube = M3Texture.createDefaultIBLCube();
 
-  // axis mesh
-  static M3Mesh? _axisMesh;
-  static M3Mesh get axisMesh {
-    if (_axisMesh == null) {
+  // axis gizmo mesh
+  static M3Mesh? _axisGizmoMesh;
+  static M3Mesh get axisGizmoMesh {
+    if (_axisGizmoMesh == null) {
       List<M3SubMesh> subMeshes = [];
       final mtrRed = M3Material()
         ..diffuse = Vector4(1, 0, 0, 1)
-        ..metallic = 0
-        ..reflection = 0
-        ..roughness = 1
-        ..shininess = 1
-        ..specular = Vector3(0, 0, 0);
+        ..setMatte();
       final mtrGreen = mtrRed.clone()..diffuse = Vector4(0, 1, 0, 1);
       final mtrBlue = mtrRed.clone()..diffuse = Vector4(0, 0, 1, 1);
+      final mtrWhite = mtrRed.clone()..diffuse = Vector4(1, 1, 1, 1);
 
-      // 3 axes
+      // alpha blend
+      final base = 0.8;
+      final alpha = 0.5;
+      final mtrRedAlpha = mtrRed.clone()
+        ..diffuse = Vector4(base, 0, 0, alpha)
+        ..alphaMode = M3AlphaMode.blend;
+      final mtrGreenAlpha = mtrRed.clone()
+        ..diffuse = Vector4(0, base, 0, alpha)
+        ..alphaMode = M3AlphaMode.blend;
+      final mtrBlueAlpha = mtrRed.clone()
+        ..diffuse = Vector4(0, 0, base, alpha)
+        ..alphaMode = M3AlphaMode.blend;
+
+      // 3 axes: positive
       final axisX = M3SubMesh(unitCube, material: mtrRed);
-      axisX.localMatrix.scaleByVector3(Vector3(10, 0.1, 0.1));
+      final axisScale = 5.0;
+      axisX.localMatrix
+        ..translateByVector3(Vector3(axisScale * 0.5, 0, 0))
+        ..scaleByVector3(Vector3(axisScale, 0.1, 0.1));
       subMeshes.add(axisX);
       final axisY = M3SubMesh(unitCube, material: mtrGreen);
-      axisY.localMatrix.scaleByVector3(Vector3(0.1, 10, 0.1));
+      axisY.localMatrix
+        ..translateByVector3(Vector3(0, axisScale * 0.5, 0))
+        ..scaleByVector3(Vector3(0.1, axisScale, 0.1));
       subMeshes.add(axisY);
       final axisZ = M3SubMesh(unitCube, material: mtrBlue);
-      axisZ.localMatrix.scaleByVector3(Vector3(0.1, 0.1, 10));
+      axisZ.localMatrix
+        ..translateByVector3(Vector3(0, 0, axisScale * 0.5))
+        ..scaleByVector3(Vector3(0.1, 0.1, axisScale));
       subMeshes.add(axisZ);
+
+      // 3 axes: negative
+      final axisXAlpha = M3SubMesh(unitCube, material: mtrRedAlpha);
+      axisXAlpha.localMatrix
+        ..translateByVector3(Vector3(-axisScale * 0.5, 0, 0))
+        ..scaleByVector3(Vector3(axisScale, 0.1, 0.1));
+      subMeshes.add(axisXAlpha);
+      final axisYAlpha = M3SubMesh(unitCube, material: mtrGreenAlpha);
+      axisYAlpha.localMatrix
+        ..translateByVector3(Vector3(0, -axisScale * 0.5, 0))
+        ..scaleByVector3(Vector3(0.1, axisScale, 0.1));
+      subMeshes.add(axisYAlpha);
+      final axisZAlpha = M3SubMesh(unitCube, material: mtrBlueAlpha);
+      axisZAlpha.localMatrix
+        ..translateByVector3(Vector3(0, 0, -axisScale * 0.5))
+        ..scaleByVector3(Vector3(0.1, 0.1, axisScale));
+      subMeshes.add(axisZAlpha);
 
       // 3 arrows
       final arrowScale = Vector3(0.4, 0.4, 0.4);
       final arrowX = M3SubMesh(M3PyramidGeom(1, 1, 1, axis: M3Axis.x), material: mtrRed);
       arrowX.localMatrix
-        ..translateByVector3(Vector3(5, 0, 0))
+        ..translateByVector3(Vector3(axisScale, 0, 0))
         ..scaleByVector3(arrowScale);
       subMeshes.add(arrowX);
       final arrowY = M3SubMesh(M3PyramidGeom(1, 1, 1, axis: M3Axis.y), material: mtrGreen);
       arrowY.localMatrix
-        ..translateByVector3(Vector3(0, 5, 0))
+        ..translateByVector3(Vector3(0, axisScale, 0))
         ..scaleByVector3(arrowScale);
       subMeshes.add(arrowY);
       final arrowZ = M3SubMesh(M3PyramidGeom(1, 1, 1, axis: M3Axis.z), material: mtrBlue);
       arrowZ.localMatrix
-        ..translateByVector3(Vector3(0, 0, 5))
+        ..translateByVector3(Vector3(0, 0, axisScale))
         ..scaleByVector3(arrowScale);
       subMeshes.add(arrowZ);
 
-      _axisMesh = M3Mesh(null);
-      _axisMesh!.subMeshes = subMeshes;
+      final origin = M3SubMesh(debugDot, material: mtrWhite);
+      subMeshes.add(origin);
+
+      _axisGizmoMesh = M3Mesh(null);
+      _axisGizmoMesh!.subMeshes = subMeshes;
     }
-    return _axisMesh!;
+    return _axisGizmoMesh!;
   }
 
   // ------------------------------
@@ -81,7 +118,7 @@ class M3Resources {
   static final debugAxis = M3DebugAxisGeom(size: 0.5);
   static final debugSphere = M3DebugSphereGeom(radius: 1.0);
   static final debugFrustum = M3BoxGeom(2.0, 2.0, 2.0);
-  static final debugDot = M3SphereGeom(0.25, widthSegments: 4, heightSegments: 2);
+  static final debugDot = M3OctahedralGeom(0.25);
   static final debugView = M3PlaneGeom(1.6, 1.6, widthSegments: 5, heightSegments: 4);
 
   // ------------------------------
@@ -150,7 +187,7 @@ class M3Resources {
     debugPrint('M3Resources: basic textures initialized');
 
     // Mesh
-    axisMesh;
+    axisGizmoMesh;
 
     // Geometries
     debugAxis;

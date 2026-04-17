@@ -901,6 +901,7 @@ class "macbear_3d::src::texture::material.dart::M3Material" {
   +int renderOrder
   +M3Texture texDiffuse
   +Matrix3 texMatrix
+  +void setMatte()
   +M3Material clone()
   +void copyFrom()
 }
@@ -1051,6 +1052,26 @@ class "macbear_3d::src::texture::ktx_info.dart::_Ktx2Level" {
   +int uncompressedLength
 }
 
+class "macbear_3d::src::physics::oimo_physics.dart::M3OimoPhysics" {
+  -World? _world
+  -double _accumulator
+  -int _maxStepsPerFrame
+  +World? world
+  +int maxStepsPerFrame
+  +double interpolationAlpha
+  +void resetWorld()
+  -RigidBody _addPrimitive()
+  +RigidBody addBox()
+  +RigidBody addSphere()
+  +RigidBody addCylinder()
+  +RigidBody addCapsule()
+  +void update()
+  +RigidBody addGround()
+  +void addBoundaryFence()
+}
+
+"macbear_3d::src::physics::oimo_physics.dart::M3OimoPhysics" o-- "oimo_physics::core::world_core.dart::World"
+
 class "macbear_3d::src::physics::physics_engine.dart::M3PhysicsEngine" {
   -World? _world
   -double _accumulator
@@ -1175,7 +1196,6 @@ abstract class "macbear_3d::src::scene::scene.dart::M3Scene" {
   +dynamic load()
   +M3Entity addMesh()
   +void addEntity()
-  +void addAxisGizmo()
   +void savePhysicsStates()
   +void update()
   -void _bindReflection()
@@ -1368,7 +1388,7 @@ class "macbear_3d::src::engine::app_engine.dart::M3AppEngine" {
   +int edgeInsetRight
   +int edgeInsetBottom
   +M3Scene? activeScene
-  +M3PhysicsEngine physicsEngine
+  +M3OimoPhysics physicsEngine
   {static} +Framebuffer mainFbo
   +double fps
   +dynamic initApp()
@@ -1397,7 +1417,7 @@ class "macbear_3d::src::engine::app_engine.dart::M3AppEngine" {
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "macbear_3d::src::engine::resource_manager.dart::M3ResourceManager"
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "flutter::src::scheduler::ticker.dart::Ticker"
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "macbear_3d::src::scene::scene.dart::M3Scene"
-"macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "macbear_3d::src::physics::physics_engine.dart::M3PhysicsEngine"
+"macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "macbear_3d::src::physics::oimo_physics.dart::M3OimoPhysics"
 "macbear_3d::src::engine::app_engine.dart::M3AppEngine" o-- "flutter_angle::shared::classes.dart::Framebuffer"
 "flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "macbear_3d::src::engine::app_engine.dart::M3AppEngine"
 
@@ -1445,11 +1465,11 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
   {static} +M3Texture texWhite
   {static} +M3Texture texNormal
   {static} +M3Texture texDefaultCube
-  {static} -M3Mesh? _axisMesh
+  {static} -M3Mesh? _axisGizmoMesh
   {static} +M3DebugAxisGeom debugAxis
   {static} +M3DebugSphereGeom debugSphere
   {static} +M3BoxGeom debugFrustum
-  {static} +M3SphereGeom debugDot
+  {static} +M3OctahedralGeom debugDot
   {static} +M3PlaneGeom debugView
   {static} +M3BoxGeom unitCube
   {static} +M3OctahedralGeom unitBone
@@ -1469,7 +1489,7 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
   {static} +M3ProgramShadowmap? programShadowmap
   {static} +M3ProgramShadowCSM? programShadowCSM
   {static} -String _SkinNormal_vert
-  {static} +M3Mesh axisMesh
+  {static} +M3Mesh axisGizmoMesh
   {static} +M3Text2D text2D
   {static} +M3Shape2D line
   {static} +M3Shape2D triangle
@@ -1485,9 +1505,9 @@ class "macbear_3d::src::engine::resources.dart::M3Resources" {
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3DebugAxisGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3DebugSphereGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3BoxGeom"
-"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3SphereGeom"
-"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3PlaneGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3OctahedralGeom"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3PlaneGeom"
+"macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::geom::geom.dart::M3SphereGeom"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::shape_2d.dart::M3Shape2D"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::text_2d.dart::M3Text2D"
 "macbear_3d::src::engine::resources.dart::M3Resources" o-- "macbear_3d::src::2d::shape_2d.dart::M3Rectangle2D"

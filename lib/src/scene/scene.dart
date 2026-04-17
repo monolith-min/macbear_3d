@@ -72,20 +72,6 @@ abstract class M3Scene {
     entities.add(entity);
   }
 
-  void addAxisGizmo(Vector3 position, {double scale = 1.0, double length = 1.0}) {
-    final xAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3((length + 1) / 2, 0, 0));
-    xAxisMesh.scale = Vector3(length, scale, scale);
-    xAxisMesh.color = Vector4(1, 0, 0, 1);
-
-    final yAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3(0, (length + 1) / 2, 0));
-    yAxisMesh.scale = Vector3(scale, length, scale);
-    yAxisMesh.color = Vector4(0, 1, 0, 1);
-
-    final zAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3(0, 0, (length + 1) / 2));
-    zAxisMesh.scale = Vector3(scale, scale, length);
-    zAxisMesh.color = Vector4(0, 0, 1, 1);
-  }
-
   double _totalTime = 0.0;
   double get totalTime => _totalTime;
 
@@ -136,7 +122,7 @@ abstract class M3Scene {
   }
 
   // render solid models
-  void render(M3Program prog, M3Camera camera, {bool bSolid = true}) {
+  void render(M3Program prog, M3Camera camera, {bool bSolid = true, bool bOnlyOpaque = false}) {
     _pipeline.clear();
 
     final stats = M3AppEngine.instance.renderEngine.stats;
@@ -171,6 +157,8 @@ abstract class M3Scene {
     // 3. Execute phase
     // Opaque first
     _executeQueue(_pipeline.opaque, prog, camera, bSolid: bSolid);
+
+    if (bOnlyOpaque) return;
 
     // Then Transparent (Back-to-Front)
     // Note: Transparent sorting and blending is handled within the pipeline execution

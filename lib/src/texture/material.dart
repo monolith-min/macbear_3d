@@ -33,6 +33,16 @@ class M3Material {
 
   M3Material();
 
+  /// Sets the material to a matte (diffuse-only) state.
+  /// No reflection, no specular highlights, and full roughness.
+  void setMatte() {
+    metallic = 0.0;
+    roughness = 1.0;
+    reflection = 0.0;
+    specular.setZero();
+    shininess = 0.0;
+  }
+
   /// Creates a deep copy of this material.
   /// Vector and Matrix properties are cloned, while texture references are shared.
   M3Material clone() {

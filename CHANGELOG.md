@@ -1,9 +1,11 @@
 ## 0.8.0
 
 * Update:
-  * **Geometry**: Added `M3HeightField` for storing height data, and `multi-M3SubMesh` to support multiple geometries within a single `M3Mesh`.
-  * **Resource**: Added `M3Resources.axisMesh` for coordinate system visualization.
-  * **Rendering**: Improved `RenderPipeline` with enhanced support for opaque and transparency materials.
+  * **Physics**: Switched to `M3OimoPhysics` for more robust Oimo physics integration and easier primitive management.
+  * **Geometry**: Added `M3HeightField` for storing height data, `M3OctahedralGeom` for debug dots/bones, and improved `M3PlaneGeom` height field conversion.
+  * **Resource**: Centralized debug geometries in `M3Resources`, including `axisGizmoMesh` and updated debug shapes.
+  * **Rendering**: Improved `RenderPipeline` with enhanced support for opaque and transparency materials; added `bOnlyOpaque` render pass support in `M3Scene`.
+  * **Material**: Added `M3Material.setMatte()` for quick non-reflective material configuration.
   * **Stability**: Implemented automated selection between Vulkan and OpenGLES for optimal Android stability and performance.
   * **Core Engine**: Refactored internal architecture and optimized scene graph management.
   * **Platform**: Removed direct `dart:io` dependencies to improve web and cross-platform compatibility.
