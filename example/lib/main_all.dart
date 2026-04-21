@@ -44,7 +44,7 @@ Future<void> onDidInit() async {
   // final scene00 = StarterScene_00();
   // final scene03 = PrimitivesScene_03();
   // final scene09 = PbrTestScene_09();
-  // final testScene = SampleScene();
+  final testScene = SampleScene();
   final initScene = CubeScene_01();
   await appEngine.setScene(initScene);
 }

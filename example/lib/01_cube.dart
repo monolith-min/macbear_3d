@@ -15,7 +15,7 @@ class CubeScene_01 extends M3Scene {
     addMesh(M3Mesh(M3BoxGeom(1.0, 1.0, 1.0)), Vector3.zero());
 
     // axis gizmo
-    addMesh(M3Resources.axisGizmoMesh, Vector3(0, 0, 0));
+    addAxisGizmo(Vector3(0, 0, 0));
 
     // ground plane
     final mtrGround = M3Material()

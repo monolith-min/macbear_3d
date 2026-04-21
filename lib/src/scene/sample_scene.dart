@@ -40,12 +40,12 @@ class SampleScene extends M3Scene {
     // ground plane model
     final posGround = Vector3.zero();
     final meshPlane = addMesh(M3Mesh(_geomPlane), posGround);
-    meshPlane.mesh!.subMeshes[0].mtr
+    meshPlane.mesh!.mtr
       ..texDiffuse = texGround
       ..setMatte();
 
     // axis gizmo
-    addMesh(M3Resources.axisGizmoMesh, posGround + Vector3(0, 0, 0));
+    addAxisGizmo(posGround);
 
     List<Vector4> colors = [
       // Colors.lightGray,
@@ -75,17 +75,17 @@ class SampleScene extends M3Scene {
           switch (k % 3) {
             case 0:
               mesh = M3Mesh(_geomSphere);
-              mesh.subMeshes[0].mtr.texDiffuse = texGrid2;
+              mesh.mtr.texDiffuse = texGrid2;
               rb = phyEngine.addSphere(0.5, density: 1.0, position: pos);
               break;
             case 1:
               mesh = M3Mesh(_geomCube);
-              mesh.subMeshes[0].mtr.texDiffuse = texGrid;
+              mesh.mtr.texDiffuse = texGrid;
               rb = phyEngine.addBox(1.0, 1.0, 1.0, density: 1.0, position: pos);
               break;
             default:
               mesh = M3Mesh(_geomCylinder);
-              mesh.subMeshes[0].mtr.texDiffuse = texGrid2;
+              mesh.mtr.texDiffuse = texGrid2;
               rb = phyEngine.addCylinder(0.5, 1.0, density: 1.0, position: pos);
               break;
           }
@@ -136,7 +136,7 @@ class MassiveScene extends M3Scene {
       for (int j = 0; j < 10; j++) {
         for (int k = 0; k < 10; k++) {
           final mesh = M3Mesh(sphereGeom);
-          mesh.subMeshes[0].mtr
+          mesh.mtr
             ..diffuse = Vector4(0.0, 1.0, 0.0, 1.0)
             ..reflection = i / 9
             ..metallic = i / 9
@@ -162,7 +162,7 @@ class MassiveScene extends M3Scene {
       lightColor: Vector4(.7, 1, .5, 1),
       darkColor: Vector4(.5, 0.8, .3, 1),
     );
-    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
+    plane.mesh!.mtr.texDiffuse = texGround;
 
     // 02: sample cubemap
     skybox = M3Skybox(M3Texture.createSampleCubemap());

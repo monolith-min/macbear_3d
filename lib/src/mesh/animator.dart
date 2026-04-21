@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:vector_math/vector_math.dart';
+
 import '../gltf/gltf_parser.dart';
 
 /// Handles skeletal animation playback and keyframe interpolation.
@@ -22,6 +24,28 @@ class M3Animator {
   bool get isFading => _fadeDuration > 0 && _fadeTime < _fadeDuration;
 
   M3Animator(this.animations, this.nodes, {this.allNodes});
+
+  /// Returns the names of all animations.
+  List<String> get animationNames => animations.map((a) => a.name).toList();
+
+  /// Returns the number of animations.
+  int get animationCount => animations.length;
+
+  /// Plays animation [index] and immediately freezes at [time] seconds.
+  void playAndFreeze(int index, {double time = 0.0}) {
+    _currentAnimationIndex = index;
+    _currentTime = time;
+    isPlaying = false;
+    _fadeDuration = 0.0;
+    _updateAnimation(index, time);
+    _updateHierarchy();
+  }
+
+  /// Recomputes world matrices from current node transforms without playing animation.
+  /// Call this after manually setting node rotations/translations.
+  void refreshHierarchy() {
+    _updateHierarchy();
+  }
 
   void play(int index) {
     _currentAnimationIndex = index;

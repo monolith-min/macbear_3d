@@ -21,13 +21,13 @@ class PhysicsScene_07 extends M3Scene {
 
     M3Texture texGrid = M3Texture.createCheckerboard(size: 6);
     final cubeMesh = M3Mesh(M3Resources.unitCube);
-    cubeMesh.subMeshes[0].mtr.texDiffuse = texGrid;
+    cubeMesh.mtr.texDiffuse = texGrid;
 
-    final ballMesh = M3Mesh(M3Resources.unitSphere);
-    ballMesh.subMeshes[0].mtr.texDiffuse = texGrid;
+    final foxMesh = await M3Mesh.load('example/Fox.glb');
+    foxMesh.animator?.play(0);
 
     final cylinderMesh = M3Mesh(_geomCylinder);
-    cylinderMesh.subMeshes[0].mtr.texDiffuse = texGrid;
+    cylinderMesh.mtr.texDiffuse = texGrid;
 
     // 07-1: physics static ground
     final phyEngine = M3AppEngine.instance.physicsEngine;
@@ -46,12 +46,15 @@ class PhysicsScene_07 extends M3Scene {
       entity.rigidBody = phyEngine.addBox(1, 1, 1, position: pos);
     }
 
-    // 07-3: physics rigid ball
+    // 07-3: physics rigid fox
     for (int i = 0; i < arrayPos.length; i++) {
       // drop from sky
       final pos = arrayPos[i].clone() + Vector3(0.3, 0.6, 3.0);
 
-      final entity = addMesh(ballMesh, pos)..color = arrayColor[i];
+      final fox = foxMesh.clone();
+      fox.animator?.play(i % 3);
+      final entity = addMesh(fox, pos)..color = arrayColor[i];
+      entity.scale = Vector3.all(0.02);
       entity.rigidBody = phyEngine.addSphere(0.5, position: pos);
     }
 
@@ -64,7 +67,7 @@ class PhysicsScene_07 extends M3Scene {
       entity.rigidBody = phyEngine.addCylinder(0.5, 1.0, position: pos);
     }
 
-    // sample cubemap
+    // sample cubemapd
     skybox = M3Skybox(M3Texture.createSampleCubemap());
 
     // plane geometry
@@ -74,7 +77,7 @@ class PhysicsScene_07 extends M3Scene {
       lightColor: Vector4(.7, 1, .5, 1),
       darkColor: Vector4(.5, 0.8, .3, 1),
     );
-    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
+    plane.mesh!.mtr.texDiffuse = texGround;
   }
 
   @override

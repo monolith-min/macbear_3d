@@ -45,7 +45,7 @@ class ShadowmapScene_06 extends M3Scene {
     );
     // M3Texture texGround = await M3Texture.loadTexture('example/test_8x8.astc');
     final plane = addMesh(M3Mesh(geomPlane), Vector3(0, 0, -2));
-    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
+    plane.mesh!.mtr.texDiffuse = texGround;
 
     final geomBox = M3BoxGeom(2, 3, 6);
     final geomSphere = M3SphereGeom(2.5);
@@ -57,31 +57,29 @@ class ShadowmapScene_06 extends M3Scene {
       final rot = i * pi / 20;
       // 06-2: sphere geometry
       final meshSphere = M3Mesh(geomSphere);
-      meshSphere.subMeshes[0].mtr
-        ..texDiffuse = texGrid2
-        ..diffuse = Vector4(1, 0.3, 0, 1)
-        ..specular = Vector3.all(0.6)
-        ..shininess = i * 10 + 8;
+      meshSphere.mtr.texDiffuse = texGrid2;
+      meshSphere.mtr.diffuse = Vector4(1, 0.3, 0, 1);
+      meshSphere.mtr.specular = Vector3.all(0.6);
+      meshSphere.mtr.shininess = i * 10 + 8;
       addMesh(meshSphere, Vector3(posX, 0, 2));
 
       // 06-3: cylinder geometry
       final meshCylinder = M3Mesh(geomCylinder);
-      meshCylinder.subMeshes[0].mtr
-        ..texDiffuse = texGrid
-        ..reflection = i * 0.1
-        ..metallic = i * 0.1
-        ..roughness = 1.0 - i * 0.1;
+      meshCylinder.mtr.texDiffuse = texGrid;
+      meshCylinder.mtr.reflection = i * 0.1;
+      meshCylinder.mtr.metallic = i * 0.1;
+      meshCylinder.mtr.roughness = 1.0 - i * 0.1;
       final cylinder = addMesh(meshCylinder, Vector3(posX, 5, 3))..color = Vector4(1, 1, 0, 1);
       cylinder.rotation.setEuler(rot, 0, 0);
 
       // 06-3: box geometry
       final box = addMesh(M3Mesh(geomBox), Vector3(posX, 10, 2));
-      box.mesh!.subMeshes[0].mtr.texDiffuse = texGrid;
+      box.mesh!.mtr.texDiffuse = texGrid;
       box.rotation.setEuler(0, 0, rot);
 
       // 06-4: torus geometry
       final torus = addMesh(M3Mesh(geomTorus), Vector3(posX, 15, 2));
-      torus.mesh!.subMeshes[0].mtr.texDiffuse = texGrid2;
+      torus.mesh!.mtr.texDiffuse = texGrid2;
       torus.rotation.setEuler(0, rot, 0);
     }
   }

@@ -23,7 +23,7 @@ class ObjTeapotScene_04 extends M3Scene {
 
     // 04-1: obj model - using M3Mesh.load()
     final meshTeapot = await M3Mesh.load('example/teapot.obj');
-    mtrTeapot = meshTeapot.subMeshes[0].mtr;
+    mtrTeapot = meshTeapot.mtr;
     mtrTeapot!.reflection = 0.5;
     mtrTeapot!.metallic = 1.0;
     mtrTeapot!.roughness = 0.2;
@@ -50,7 +50,7 @@ class ObjTeapotScene_04 extends M3Scene {
       lightColor: Vector4(0.65, 0.45, 0.25, 1),
       darkColor: Vector4(0.36, 0.22, 0.12, 1),
     );
-    plane.mesh!.subMeshes[0].mtr.texDiffuse = texGround;
+    plane.mesh!.mtr.texDiffuse = texGround;
 
     // 04-3: sample cubemap
     final strPrefix = 'example/nvlobby_';
@@ -67,7 +67,7 @@ class ObjTeapotScene_04 extends M3Scene {
     // 04-4: orbit around
     final meshCube = M3Mesh(M3Resources.unitCube);
     final meshTorus = M3Mesh(M3TorusGeom(0.4, 0.1));
-    meshCube.subMeshes[0].mtr
+    meshCube.mtr
       ..reflection = 0.0
       ..metallic = 0.0
       ..roughness = 1.0;

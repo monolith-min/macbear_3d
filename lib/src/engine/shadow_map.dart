@@ -69,12 +69,12 @@ class M3ShadowMap {
         // frustum matrix for culling
         light.updateFrustum(light.projectionMatrix * light.viewMatrix);
         // render scene
-        scene.render(_prog, light, bOnlyOpaque: true);
+        scene.render(_prog, light);
       }
       light.projectionMatrix = backupMatrix;
       light.updateFrustum(light.projectionMatrix * light.viewMatrix);
     } else {
-      scene.render(_prog, light, bOnlyOpaque: true);
+      scene.render(_prog, light);
     }
 
     // recover to default GL state

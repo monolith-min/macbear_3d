@@ -4,20 +4,8 @@ import 'dart:convert';
 import '../m3_internal.dart';
 import '../gltf/gltf_loader.dart';
 import '../gltf/gltf_parser.dart';
-import 'obj_loader.dart';
 import 'animator.dart';
-
-class M3SubMesh {
-  /// The material properties (textures, colors, etc.)
-  M3Material mtr;
-
-  /// The geometric data (vertices, indices, etc.)
-  M3Geom geom;
-
-  Matrix4 localMatrix = Matrix4.identity();
-
-  M3SubMesh(this.geom, {M3Material? material}) : mtr = material ?? M3Material();
-}
+import 'obj_loader.dart';
 
 /// Skeletal animation skin data containing bone matrices and inverse bind matrices.
 ///
@@ -88,7 +76,11 @@ class M3Skin {
 /// This class acts as the primary container for a renderable 3D object and supports
 /// loading from various file formats (.obj, .gltf, .glb).
 class M3Mesh {
-  List<M3SubMesh> subMeshes = [];
+  /// The material properties (textures, colors, etc.) for this mesh.
+  M3Material mtr;
+
+  /// The geometric data (vertices, indices, etc.) for this mesh.
+  M3Geom geom;
 
   /// Optional initial transform from glTF mesh node.
   Matrix4 initMatrix = Matrix4.identity();
@@ -102,107 +94,131 @@ class M3Mesh {
   /// The skeletal hierarchy nodes for this mesh instance.
   List<GltfNode>? nodes;
 
+  /// Index of the source glTF node that owns this mesh (set by loadAll).
+  int? sourceNodeIndex;
+
   /// Creates a mesh from the given geometry and optional material/skin.
-  M3Mesh(M3Geom? geom, {M3Material? material, this.skin}) {
-    if (geom != null) {
-      subMeshes.add(M3SubMesh(geom, material: material));
-    }
-  }
+  M3Mesh(this.geom, {M3Material? material, this.skin}) : mtr = material ?? M3Material();
 
   /// Loads a model from a file path or URL.
   ///
   /// Automatically detects the file format by extension (.obj, .gltf, .glb)
   /// and the source (asset or remote URL).
+  /// For multi-mesh models, only the first mesh is returned. Use [loadAll] instead.
   static Future<M3Mesh> load(String path) async {
-    // Centrally fetch raw bytes via ResourceManager
-    final buffer = await M3ResourceManager.loadBuffer(path);
+    final meshes = await loadAll(path);
+    return meshes.first;
+  }
 
-    // Normalize extension for detection (ignoring URL query params)
+  /// Loads all meshes from a model file.
+  ///
+  /// For glTF/GLB files with multiple meshes (e.g. a character split into
+  /// head, body, legs), each mesh is returned as a separate [M3Mesh] so they
+  /// can be individually added to the scene. All meshes share the same
+  /// animator and node hierarchy when applicable.
+  static Future<List<M3Mesh>> loadAll(String path) async {
+    final buffer = await M3ResourceManager.loadBuffer(path);
     final ext = path.split('.').last.toLowerCase().split('?').first;
 
     if (ext == 'obj') {
-      // OBJ is a text-based format, decode as UTF-8
       final bytes = buffer.asUint8List();
       final geom = M3ObjLoader.parse(utf8.decode(bytes), path);
-      return M3Mesh(geom);
+      return [M3Mesh(geom)];
     } else if (ext == 'gltf' || ext == 'glb') {
-      // glTF/GLB are parsed as JSON or binary documents
       final doc = await M3GltfLoader.loadFromBytes(buffer.asUint8List(), path);
-      return _meshFromGltfDoc(doc);
+      return _meshListFromGltfDoc(doc);
     } else {
       throw UnsupportedError('Unsupported format: $ext');
     }
   }
 
-  /// Internal helper to construct an [M3Mesh] from a parsed [GltfDocument].
+  /// Builds one [M3Mesh] per glTF node that references a mesh.
   ///
-  /// Currently only processes the first primitive of the first mesh in the document.
-  static M3Mesh _meshFromGltfDoc(dynamic doc) {
-    // 1. Process all primitives of the first mesh (primary use case)
-    final List<M3SubMesh> primitives = [];
-    if (doc.meshes.isNotEmpty) {
-      final gltfMesh = doc.meshes[0];
+  /// Each node–mesh pair becomes its own [M3Mesh] with the node's world
+  /// transform baked into [initMatrix]. Animator and skin are attached to
+  /// the first mesh that qualifies.
+  static List<M3Mesh> _meshListFromGltfDoc(dynamic doc) {
+    // Compute world matrices for the whole node tree
+    for (final rootIdx in (doc.rootNodes as List<int>)) {
+      (doc.nodes[rootIdx] as GltfNode).computeWorldMatrix(Matrix4.identity(), (doc.nodes as List).cast<GltfNode>());
+    }
+
+    // Shared animator (created once, attached to first mesh)
+    M3Animator? sharedAnimator;
+    if (doc.animations.isNotEmpty) {
+      final nodeMap = {for (int i = 0; i < doc.nodes.length; i++) i: doc.nodes[i]};
+      sharedAnimator = M3Animator((doc.animations as List).cast<GltfAnimation>(), nodeMap.cast<int, GltfNode>());
+    }
+
+    final List<M3Mesh> results = [];
+
+    for (int nodeIdx = 0; nodeIdx < doc.nodes.length; nodeIdx++) {
+      final node = doc.nodes[nodeIdx];
+      if (node.meshIndex == null) continue;
+      final meshIdx = node.meshIndex as int;
+      if (meshIdx >= doc.meshes.length) continue;
+
+      final gltfMesh = doc.meshes[meshIdx] as GltfMesh;
+
       for (final primitive in gltfMesh.primitives) {
+        final positions = primitive.getPositions();
+        if (positions == null || positions.isEmpty) continue;
+
         final geom = M3GltfGeom.fromPrimitive(primitive);
+
+        // Material
         M3Material? mtr;
         if (primitive.materialIndex != null && primitive.materialIndex! < doc.materials.length) {
           mtr = M3Material.fromGltf(doc.materials[primitive.materialIndex!], doc);
         }
-        primitives.add(M3SubMesh(geom, material: mtr));
+
+        // Skin
+        M3Skin? skin;
+        final int? skinIdx = (node as GltfNode).skinIndex ?? primitive.skinIndex;
+        if (skinIdx != null && skinIdx < doc.skins.length) {
+          final gltfSkin = doc.skins[skinIdx];
+          final ibm = gltfSkin.getInverseBindMatrices();
+          final List<Matrix4>? inverseMatrices = ibm != null
+              ? List.generate(gltfSkin.joints.length, (i) {
+                  return Matrix4.fromFloat32List(ibm.sublist(i * 16, i * 16 + 16));
+                })
+              : null;
+          skin = M3Skin(
+            gltfSkin.joints.length,
+            inverseBindMatrices: inverseMatrices,
+            jointNodes: (gltfSkin.joints as List<int>).map<GltfNode>((index) => doc.nodes[index] as GltfNode).toList(),
+          );
+        }
+
+        final mesh = M3Mesh(geom, material: mtr, skin: skin);
+        mesh.initMatrix.setFrom(node.worldMatrix);
+        mesh.nodes = doc.nodes;
+        mesh.sourceNodeIndex = nodeIdx;
+
+        // Attach animator to the first mesh only
+        if (sharedAnimator != null && results.isEmpty) {
+          mesh.animator = sharedAnimator;
+        }
+
+        results.add(mesh);
       }
     }
 
-    // 2. Process Skeletal Animation Skin if available
-    M3Skin? skin;
-    int? skinIndex;
-
-    Matrix4 matNode = Matrix4.identity();
-    // Search for a node that references the first mesh
-    for (final node in doc.nodes) {
-      if (node.meshIndex == 0) {
-        if (node.skinIndex != null) {
-          skinIndex = node.skinIndex;
-        }
-        // Capture mesh node transform
-        if (node.matrix != null) {
-          matNode.setFrom(node.matrix!);
-        } else {
-          matNode.setFrom(Matrix4.compose(node.translation, node.rotation, node.scale));
-        }
-        break;
+    // Fallback: if no node references a mesh, load meshes[0].primitives[0]
+    if (results.isEmpty && doc.meshes.isNotEmpty) {
+      final primitive = (doc.meshes[0] as GltfMesh).primitives[0];
+      final geom = M3GltfGeom.fromPrimitive(primitive);
+      M3Material? mtr;
+      if (primitive.materialIndex != null && primitive.materialIndex! < doc.materials.length) {
+        mtr = M3Material.fromGltf(doc.materials[primitive.materialIndex!], doc);
       }
+      final mesh = M3Mesh(geom, material: mtr);
+      mesh.nodes = doc.nodes;
+      if (sharedAnimator != null) mesh.animator = sharedAnimator;
+      results.add(mesh);
     }
 
-    if (skinIndex != null && skinIndex < doc.skins.length) {
-      final gltfSkin = doc.skins[skinIndex];
-      final ibm = gltfSkin.getInverseBindMatrices();
-
-      // Convert flat float list to Matrix4 instances
-      final List<Matrix4>? inverseMatrices = ibm != null
-          ? List.generate(gltfSkin.joints.length, (i) {
-              return Matrix4.fromFloat32List(ibm.sublist(i * 16, i * 16 + 16));
-            })
-          : null;
-
-      skin = M3Skin(
-        gltfSkin.joints.length,
-        inverseBindMatrices: inverseMatrices,
-        jointNodes: (gltfSkin.joints as List<int>).map<GltfNode>((index) => doc.nodes[index] as GltfNode).toList(),
-      );
-    }
-
-    final mesh = M3Mesh(null, skin: skin);
-    mesh.subMeshes = primitives;
-    mesh.initMatrix.setFrom(matNode);
-    mesh.nodes = doc.nodes;
-
-    // 3. Initialize Animator
-    if (doc.animations.isNotEmpty) {
-      final nodeMap = {for (int i = 0; i < doc.nodes.length; i++) i: doc.nodes[i]};
-      mesh.animator = M3Animator((doc.animations as List).cast<GltfAnimation>(), nodeMap.cast<int, GltfNode>());
-    }
-
-    return mesh;
+    return results;
   }
 
   /// Creates a deep copy of this mesh instance suitable for independent animation.
@@ -220,10 +236,7 @@ class M3Mesh {
         ? skin!.clone((skin!.jointNodes as List<GltfNode>).map((n) => nodeCloneMap[n]!).toList())
         : null;
 
-    final clonedMesh = M3Mesh(null, skin: clonedSkin);
-    for (final sub in subMeshes) {
-      clonedMesh.subMeshes.add(M3SubMesh(sub.geom, material: sub.mtr)..localMatrix.setFrom(sub.localMatrix));
-    }
+    final clonedMesh = M3Mesh(geom, material: mtr, skin: clonedSkin);
     clonedMesh.initMatrix.setFrom(initMatrix);
     clonedMesh.nodes = clonedNodes;
 

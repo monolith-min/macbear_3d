@@ -30,7 +30,6 @@ abstract class M3Scene {
   final List<M3Entity> entities = [];
 
   M3Skybox? skybox;
-  final M3RenderPipeline _pipeline = M3RenderPipeline();
 
   M3Scene() {
     cameras.add(_camera);
@@ -70,6 +69,20 @@ abstract class M3Scene {
 
   void addEntity(M3Entity entity) {
     entities.add(entity);
+  }
+
+  void addAxisGizmo(Vector3 position, {double scale = 1.0, double length = 1.0}) {
+    final xAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3((length + 1) / 2, 0, 0));
+    xAxisMesh.scale = Vector3(length, scale, scale);
+    xAxisMesh.color = Vector4(1, 0, 0, 1);
+
+    final yAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3(0, (length + 1) / 2, 0));
+    yAxisMesh.scale = Vector3(scale, length, scale);
+    yAxisMesh.color = Vector4(0, 1, 0, 1);
+
+    final zAxisMesh = addMesh(M3Mesh(M3Resources.unitCube), position + Vector3(0, 0, (length + 1) / 2));
+    zAxisMesh.scale = Vector3(scale, scale, length);
+    zAxisMesh.color = Vector4(0, 0, 1, 1);
   }
 
   double _totalTime = 0.0;
@@ -122,53 +135,8 @@ abstract class M3Scene {
   }
 
   // render solid models
-  void render(M3Program prog, M3Camera camera, {bool bSolid = true, bool bOnlyOpaque = false}) {
-    _pipeline.clear();
-
-    final stats = M3AppEngine.instance.renderEngine.stats;
-
-    // 1. Collect phase: Cull and categorize into queues
-    for (final entity in entities) {
-      if (entity.mesh == null) continue;
-      final mesh = entity.mesh!;
-
-      // culling
-      if (!camera.isVisible(entity.worldBounding)) {
-        if (stats.enabled) stats.culling++;
-        continue;
-      }
-
-      if (stats.enabled) stats.entities++;
-
-      final meshMatrix = entity.matrix * mesh.initMatrix;
-      for (final sub in mesh.subMeshes) {
-        final worldMat = meshMatrix * sub.localMatrix;
-        final viewPos = camera.viewMatrix * worldMat.getTranslation();
-        // Depth for sorting (negative Z in view space is forward)
-        final depth = viewPos.z;
-
-        _pipeline.collect(entity, mesh, sub, worldMat, depth);
-      }
-    }
-
-    // 2. Sort phase
-    _pipeline.sort();
-
-    // 3. Execute phase
-    // Opaque first
-    _executeQueue(_pipeline.opaque, prog, camera, bSolid: bSolid);
-
-    if (bOnlyOpaque) return;
-
-    // Then Transparent (Back-to-Front)
-    // Note: Transparent sorting and blending is handled within the pipeline execution
-    _executeQueue(_pipeline.transparent, prog, camera, bSolid: bSolid);
-  }
-
-  void _executeQueue(M3RenderQueue queue, M3Program prog, M3Camera camera, {bool bSolid = true}) {
-    if (queue.isEmpty) return;
-
-    // pre-draw state
+  void render(M3Program prog, M3Camera camera, {bool bSolid = true}) {
+    // pre-draw
     gl.useProgram(prog.program);
     prog.applyCamera(camera);
 
@@ -176,53 +144,53 @@ abstract class M3Scene {
     _applyReflectionCubemap(prog, skybox?.mtr.texDiffuse);
 
     final stats = M3AppEngine.instance.renderEngine.stats;
-    M3Program currentBoundProg = prog;
+    for (final entity in entities) {
+      if (entity.mesh == null || !entity.visible) {
+        continue;
+      }
 
-    for (final item in queue.items) {
-      final sub = item.subMesh;
-      final entity = item.entity;
+      final mesh = entity.mesh!;
+      // culling
+      if (!camera.isVisible(entity.worldBounding)) {
+        if (stats.enabled) stats.culling++;
+        continue;
+      }
 
       M3Program activeProg = prog;
       if (prog is M3ProgramLighting &&
-          sub.mtr.texDiffuse is M3ExternalTexture &&
+          mesh.mtr.texDiffuse is M3ExternalTexture &&
           M3Resources.programExternalOES != null) {
         activeProg = M3Resources.programExternalOES!;
-      }
-
-      // Avoid redundant useProgram calls
-      if (activeProg != currentBoundProg) {
         gl.useProgram(activeProg.program);
-        activeProg.applyCamera(camera);
-        _applyReflectionCubemap(activeProg, skybox?.mtr.texDiffuse);
-        currentBoundProg = activeProg;
       }
 
-      activeProg.setMatrices(camera, item.worldMatrix);
-      activeProg.setMaterial(sub.mtr, entity.color);
-      activeProg.setSkinning(item.mesh.skin);
+      final modelMatrix = mesh.skin != null ? entity.matrix : entity.matrix * mesh.initMatrix;
+      activeProg.setMatrices(camera, modelMatrix);
+      activeProg.setMaterial(mesh.mtr, entity.color);
+      activeProg.setSkinning(mesh.skin);
 
       // pre-reflection probe
       if (entity.reflectionProbe != null) {
         _applyReflectionCubemap(activeProg, entity.reflectionProbe!.texCubemap);
       }
 
-      sub.geom.draw(activeProg, bSolid: bSolid);
+      mesh.geom.draw(activeProg, bSolid: bSolid);
+
+      // Restore program if it was switched
+      if (activeProg != prog) {
+        gl.useProgram(prog.program);
+      }
 
       // post-reflection probe
       if (entity.reflectionProbe != null) {
-        _applyReflectionCubemap(activeProg, null);
+        _applyReflectionCubemap(prog, null);
       }
-
       // statistics
       if (stats.enabled) {
-        stats.vertices += sub.geom.vertexCount;
-        stats.triangles += sub.geom.getTriangleCount(bSolid: bSolid);
+        stats.entities++;
+        stats.vertices += mesh.geom.vertexCount;
+        stats.triangles += mesh.geom.getTriangleCount(bSolid: bSolid);
       }
-    }
-
-    // Restore original program if needed
-    if (currentBoundProg != prog) {
-      gl.useProgram(prog.program);
     }
   }
 
@@ -243,41 +211,41 @@ abstract class M3Scene {
 
     for (final entity in entities) {
       // culling
-      if (entity.mesh == null || !camera.isVisible(entity.worldBounding)) {
+      if (entity.mesh == null || !entity.visible || !camera.isVisible(entity.worldBounding)) {
         continue;
       }
 
       final mesh = entity.mesh!;
-      final meshMatrix = entity.matrix * mesh.initMatrix;
-      for (final sub in mesh.subMeshes) {
-        if (sub.mtr.reflection <= 0) continue;
-
-        Vector4 reflectColor = Vector4.all(sub.mtr.reflection);
-
-        prog.setMatrices(camera, meshMatrix * sub.localMatrix);
-        // Use submaterial for PBR properties (metallic, roughness, diffuse)
-        prog.setMaterial(sub.mtr, reflectColor);
-        // Override SamplerDiffuse with skybox cubemap for reflection lookup
-        gl.activeTexture(WebGL.TEXTURE0);
-
-        prog.setSkinning(mesh.skin);
-
-        // pre-reflection probe
-        if (entity.reflectionProbe != null) {
-          _bindReflection(entity.reflectionProbe!.texCubemap);
-        }
-
-        sub.geom.draw(prog, bSolid: true);
-
-        // post-reflection probe
-        if (entity.reflectionProbe != null) {
-          _bindReflection(null);
-        }
-
-        // statistics
-        final stats = M3AppEngine.instance.renderEngine.stats;
-        if (stats.enabled) stats.reflection++;
+      if (mesh.mtr.reflection <= 0) {
+        continue;
       }
+
+      Vector4 reflectColor = Vector4.all(mesh.mtr.reflection);
+
+      final modelMatrix = mesh.skin != null ? entity.matrix : entity.matrix * mesh.initMatrix;
+      prog.setMatrices(camera, modelMatrix);
+      // Use mesh material for PBR properties (metallic, roughness, diffuse)
+      prog.setMaterial(mesh.mtr, reflectColor);
+      // Override SamplerDiffuse with skybox cubemap for reflection lookup
+      gl.activeTexture(WebGL.TEXTURE0);
+
+      prog.setSkinning(mesh.skin);
+
+      // pre-reflection probe
+      if (entity.reflectionProbe != null) {
+        _bindReflection(entity.reflectionProbe!.texCubemap);
+      }
+
+      mesh.geom.draw(prog, bSolid: true);
+
+      // post-reflection probe
+      if (entity.reflectionProbe != null) {
+        _bindReflection(null);
+      }
+
+      // statistics
+      final stats = M3AppEngine.instance.renderEngine.stats;
+      if (stats.enabled) stats.reflection++;
     }
 
     // Reset depth state
@@ -295,16 +263,16 @@ abstract class M3Scene {
 
     for (final entity in entities) {
       // culling
-      if (entity.mesh == null || !camera.isVisible(entity.worldBounding)) continue;
+      if (entity.mesh == null || !entity.visible || !camera.isVisible(entity.worldBounding)) continue;
 
       final mesh = entity.mesh!;
 
+      Matrix4 matMesh = mesh.skin != null ? Matrix4.copy(entity.matrix) : entity.matrix * mesh.initMatrix;
+
       // origin axis
-      progSimple.setMatrices(camera, entity.matrix);
+      progSimple.setMatrices(camera, matMesh);
       // draw axis at object origin
-      // Use the first submesh's material or a default for axis color?
-      // Actually axis is fixed color, but setMaterial is needed for uniform locations
-      progSimple.setMaterial(mesh.subMeshes.isNotEmpty ? mesh.subMeshes[0].mtr : M3Material(), Colors.red);
+      progSimple.setMaterial(mesh.mtr, Colors.red);
       M3Resources.debugAxis.draw(progSimple);
 
       // bounding sphere
@@ -313,7 +281,7 @@ abstract class M3Scene {
         Matrix4 matSphere = Matrix4.identity();
         matSphere.translateByVector3(worldSphere.center);
         matSphere.scaleByVector3(Vector3.all(worldSphere.radius * 1.03));
-        progSimple.setMaterial(mesh.subMeshes.isNotEmpty ? mesh.subMeshes[0].mtr : M3Material(), Colors.magenta);
+        progSimple.setMaterial(mesh.mtr, Colors.magenta);
         progSimple.setMatrices(camera, matSphere);
         M3Resources.debugSphere.draw(progSimple);
       }
@@ -323,7 +291,7 @@ abstract class M3Scene {
       Vector3 extents = (entity.worldBounding.aabb.max - entity.worldBounding.aabb.min) / 2;
       extents += Vector3.all(0.03);
       matAabb.scaleByVector3(extents);
-      progSimple.setMaterial(mesh.subMeshes.isNotEmpty ? mesh.subMeshes[0].mtr : M3Material(), Colors.lime);
+      progSimple.setMaterial(mesh.mtr, Colors.lime);
       progSimple.setMatrices(camera, matAabb);
       M3Resources.debugFrustum.draw(progSimple, bSolid: false);
     }
