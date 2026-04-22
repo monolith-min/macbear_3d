@@ -39,11 +39,20 @@ class _M3Indices {
   // not supported: GL_TRIANGLE_FAN, GL_LINE_LOOP
   final int _primitiveType;
   int _count = 0; // element count
+  int _indexType = WebGL.UNSIGNED_SHORT; // UNSIGNED_SHORT or UNSIGNED_INT
 
   late Buffer _indexBuffer;
 
   _M3Indices(this._primitiveType, Uint16Array indices) {
-    // buffers for indices
+    _indexType = WebGL.UNSIGNED_SHORT;
+    _indexBuffer = gl.createBuffer();
+    gl.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, _indexBuffer);
+    gl.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, indices, WebGL.STATIC_DRAW);
+    _count = indices.length;
+  }
+
+  _M3Indices.uint32(this._primitiveType, Uint32Array indices) {
+    _indexType = WebGL.UNSIGNED_INT;
     _indexBuffer = gl.createBuffer();
     gl.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, _indexBuffer);
     gl.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, indices, WebGL.STATIC_DRAW);
@@ -70,7 +79,7 @@ class _M3Indices {
   /// Draws the indexed geometry using the current rendering context.
   void draw() {
     gl.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    gl.drawElements(_primitiveType, _count, WebGL.UNSIGNED_SHORT, 0);
+    gl.drawElements(_primitiveType, _count, _indexType, 0);
   }
 
   /// Releases GPU resources associated with this index buffer.
@@ -276,13 +285,14 @@ abstract class M3Geom {
   void _generateEdgeIndices(List<int> indices) {
     if (indices.isEmpty) return;
 
+    final bool use32bit = _vertexCount > 65535;
     final Set<int> edges = {};
     final List<int> lineIndices = [];
 
     void addEdge(int i1, int i2) {
       final int a = i1 < i2 ? i1 : i2;
       final int b = i1 < i2 ? i2 : i1;
-      final int key = (a << 16) | b;
+      final int key = use32bit ? (a * 258402 + b) : ((a << 16) | b);
       if (edges.add(key)) {
         lineIndices.add(a);
         lineIndices.add(b);
@@ -296,7 +306,11 @@ abstract class M3Geom {
     }
 
     if (lineIndices.isNotEmpty) {
-      _edgeIndices.add(_M3Indices(WebGL.LINES, Uint16Array.fromList(lineIndices)));
+      if (use32bit) {
+        _edgeIndices.add(_M3Indices.uint32(WebGL.LINES, Uint32Array.fromList(lineIndices)));
+      } else {
+        _edgeIndices.add(_M3Indices(WebGL.LINES, Uint16Array.fromList(lineIndices)));
+      }
     }
   }
 

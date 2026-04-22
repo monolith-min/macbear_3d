@@ -61,9 +61,14 @@ class M3GltfGeom extends M3Geom {
     // vertex buffer object
     _createVBO();
 
-    // Create face indices
-    final indicesArray = Uint16Array.fromList(finalIndices.map((e) => e.clamp(0, 65535)).toList());
-    _faceIndices.add(_M3Indices(_glMode(primitive.mode), indicesArray));
+    // Create face indices (use 32-bit if vertex count exceeds 16-bit limit)
+    if (vertexCount > 65535) {
+      final indicesArray = Uint32Array.fromList(finalIndices);
+      _faceIndices.add(_M3Indices.uint32(_glMode(primitive.mode), indicesArray));
+    } else {
+      final indicesArray = Uint16Array.fromList(finalIndices);
+      _faceIndices.add(_M3Indices(_glMode(primitive.mode), indicesArray));
+    }
 
     // Create wireframe indices
     if (primitive.mode == 4) {
