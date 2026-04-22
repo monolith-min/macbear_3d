@@ -83,7 +83,7 @@ class M3AppEngine with ChangeNotifier {
 
     // init angle: ANGLE by Google
     await _angle.init(false, PlatformInfo.useAngle);
-    final options = AngleOptions(width: width, height: height, dpr: dpr, useSurfaceProducer: true);
+    final options = AngleOptions(width: width, height: height, dpr: dpr, alpha: backgroundAlpha < 1.0, useSurfaceProducer: true);
     _sourceTexture = await _angle.createTexture(options);
 
     // init render engine
@@ -276,7 +276,7 @@ class M3AppEngine with ChangeNotifier {
     }
 
     // so resize it
-    final options = AngleOptions(width: width, height: height, dpr: dpr, useSurfaceProducer: true);
+    final options = AngleOptions(width: width, height: height, dpr: dpr, alpha: backgroundAlpha < 1.0, useSurfaceProducer: true);
     if (PlatformInfo.isAndroid) {
       await _angle.deleteTexture(_sourceTexture);
       _sourceTexture = await _angle.createTexture(options);
