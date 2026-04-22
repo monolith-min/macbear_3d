@@ -12,11 +12,12 @@ import '../input/keyboard.dart';
 class M3AppEngine with ChangeNotifier {
   static final M3AppEngine instance = M3AppEngine._internal();
 
-  static const String version = "macbear3d-lib v0.8.0 powered by ANGLE";
+  static const String version = "macbear3d-lib v0.8.1 powered by ANGLE";
   final FlutterAngle _angle = FlutterAngle();
   late FlutterAngleTexture _sourceTexture; // main framebuffer
   static Framebuffer get mainFbo => Framebuffer(kIsWeb ? null : instance._sourceTexture.fboId);
   static Vector3 backgroundColor = Vector3.zero();
+  static double backgroundAlpha = 1.0;
 
   // did init engine completed
   bool _didInit = false; // context initialized
@@ -364,7 +365,7 @@ class M3AppEngine with ChangeNotifier {
     _sourceTexture.activate();
 
     final gl = renderEngine.gl;
-    gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0);
+    gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundAlpha);
     gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
 
     // 2. render active scene
