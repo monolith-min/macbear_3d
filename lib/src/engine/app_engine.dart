@@ -201,12 +201,7 @@ class M3AppEngine with ChangeNotifier {
   Widget getAppWidget() {
     debugPrint("--- getAppWidget ---");
     if (!_didInit) {
-      return Container(
-        color: Colors.black,
-        child: Center(
-          child: Text('Macbear 3D', style: TextStyle(color: Colors.lightGreen, fontSize: 20)),
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     Widget textureSurface = kIsWeb
