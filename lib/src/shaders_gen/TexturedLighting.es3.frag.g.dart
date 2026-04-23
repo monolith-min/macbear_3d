@@ -105,14 +105,17 @@ void main(void)
 	////////// PCF //////////
 	#ifdef ENABLE_PCF
 		highp vec2 texelSize = vec2(1.0) / ShadowmapSize;
-		highp vec4 depthPCF;	// depth-shadow by PCF
-		depthPCF.x = texture(SamplerShadowmap, lCoordShadowmap.st + vec2( 1.0,  0.5) * texelSize).r;
-		depthPCF.y = texture(SamplerShadowmap, lCoordShadowmap.st + vec2(-1.0, -0.5) * texelSize).r;
-		depthPCF.z = texture(SamplerShadowmap, lCoordShadowmap.st + vec2(-0.5,  1.0) * texelSize).r;
-		depthPCF.w = texture(SamplerShadowmap, lCoordShadowmap.st + vec2( 0.5, -1.0) * texelSize).r;
+		highp float bias = 0.0005;
+		lowp float shadow = 0.0;
 
-		depthPCF = step(vec4(lCoordShadowmap.z - 0.0005), depthPCF);
-		lowp float factorLit = dot(depthPCF, depthPCF) / 4.0;
+		// 5x5 PCF kernel for smooth shadow edges
+		for (int x = -2; x <= 2; x++) {
+			for (int y = -2; y <= 2; y++) {
+				highp float pcfDepth = texture(SamplerShadowmap, lCoordShadowmap.st + vec2(float(x), float(y)) * texelSize).r;
+				shadow += step(lCoordShadowmap.z - bias, pcfDepth);
+			}
+		}
+		lowp float factorLit = shadow / 25.0;
 
 		texResult = mix(ComputePixelUnlit(texResult), ComputePixelLit(texResult), factorLit);
 		// Shadow catcher: blend material -> shadow areas visible, lit areas transparent
