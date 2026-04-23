@@ -57,6 +57,13 @@ out vec4 fragColor;
 void main(void)
 {
 	lowp vec4 texResult = texture(SamplerDiffuse, TextureCoordOut);	// tex-lookup
+
+	// material alpha for shadow catcher detection
+#ifdef ENABLE_PIXEL_LIGHTING
+	lowp float matAlpha = ColorDiffuse.a;
+#else
+	lowp float matAlpha = DestinationColor.a;
+#endif
 #ifdef ENABLE_TEXTURE0_BGRA	// iOS, macOS: CVPixelBuffer is BGRA, not RGBA
 	texResult = texResult.bgra;
 #endif // ENABLE_TEXTURE0_BGRA
@@ -88,6 +95,10 @@ void main(void)
 	
 	if (lCoordShadowmap.s < 0.0 || lCoordShadowmap.t < 0.0 || lCoordShadowmap.s > 1.0 || lCoordShadowmap.t > 1.0) {
 		texResult = ComputePixelLit(texResult);					// lit-area
+		// Shadow catcher: blend material in lit area -> fully transparent
+		if (matAlpha < 0.99) {
+			texResult.a = 0.0;
+		}
 	}
 	else {
 
@@ -99,20 +110,36 @@ void main(void)
 		depthPCF.y = texture(SamplerShadowmap, lCoordShadowmap.st + vec2(-1.0, -0.5) * texelSize).r;
 		depthPCF.z = texture(SamplerShadowmap, lCoordShadowmap.st + vec2(-0.5,  1.0) * texelSize).r;
 		depthPCF.w = texture(SamplerShadowmap, lCoordShadowmap.st + vec2( 0.5, -1.0) * texelSize).r;
-		
+
 		depthPCF = step(vec4(lCoordShadowmap.z - 0.0005), depthPCF);
 		lowp float factorLit = dot(depthPCF, depthPCF) / 4.0;
-		
+
 		texResult = mix(ComputePixelUnlit(texResult), ComputePixelLit(texResult), factorLit);
-		
+		// Shadow catcher: blend material -> shadow areas visible, lit areas transparent
+		if (matAlpha < 0.99) {
+			texResult.rgb = vec3(0.0);
+			texResult.a = matAlpha * (1.0 - factorLit);
+		}
+
 	#else
 
 		highp float depthShadow;
 		depthShadow = texture(SamplerShadowmap, lCoordShadowmap.st).r;
-		if (depthShadow < lCoordShadowmap.z - 0.0005)
+		if (depthShadow < lCoordShadowmap.z - 0.0005) {
 			texResult = ComputePixelUnlit(texResult);
-		else
+			// Shadow catcher: in shadow -> show shadow
+			if (matAlpha < 0.99) {
+				texResult.rgb = vec3(0.0);
+				texResult.a = matAlpha;
+			}
+		}
+		else {
 			texResult = ComputePixelLit(texResult);
+			// Shadow catcher: in lit area -> transparent
+			if (matAlpha < 0.99) {
+				texResult.a = 0.0;
+			}
+		}
 	#endif // ENABLE_PCF
 	}
 
