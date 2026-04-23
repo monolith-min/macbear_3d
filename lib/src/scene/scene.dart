@@ -135,7 +135,7 @@ abstract class M3Scene {
   }
 
   // render solid models
-  void render(M3Program prog, M3Camera camera, {bool bSolid = true}) {
+  void render(M3Program prog, M3Camera camera, {bool bSolid = true, bool shadowPass = false}) {
     // pre-draw
     gl.useProgram(prog.program);
     prog.applyCamera(camera);
@@ -146,6 +146,9 @@ abstract class M3Scene {
     final stats = M3AppEngine.instance.renderEngine.stats;
     for (final entity in entities) {
       if (entity.mesh == null || !entity.visible) {
+        continue;
+      }
+      if (shadowPass && !entity.castShadow) {
         continue;
       }
 

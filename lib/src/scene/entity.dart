@@ -11,6 +11,7 @@ class M3Entity {
   oimo.RigidBody? rigidBody;
   M3Mesh? mesh;
   bool visible = true;
+  bool castShadow = true;
   Vector4 color = Vector4(1.0, 1.0, 1.0, 1.0); // RGBA
 
   M3ReflectionProbe? reflectionProbe;
