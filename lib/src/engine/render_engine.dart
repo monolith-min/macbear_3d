@@ -15,6 +15,10 @@ class M3RenderEngine {
   M3ShadowMap? _shadowMap;
   M3ShadowMap? get shadowMap => _shadowMap;
 
+  // SSAO
+  M3SSAOPass? _ssaoPass;
+  M3SSAOPass? get ssaoPass => _ssaoPass;
+
   // for ortho-matrix to project to 2D screen
   final _projection2D = M3Projection();
 
@@ -29,10 +33,16 @@ class M3RenderEngine {
 
   void dispose() {
     _shadowMap?.dispose();
+    _ssaoPass?.dispose();
   }
 
   void createShadowMap({int width = 1024, int height = 1024}) {
     _shadowMap ??= M3ShadowMap(width, height);
+  }
+
+  void createSSAO(int width, int height) {
+    _ssaoPass?.dispose();
+    _ssaoPass = M3SSAOPass(width, height);
   }
 
   void bindDefaultFramebuffer() {
@@ -55,11 +65,33 @@ class M3RenderEngine {
     // projection 2D viewport by screen size
     _projection2D.setViewport(0, height, width, -height, fovy: 0, near: -1.0, far: 1.0);
     gl.lineWidth(dpr * 2.0);
+
+    // Recreate SSAO buffers if enabled
+    if (options.shader.ssao) {
+      createSSAO(pixelW, pixelH);
+    }
   }
 
   void renderShadowMap(M3Scene scene) {
     if (!options.debug.wireframe && options.shadows && _shadowMap != null) {
       _shadowMap!.renderDepth(scene, scene.light);
+    }
+
+    // SSAO prepass + compute + blur
+    if (options.shader.ssao && _ssaoPass == null) {
+      final engine = M3AppEngine.instance;
+      final pixelW = (engine.appWidth * engine.devicePixelRatio).toInt();
+      final pixelH = (engine.appHeight * engine.devicePixelRatio).toInt();
+      if (pixelW > 0 && pixelH > 0) {
+        createSSAO(pixelW, pixelH);
+      }
+    }
+    if (options.shader.ssao && _ssaoPass != null) {
+      _ssaoPass!.renderPrepass(scene, scene.camera);
+      _ssaoPass!.renderSSAO(scene.camera);
+      _ssaoPass!.renderBlur();
+      // Restore default FBO
+      bindDefaultFramebuffer();
     }
   }
 
@@ -98,6 +130,18 @@ class M3RenderEngine {
       }
 
       progLight.applyLight(scene.light);
+
+      // Bind SSAO texture to TEXTURE3 if enabled
+      if (options.shader.ssao && _ssaoPass != null) {
+        final ssaoLoc = gl.getUniformLocation(progLight.program, 'SamplerSSAO');
+        if (M3Program.isLocationValid(ssaoLoc)) {
+          gl.activeTexture(WebGL.TEXTURE3);
+          _ssaoPass!.aoTexture.bind();
+          gl.uniform1i(ssaoLoc, 3);
+          gl.activeTexture(WebGL.TEXTURE0);
+        }
+      }
+
       // solid
       scene.render(progLight, scene.camera, bSolid: true);
 

@@ -52,6 +52,10 @@ uniform mediump float FogDepth;
 out mediump float FogDensity;
 #endif
 
+#ifdef ENABLE_SSAO
+out mediump vec2 ScreenUV;
+#endif
+
 void main(void)
 {
     highp vec4 objVert = vec4(inVertex, 1.0);
@@ -108,6 +112,10 @@ void main(void)
     
     TextureCoordOut = inTexCoord;
     gl_Position = ModelviewProjection * objVert;
+
+#ifdef ENABLE_SSAO
+    ScreenUV = gl_Position.xy / gl_Position.w * 0.5 + 0.5;
+#endif
 }
 
 """;

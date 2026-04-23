@@ -91,3 +91,75 @@ class M3Framebuffer {
     gl.deleteFramebuffer(_fbo);
   }
 }
+
+/// Framebuffer with both color (RGBA) and depth attachments.
+/// Used for G-Buffer passes like SSAO depth/normal rendering.
+class M3FramebufferColorDepth {
+  RenderingContext get gl => M3AppEngine.instance.renderEngine.gl;
+
+  final int frameW;
+  final int frameH;
+
+  late Framebuffer _fbo;
+  late WebGLTexture _colorTexture;
+  late WebGLTexture _depthTexture;
+
+  WebGLTexture get colorTexture => _colorTexture;
+  WebGLTexture get depthTexture => _depthTexture;
+
+  M3FramebufferColorDepth(this.frameW, this.frameH) {
+    _fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, _fbo);
+
+    // Color texture (RGBA8)
+    _colorTexture = gl.createTexture();
+    gl.bindTexture(WebGL.TEXTURE_2D, _colorTexture);
+    gl.texImage2D(
+      WebGL.TEXTURE_2D, 0, WebGL.RGBA8,
+      frameW, frameH, 0,
+      WebGL.RGBA, WebGL.UNSIGNED_BYTE, null,
+    );
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+    gl.framebufferTexture2D(WebGL.FRAMEBUFFER, WebGL.COLOR_ATTACHMENT0, WebGL.TEXTURE_2D, _colorTexture, 0);
+
+    // Depth renderbuffer
+    _depthTexture = gl.createTexture();
+    gl.bindTexture(WebGL.TEXTURE_2D, _depthTexture);
+    gl.texImage2D(
+      WebGL.TEXTURE_2D, 0, WebGL.DEPTH_COMPONENT16,
+      frameW, frameH, 0,
+      WebGL.DEPTH_COMPONENT, WebGL.UNSIGNED_SHORT, null,
+    );
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+    gl.framebufferTexture2D(WebGL.FRAMEBUFFER, WebGL.DEPTH_ATTACHMENT, WebGL.TEXTURE_2D, _depthTexture, 0);
+
+    // Check status
+    assert(() {
+      final status = gl.checkFramebufferStatus(WebGL.FRAMEBUFFER);
+      if (status != WebGL.FRAMEBUFFER_COMPLETE) {
+        debugPrint('M3FramebufferColorDepth FBO error: $status');
+      }
+      return true;
+    }());
+
+    // Unbind
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, null);
+  }
+
+  void bind() {
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, _fbo);
+    gl.viewport(0, 0, frameW, frameH);
+  }
+
+  void dispose() {
+    gl.deleteTexture(_colorTexture);
+    gl.deleteTexture(_depthTexture);
+    gl.deleteFramebuffer(_fbo);
+  }
+}

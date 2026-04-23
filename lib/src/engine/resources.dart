@@ -181,6 +181,12 @@ class M3Resources {
         }
       }
     }
+    // SSAO define (applied to base + shadow programs)
+    if (options.ssao) {
+      strVert = "#define ENABLE_SSAO \n$strVert";
+      strFrag = "#define ENABLE_SSAO \n$strFrag";
+    }
+
     programTexture = M3ProgramLighting(strVert, strFrag);
 
     // shadow map program

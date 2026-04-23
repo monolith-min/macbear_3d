@@ -52,6 +52,11 @@ uniform highp vec2 ShadowmapSize;		// shadowmap resolution
 uniform highp float NormalBias;			// normal bias (for shadow acne)
 #endif // ENABLE_SHADOW_MAP or ENABLE_SHADOW_CSM
 
+#ifdef ENABLE_SSAO
+in mediump vec2 ScreenUV;
+uniform sampler2D SamplerSSAO;	// GL_TEXTURE3
+#endif // ENABLE_SSAO
+
 out vec4 fragColor;
 
 void main(void)
@@ -155,6 +160,14 @@ void main(void)
 	lowp float fFogBlend = clamp(FogDensity + 1.0 - texResult.a, 0.0, 1.0);
 	texResult.rgb = mix(texResult.rgb, FogColor, fFogBlend); 
 #endif // ENABLE_FOG
+
+#ifdef ENABLE_SSAO
+	// Apply SSAO: darken ambient-lit areas
+	if (matAlpha >= 0.99) {
+		lowp float ao = texture(SamplerSSAO, ScreenUV).r;
+		texResult.rgb *= ao;
+	}
+#endif // ENABLE_SSAO
 
 	fragColor = texResult;
 }

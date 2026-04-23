@@ -91,6 +91,15 @@ class M3ShaderOptions {
     _pcf = v;
     isDirty = true;
   }
+
+  // --- ssao ---
+  bool _ssao = false;
+  bool get ssao => _ssao;
+  set ssao(bool v) {
+    if (_ssao == v) return;
+    _ssao = v;
+    isDirty = true;
+  }
 }
 
 /// Rendering statistics

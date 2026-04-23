@@ -6,6 +6,7 @@ export 'src/anim/bvh_skeleton.dart';
 export 'src/engine/app_engine.dart';
 export 'src/engine/framebuffer.dart';
 export 'src/engine/render_engine.dart';
+export 'src/engine/ssao_pass.dart';
 export 'src/engine/resource_manager.dart';
 export 'src/engine/resources.dart';
 export 'src/geom/geom.dart';
