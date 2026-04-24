@@ -55,6 +55,7 @@ uniform highp float NormalBias;			// normal bias (for shadow acne)
 #ifdef ENABLE_SSAO
 in mediump vec2 ScreenUV;
 uniform sampler2D SamplerSSAO;	// GL_TEXTURE3
+uniform lowp float uSSAOIntensity;	// SSAO strength [0,1]
 #endif // ENABLE_SSAO
 
 // Emissive
@@ -205,7 +206,7 @@ void main(void)
 	// Apply SSAO: darken ambient-lit areas
 	if (matAlpha >= 0.99) {
 		lowp float ao = texture(SamplerSSAO, ScreenUV).r;
-		texResult.rgb *= ao;
+		texResult.rgb *= mix(1.0, ao, uSSAOIntensity);
 	}
 #endif // ENABLE_SSAO
 

@@ -170,6 +170,10 @@ class M3RenderEngine {
           gl.uniform1i(ssaoLoc, 3);
           gl.activeTexture(WebGL.TEXTURE0);
         }
+        final intensityLoc = gl.getUniformLocation(progLight.program, 'uSSAOIntensity');
+        if (M3Program.isLocationValid(intensityLoc)) {
+          gl.uniform1f(intensityLoc, _ssaoPass!.intensity);
+        }
       }
 
       // solid
