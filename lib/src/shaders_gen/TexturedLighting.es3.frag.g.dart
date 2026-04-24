@@ -149,7 +149,7 @@ void main(void)
 		poissonDisk[31] = vec2(-0.9017,  0.7614);
 
 		// Spread radius in texels (wider = softer edge)
-		highp float spreadRadius = 8.0;
+		highp float spreadRadius = 5.0;
 
 		for (int i = 0; i < 32; i++) {
 			highp float pcfDepth = texture(SamplerShadowmap, lCoordShadowmap.st + poissonDisk[i] * texelSize * spreadRadius).r;
