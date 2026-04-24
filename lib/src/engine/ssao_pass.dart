@@ -49,8 +49,8 @@ class M3SSAOPass {
   // SSAO kernel samples
   final List<Vector3> _kernel = [];
 
-  int _width = 1;
-  int _height = 1;
+  int _halfW = 1;
+  int _halfH = 1;
 
   // SSAO parameters
   double radius = 0.5;
@@ -58,20 +58,29 @@ class M3SSAOPass {
   double intensity = 0.7; // SSAO strength [0=off, 1=full]
 
   M3SSAOPass(int width, int height) {
-    _width = width;
-    _height = height;
+    // Half-res for AO computation (1/4 pixel count = much faster)
+    _halfW = (width / 2).ceil().clamp(1, width);
+    _halfH = (height / 2).ceil().clamp(1, height);
+    final halfW = _halfW;
+    final halfH = _halfH;
 
-    debugPrint('M3SSAOPass: creating ($width x $height)');
+    debugPrint('M3SSAOPass: creating G-Buffer($width x $height), AO($halfW x $halfH)');
 
-    // Create framebuffers
+    // G-Buffer: full resolution (accurate depth/normal)
     _gBuffer = M3FramebufferColorDepth(width, height);
-    _aoBuffer = M3FramebufferColorDepth(width, height);
-    _blurBuffer = M3FramebufferColorDepth(width, height);
+    // AO + Blur: half resolution (AO is low-frequency, half-res is sufficient)
+    _aoBuffer = M3FramebufferColorDepth(halfW, halfH);
+    _blurBuffer = M3FramebufferColorDepth(halfW, halfH);
 
     // Wrap textures
     _texGBuffer = M3Texture.fromWebGLTexture(_gBuffer.colorTexture, texW: width, texH: height);
-    _texAO = M3Texture.fromWebGLTexture(_aoBuffer.colorTexture, texW: width, texH: height);
-    _texBlur = M3Texture.fromWebGLTexture(_blurBuffer.colorTexture, texW: width, texH: height);
+    _texAO = M3Texture.fromWebGLTexture(_aoBuffer.colorTexture, texW: halfW, texH: halfH);
+    _texBlur = M3Texture.fromWebGLTexture(_blurBuffer.colorTexture, texW: halfW, texH: halfH);
+
+    // Use LINEAR filtering on blur output for smooth upscaling to full-res
+    gl.bindTexture(WebGL.TEXTURE_2D, _blurBuffer.colorTexture);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER, WebGL.LINEAR);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, WebGL.LINEAR);
 
     // Create programs
     final skinNormalVert = '#define ENABLE_NORMAL \n$Skinning_vert';
@@ -245,7 +254,7 @@ class M3SSAOPass {
       gl.uniformMatrix4fv(_ssaoProjection, false, camera.projectionMatrix.storage);
     }
     if (M3Program.isLocationValid(_ssaoNoiseScale)) {
-      gl.uniform2f(_ssaoNoiseScale, _width / 4.0, _height / 4.0);
+      gl.uniform2f(_ssaoNoiseScale, _halfW / 4.0, _halfH / 4.0);
     }
     if (M3Program.isLocationValid(_ssaoRadius)) {
       gl.uniform1f(_ssaoRadius, radius);
@@ -292,7 +301,7 @@ class M3SSAOPass {
     _texAO.bind();
 
     if (M3Program.isLocationValid(_blurTexelSize)) {
-      gl.uniform2f(_blurTexelSize, 1.0 / _width, 1.0 / _height);
+      gl.uniform2f(_blurTexelSize, 1.0 / _halfW, 1.0 / _halfH);
     }
 
     _drawFullScreenQuad(_blurProgram);
