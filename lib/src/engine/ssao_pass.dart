@@ -55,7 +55,7 @@ class M3SSAOPass {
   // SSAO parameters
   double radius = 0.5;
   double bias = 0.025;
-  double intensity = 0.5; // SSAO strength [0=off, 1=full]
+  double intensity = 0.7; // SSAO strength [0=off, 1=full]
 
   M3SSAOPass(int width, int height) {
     _width = width;
