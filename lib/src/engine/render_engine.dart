@@ -19,6 +19,10 @@ class M3RenderEngine {
   M3SSAOPass? _ssaoPass;
   M3SSAOPass? get ssaoPass => _ssaoPass;
 
+  // Bloom
+  M3BloomPass? _bloomPass;
+  M3BloomPass? get bloomPass => _bloomPass;
+
   // for ortho-matrix to project to 2D screen
   final _projection2D = M3Projection();
 
@@ -34,6 +38,7 @@ class M3RenderEngine {
   void dispose() {
     _shadowMap?.dispose();
     _ssaoPass?.dispose();
+    _bloomPass?.dispose();
   }
 
   void createShadowMap({int width = 1024, int height = 1024}) {
@@ -43,6 +48,11 @@ class M3RenderEngine {
   void createSSAO(int width, int height) {
     _ssaoPass?.dispose();
     _ssaoPass = M3SSAOPass(width, height);
+  }
+
+  void createBloom(int width, int height) {
+    _bloomPass?.dispose();
+    _bloomPass = M3BloomPass(width, height);
   }
 
   void bindDefaultFramebuffer() {
@@ -69,6 +79,11 @@ class M3RenderEngine {
     // Recreate SSAO buffers if enabled
     if (options.shader.ssao) {
       createSSAO(pixelW, pixelH);
+    }
+
+    // Recreate Bloom buffers if enabled
+    if (options.shader.bloom) {
+      createBloom(pixelW, pixelH);
     }
   }
 
@@ -98,6 +113,21 @@ class M3RenderEngine {
   void renderScene(M3Scene scene) {
     stats.reset();
     stats.frames++;
+
+    // Bloom: lazy create if needed
+    if (options.shader.bloom && _bloomPass == null) {
+      final engine = M3AppEngine.instance;
+      final pixelW = (engine.appWidth * engine.devicePixelRatio).toInt();
+      final pixelH = (engine.appHeight * engine.devicePixelRatio).toInt();
+      if (pixelW > 0 && pixelH > 0) {
+        createBloom(pixelW, pixelH);
+      }
+    }
+
+    // If bloom is enabled, render scene to offscreen FBO
+    if (options.shader.bloom && _bloomPass != null) {
+      _bloomPass!.bindSceneFbo();
+    }
 
     // draw skybox
     if (scene.skybox != null) {
@@ -160,6 +190,16 @@ class M3RenderEngine {
     // draw Helper
     if (options.debug.showHelpers) {
       scene.renderHelper();
+    }
+
+    // Bloom post-process: bright pass → blur → composite to default FBO
+    if (options.shader.bloom && _bloomPass != null) {
+      _bloomPass!.renderBrightPass();
+      _bloomPass!.renderBlur();
+
+      // Restore default FBO and composite
+      bindDefaultFramebuffer();
+      _bloomPass!.renderComposite();
     }
   }
 

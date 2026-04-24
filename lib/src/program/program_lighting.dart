@@ -11,6 +11,8 @@ mixin M3LightingShader {
   late UniformLocation uniformParamPBR; // x: Metallic, y: Roughness
   late UniformLocation uniformSamplerEnvironment;
   late UniformLocation uniformEmissive; // "ColorEmissive" self-illumination
+  late UniformLocation uniformSamplerEmissive; // emissive texture sampler
+  late UniformLocation uniformHasEmissiveTex; // flag for emissive texture
 
   M3Light? _light; // active light
 
@@ -23,6 +25,12 @@ mixin M3LightingShader {
     uniformParamPBR = gl.getUniformLocation(prog, "uParamPBR");
     uniformSamplerEnvironment = gl.getUniformLocation(prog, "SamplerEnvironment");
     uniformEmissive = gl.getUniformLocation(prog, "ColorEmissive");
+    uniformSamplerEmissive = gl.getUniformLocation(prog, "SamplerEmissive");
+    uniformHasEmissiveTex = gl.getUniformLocation(prog, "uHasEmissiveTex");
+
+    if (M3Program.isLocationValid(uniformSamplerEmissive)) {
+      gl.uniform1i(uniformSamplerEmissive, 4); // GL_TEXTURE4
+    }
 
     // Set up some default material parameters.
     if (M3Program.isLocationValid(uniformParamPBR)) {
@@ -94,6 +102,17 @@ class M3ProgramLighting extends M3ProgramEye with M3LightingShader {
     // Emissive
     if (M3Program.isLocationValid(uniformEmissive)) {
       gl.uniform3fv(uniformEmissive, mtr.emissive.storage);
+    }
+
+    // Emissive Texture
+    if (M3Program.isLocationValid(uniformHasEmissiveTex)) {
+      final hasEmissiveTex = mtr.texEmissive != null;
+      gl.uniform1i(uniformHasEmissiveTex, hasEmissiveTex ? 1 : 0);
+      if (hasEmissiveTex) {
+        gl.activeTexture(WebGL.TEXTURE4);
+        mtr.texEmissive!.bind();
+        gl.activeTexture(WebGL.TEXTURE0);
+      }
     }
   }
 }

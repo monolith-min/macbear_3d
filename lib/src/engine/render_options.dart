@@ -100,6 +100,15 @@ class M3ShaderOptions {
     _ssao = v;
     isDirty = true;
   }
+
+  // --- bloom ---
+  bool _bloom = false;
+  bool get bloom => _bloom;
+  set bloom(bool v) {
+    if (_bloom == v) return;
+    _bloom = v;
+    isDirty = true;
+  }
 }
 
 /// Rendering statistics

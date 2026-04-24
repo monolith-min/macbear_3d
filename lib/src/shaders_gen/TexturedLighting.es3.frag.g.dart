@@ -9,7 +9,6 @@ const String TexturedLighting_frag = r"""
 precision mediump float;
 
 uniform lowp vec3 ColorAmbient;		// ambient RGB
-uniform lowp vec3 ColorEmissive;	// emissive RGB (self-illumination)
 
 in lowp vec4 SpecularOut;	// separate specular added
 in lowp vec4 DestinationColor;
@@ -19,7 +18,7 @@ in lowp vec4 DestinationColor;
 lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
 {
 	lowp vec4 result = texDiffuse * DestinationColor;
-	result.rgb += SpecularOut.rgb + ColorEmissive;
+	result.rgb += SpecularOut.rgb;
 	return result;
 }
 
@@ -57,6 +56,11 @@ uniform highp float NormalBias;			// normal bias (for shadow acne)
 in mediump vec2 ScreenUV;
 uniform sampler2D SamplerSSAO;	// GL_TEXTURE3
 #endif // ENABLE_SSAO
+
+// Emissive
+uniform lowp vec3 ColorEmissive;
+uniform sampler2D SamplerEmissive;	// GL_TEXTURE4
+uniform lowp int uHasEmissiveTex;
 
 out vec4 fragColor;
 
@@ -204,6 +208,15 @@ void main(void)
 		texResult.rgb *= ao;
 	}
 #endif // ENABLE_SSAO
+
+	// Emissive: self-illumination (added after SSAO so glow is not darkened)
+	if (matAlpha >= 0.99) {
+		lowp vec3 emissiveColor = ColorEmissive;
+		if (uHasEmissiveTex > 0) {
+			emissiveColor *= texture(SamplerEmissive, TextureCoordOut).rgb;
+		}
+		texResult.rgb += emissiveColor;
+	}
 
 	fragColor = texResult;
 }

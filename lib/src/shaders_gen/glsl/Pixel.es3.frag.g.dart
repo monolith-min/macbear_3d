@@ -14,6 +14,8 @@ uniform lowp vec3 ColorAmbient;		// ambient RGB
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
 uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
 uniform lowp vec3 ColorEmissive;	// emissive RGB (self-illumination)
+uniform sampler2D SamplerEmissive;	// GL_TEXTURE4
+uniform lowp int uHasEmissiveTex;	// 1 if emissive texture exists
 
 uniform mediump vec3 LightPosition;	// parallel light
 in mediump vec3 ObjectspaceN;
@@ -146,9 +148,8 @@ lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
     ambient = ApplyIBL(ambient, N, V, Fibl);
     #endif // ENABLE_IBL
 
-    // Lit: ambient + (diffuse + specular) + emissive
+    // Lit: ambient + (diffuse + specular)
     mediump vec3 color = ambient + (kD * baseColor + specular) * NdotL;
-    color += pow(ColorEmissive, vec3(2.2)); // emissive in linear space
 
     // HDR tone mapping removed as we use LDR lights; only keep Gamma Correction
     color = pow(max(color, 0.0), vec3(1.0 / 2.2));
@@ -168,10 +169,10 @@ lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
 	sf = step(0.5, sf);
 	#endif // ENABLE_CARTOON
 	
-	// lit = ambient + diffuse + specular * shininess + emissive
+	// lit = ambient + diffuse + specular * shininess
     result.a = texDiffuse.a * ColorDiffuse.a;
 	result.rgb = texDiffuse.rgb * (ColorAmbient + ColorDiffuse.rgb * df);
-    result.rgb = result.rgb + ColorSpecular.rgb * sf + ColorEmissive;
+    result.rgb = result.rgb + ColorSpecular.rgb * sf;
 
     return result;
 

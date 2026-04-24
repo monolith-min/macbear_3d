@@ -160,6 +160,7 @@ class GltfMaterial {
   final String alphaMode; // "OPAQUE", "MASK", "BLEND"
   final double alphaCutoff;
   final Vector3 emissiveFactor;
+  final int? emissiveTextureIndex;
 
   GltfMaterial({
     required this.name,
@@ -170,6 +171,7 @@ class GltfMaterial {
     this.alphaMode = 'OPAQUE',
     this.alphaCutoff = 0.5,
     Vector3? emissiveFactor,
+    this.emissiveTextureIndex,
   }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 
   static GltfMaterial parse(Map<String, dynamic> json) {
@@ -210,6 +212,13 @@ class GltfMaterial {
       }
     }
 
+    // Emissive Texture
+    int? emissiveTexIndex;
+    if (json.containsKey('emissiveTexture')) {
+      final tex = json['emissiveTexture'] as Map<String, dynamic>;
+      emissiveTexIndex = tex['index'] as int?;
+    }
+
     return GltfMaterial(
       name: json['name'] as String? ?? 'Material',
       baseColorFactor: color,
@@ -219,6 +228,7 @@ class GltfMaterial {
       alphaMode: json['alphaMode'] as String? ?? 'OPAQUE',
       alphaCutoff: (json['alphaCutoff'] as num?)?.toDouble() ?? 0.5,
       emissiveFactor: emissive,
+      emissiveTextureIndex: emissiveTexIndex,
     );
   }
 }

@@ -30,6 +30,7 @@ class M3Material {
 
   // textures
   M3Texture texDiffuse = M3Resources.texWhite;
+  M3Texture? texEmissive; // emissive texture (null = use emissive color only)
   Matrix3 texMatrix = Matrix3.identity();
 
   M3Material();
@@ -62,6 +63,7 @@ class M3Material {
     alphaMode = other.alphaMode;
     renderOrder = other.renderOrder;
     texDiffuse = other.texDiffuse;
+    texEmissive = other.texEmissive;
     texMatrix.setFrom(other.texMatrix);
   }
 
@@ -86,6 +88,21 @@ class M3Material {
         final tex = doc.runtimeTextures[texIndex];
         if (tex is M3Texture) {
           mtr.texDiffuse = tex;
+        }
+      }
+    }
+
+    // Emissive Texture
+    if (gltfMat.emissiveTextureIndex != null) {
+      final texIndex = gltfMat.emissiveTextureIndex!;
+      if (texIndex < doc.runtimeTextures.length) {
+        final tex = doc.runtimeTextures[texIndex];
+        if (tex is M3Texture) {
+          mtr.texEmissive = tex;
+          // If emissiveFactor is zero but texture exists, default to white
+          if (mtr.emissive.length2 < 0.001) {
+            mtr.emissive = Vector3(1.0, 1.0, 1.0);
+          }
         }
       }
     }
