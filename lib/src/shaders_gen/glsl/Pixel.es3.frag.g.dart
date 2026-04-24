@@ -13,9 +13,8 @@ precision mediump float;
 uniform lowp vec3 ColorAmbient;		// ambient RGB 
 uniform lowp vec4 ColorDiffuse;		// diffuse RGBA
 uniform mediump vec4 ColorSpecular;	// specular RGB, w: shininess
-uniform lowp vec3 ColorEmissive;	// emissive RGB (self-illumination)
-uniform sampler2D SamplerEmissive;	// GL_TEXTURE4
-uniform lowp int uHasEmissiveTex;	// 1 if emissive texture exists
+// Note: ColorEmissive, SamplerEmissive, uHasEmissiveTex are declared
+// in TexturedLighting.frag (shared scope) to avoid duplicate definitions.
 
 uniform mediump vec3 LightPosition;	// parallel light
 in mediump vec3 ObjectspaceN;
