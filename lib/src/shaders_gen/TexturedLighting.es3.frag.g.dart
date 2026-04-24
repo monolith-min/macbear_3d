@@ -113,9 +113,8 @@ void main(void)
 		highp float bias = 0.0005;
 		lowp float shadow = 0.0;
 
-		// 16-tap Poisson Disk PCF for smooth natural shadow edges
-		const int NUM_SAMPLES = 16;
-		highp vec2 poissonDisk[16];
+		// 32-tap Poisson Disk PCF for high-quality soft shadow edges
+		highp vec2 poissonDisk[32];
 		poissonDisk[0]  = vec2(-0.9420, -0.3991);
 		poissonDisk[1]  = vec2( 0.9456, -0.7689);
 		poissonDisk[2]  = vec2(-0.0942, -0.9293);
@@ -132,15 +131,31 @@ void main(void)
 		poissonDisk[13] = vec2(-0.5906,  0.8043);
 		poissonDisk[14] = vec2(-0.2276, -0.6207);
 		poissonDisk[15] = vec2( 0.3647, -0.0146);
+		poissonDisk[16] = vec2(-0.4839,  0.6365);
+		poissonDisk[17] = vec2( 0.7256, -0.1439);
+		poissonDisk[18] = vec2(-0.1612,  0.9520);
+		poissonDisk[19] = vec2( 0.2093, -0.7571);
+		poissonDisk[20] = vec2(-0.6892, -0.5574);
+		poissonDisk[21] = vec2( 0.4431,  0.6091);
+		poissonDisk[22] = vec2(-0.7652,  0.1230);
+		poissonDisk[23] = vec2( 0.8875,  0.2064);
+		poissonDisk[24] = vec2(-0.3913, -0.7831);
+		poissonDisk[25] = vec2( 0.1501,  0.7511);
+		poissonDisk[26] = vec2( 0.6710, -0.5265);
+		poissonDisk[27] = vec2(-0.5524, -0.0243);
+		poissonDisk[28] = vec2( 0.0790,  0.1175);
+		poissonDisk[29] = vec2(-0.2110,  0.4046);
+		poissonDisk[30] = vec2( 0.3842, -0.4672);
+		poissonDisk[31] = vec2(-0.9017,  0.7614);
 
 		// Spread radius in texels (wider = softer edge)
-		highp float spreadRadius = 3.0;
+		highp float spreadRadius = 8.0;
 
-		for (int i = 0; i < NUM_SAMPLES; i++) {
+		for (int i = 0; i < 32; i++) {
 			highp float pcfDepth = texture(SamplerShadowmap, lCoordShadowmap.st + poissonDisk[i] * texelSize * spreadRadius).r;
 			shadow += step(lCoordShadowmap.z - bias, pcfDepth);
 		}
-		lowp float factorLit = shadow / float(NUM_SAMPLES);
+		lowp float factorLit = shadow / 32.0;
 
 		texResult = mix(ComputePixelUnlit(texResult), ComputePixelLit(texResult), factorLit);
 		// Shadow catcher: blend material -> shadow areas visible, lit areas transparent
