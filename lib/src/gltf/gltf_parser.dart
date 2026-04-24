@@ -159,6 +159,7 @@ class GltfMaterial {
   final double roughnessFactor;
   final String alphaMode; // "OPAQUE", "MASK", "BLEND"
   final double alphaCutoff;
+  final Vector3 emissiveFactor;
 
   GltfMaterial({
     required this.name,
@@ -168,7 +169,8 @@ class GltfMaterial {
     this.roughnessFactor = 1.0,
     this.alphaMode = 'OPAQUE',
     this.alphaCutoff = 0.5,
-  });
+    Vector3? emissiveFactor,
+  }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 
   static GltfMaterial parse(Map<String, dynamic> json) {
     final pbr = json['pbrMetallicRoughness'] as Map<String, dynamic>? ?? {};
@@ -199,6 +201,15 @@ class GltfMaterial {
       roughness = (pbr['roughnessFactor'] as num).toDouble();
     }
 
+    // Emissive Factor
+    Vector3? emissive;
+    if (json.containsKey('emissiveFactor')) {
+      final list = (json['emissiveFactor'] as List<dynamic>).map((e) => (e as num).toDouble()).toList();
+      if (list.length >= 3) {
+        emissive = Vector3(list[0], list[1], list[2]);
+      }
+    }
+
     return GltfMaterial(
       name: json['name'] as String? ?? 'Material',
       baseColorFactor: color,
@@ -207,6 +218,7 @@ class GltfMaterial {
       roughnessFactor: roughness,
       alphaMode: json['alphaMode'] as String? ?? 'OPAQUE',
       alphaCutoff: (json['alphaCutoff'] as num?)?.toDouble() ?? 0.5,
+      emissiveFactor: emissive,
     );
   }
 }

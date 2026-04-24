@@ -24,6 +24,7 @@ class M3Material {
   double reflection = 0.0;
   double metallic = 0.0;
   double roughness = 0.8;
+  Vector3 emissive = Vector3.zero(); // self-illumination color (0=none, 1=full)
   M3AlphaMode alphaMode = M3AlphaMode.opaque;
   int renderOrder = 0; // manual override for fine-tuned sorting
 
@@ -57,6 +58,7 @@ class M3Material {
     reflection = other.reflection;
     metallic = other.metallic;
     roughness = other.roughness;
+    emissive.setFrom(other.emissive);
     alphaMode = other.alphaMode;
     renderOrder = other.renderOrder;
     texDiffuse = other.texDiffuse;
@@ -74,6 +76,8 @@ class M3Material {
     } else if (gltfMat.alphaMode == 'MASK') {
       mtr.alphaMode = M3AlphaMode.mask;
     }
+
+    mtr.emissive.setFrom(gltfMat.emissiveFactor);
 
     // Base Color Texture
     if (gltfMat.baseColorTextureIndex != null) {

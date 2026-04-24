@@ -10,6 +10,7 @@ mixin M3LightingShader {
   late UniformLocation uniformLightPosition; // light position "LightPosition" (per object-space)
   late UniformLocation uniformParamPBR; // x: Metallic, y: Roughness
   late UniformLocation uniformSamplerEnvironment;
+  late UniformLocation uniformEmissive; // "ColorEmissive" self-illumination
 
   M3Light? _light; // active light
 
@@ -21,6 +22,7 @@ mixin M3LightingShader {
     uniformLightPosition = gl.getUniformLocation(prog, "LightPosition");
     uniformParamPBR = gl.getUniformLocation(prog, "uParamPBR");
     uniformSamplerEnvironment = gl.getUniformLocation(prog, "SamplerEnvironment");
+    uniformEmissive = gl.getUniformLocation(prog, "ColorEmissive");
 
     // Set up some default material parameters.
     if (M3Program.isLocationValid(uniformParamPBR)) {
@@ -87,6 +89,11 @@ class M3ProgramLighting extends M3ProgramEye with M3LightingShader {
     // PBR
     if (M3Program.isLocationValid(uniformParamPBR)) {
       gl.uniform2f(uniformParamPBR, mtr.metallic, mtr.roughness);
+    }
+
+    // Emissive
+    if (M3Program.isLocationValid(uniformEmissive)) {
+      gl.uniform3fv(uniformEmissive, mtr.emissive.storage);
     }
   }
 }

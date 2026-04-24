@@ -8,7 +8,8 @@ const String TexturedLighting_frag = r"""
 
 precision mediump float;
 
-uniform lowp vec3 ColorAmbient;		// ambient RGB 
+uniform lowp vec3 ColorAmbient;		// ambient RGB
+uniform lowp vec3 ColorEmissive;	// emissive RGB (self-illumination)
 
 in lowp vec4 SpecularOut;	// separate specular added
 in lowp vec4 DestinationColor;
@@ -18,7 +19,7 @@ in lowp vec4 DestinationColor;
 lowp vec4 ComputePixelLit(in lowp vec4 texDiffuse)
 {
 	lowp vec4 result = texDiffuse * DestinationColor;
-	result.rgb += SpecularOut.rgb;
+	result.rgb += SpecularOut.rgb + ColorEmissive;
 	return result;
 }
 
