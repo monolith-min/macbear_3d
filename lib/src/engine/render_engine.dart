@@ -46,7 +46,9 @@ class M3RenderEngine {
   }
 
   void createShadowMap({int width = 1024, int height = 1024}) {
-    _shadowMap ??= M3ShadowMap(width, height);
+    if (_shadowMap != null && _shadowMap!.mapW == width && _shadowMap!.mapH == height) return;
+    _shadowMap?.dispose();
+    _shadowMap = M3ShadowMap(width, height);
   }
 
   void createSSAO(int width, int height) {
