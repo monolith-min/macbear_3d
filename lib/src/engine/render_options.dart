@@ -109,6 +109,15 @@ class M3ShaderOptions {
     _bloom = v;
     isDirty = true;
   }
+
+  // --- fog ---
+  bool _fog = false;
+  bool get fog => _fog;
+  set fog(bool v) {
+    if (_fog == v) return;
+    _fog = v;
+    isDirty = true;
+  }
 }
 
 /// Rendering statistics

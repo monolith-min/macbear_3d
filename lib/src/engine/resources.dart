@@ -181,6 +181,11 @@ class M3Resources {
         }
       }
     }
+    // Fog define
+    if (options.fog) {
+      strVert = "#define ENABLE_FOG \n$strVert";
+      strFrag = "#define ENABLE_FOG \n$strFrag";
+    }
     // SSAO define (applied to base + shadow programs)
     if (options.ssao) {
       strVert = "#define ENABLE_SSAO \n$strVert";

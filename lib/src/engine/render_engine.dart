@@ -30,6 +30,10 @@ class M3RenderEngine {
   final M3RenderOptions options = M3RenderOptions();
   final M3RenderStats stats = M3RenderStats();
 
+  // Fog parameters (adjustable from app side)
+  double fogDepth = 30.0; // fog distance
+  Vector3 fogColor = Vector3(0.8, 0.85, 0.9); // light grey-blue
+
   // constructor
   M3RenderEngine() {
     debugPrint("--- M3RenderEngine constructor ---");
@@ -161,6 +165,16 @@ class M3RenderEngine {
 
       progLight.applyLight(scene.light);
 
+      // Fog uniforms
+      if (options.shader.fog) {
+        if (M3Program.isLocationValid(progLight.uniformFogDepth)) {
+          gl.uniform1f(progLight.uniformFogDepth, fogDepth);
+        }
+        if (M3Program.isLocationValid(progLight.uniformFogColor)) {
+          gl.uniform3fv(progLight.uniformFogColor, fogColor.storage);
+        }
+      }
+
       // Bind SSAO texture to TEXTURE3 if enabled
       if (options.shader.ssao && _ssaoPass != null) {
         final ssaoLoc = gl.getUniformLocation(progLight.program, 'SamplerSSAO');
@@ -250,7 +264,7 @@ class M3RenderEngine {
       matStats.setTranslation(Vector3(M3AppEngine.instance.appWidth - 100, 66, 0));
       matStats.scaleByVector3(Vector3.all(0.9));
       // Render Stats
-      M3Resources.text2D.drawText(stats.toString(), matStats, color: Vector4(1, 1, 1, 1));
+      M3Resources.text2D.drawText(stats.toString(), matStats, color: Vector4(0, 1, 1, 1));
 
       if (engine.activeScene != null) {
         final scene = engine.activeScene!;

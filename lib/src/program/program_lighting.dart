@@ -14,6 +14,11 @@ mixin M3LightingShader {
   late UniformLocation uniformSamplerEmissive; // emissive texture sampler
   late UniformLocation uniformHasEmissiveTex; // flag for emissive texture
 
+  // Fog
+  late UniformLocation uniformFogPlane; // "FogPlane" (camera forward plane)
+  late UniformLocation uniformFogDepth; // "FogDepth" (fog distance)
+  late UniformLocation uniformFogColor; // "FogColor" (fog color RGB)
+
   M3Light? _light; // active light
 
   void initLightingLocation(Program prog) {
@@ -27,6 +32,11 @@ mixin M3LightingShader {
     uniformEmissive = gl.getUniformLocation(prog, "ColorEmissive");
     uniformSamplerEmissive = gl.getUniformLocation(prog, "SamplerEmissive");
     uniformHasEmissiveTex = gl.getUniformLocation(prog, "uHasEmissiveTex");
+
+    // Fog
+    uniformFogPlane = gl.getUniformLocation(prog, "FogPlane");
+    uniformFogDepth = gl.getUniformLocation(prog, "FogDepth");
+    uniformFogColor = gl.getUniformLocation(prog, "FogColor");
 
     if (M3Program.isLocationValid(uniformSamplerEmissive)) {
       gl.uniform1i(uniformSamplerEmissive, 4); // GL_TEXTURE4
@@ -64,6 +74,13 @@ class M3ProgramLighting extends M3ProgramEye with M3LightingShader {
       Vector4 lightDirection = Matrix4.inverted(mMatrix) * light.getDirection();
       lightDirection.normalize();
       gl.uniform3fv(uniformLightPosition, lightDirection.xyz.storage);
+    }
+
+    // Fog: camera forward plane in object space
+    if (M3Program.isLocationValid(uniformFogPlane)) {
+      final viewRow2 = cam.viewMatrix.getRow(2); // camera forward
+      final fogPlane = Matrix4.inverted(mMatrix).transposed() * viewRow2;
+      gl.uniform4fv(uniformFogPlane, fogPlane.storage);
     }
   }
 
