@@ -141,6 +141,10 @@ class M3AppEngine with ChangeNotifier {
     ticker.stop(canceled: true);
     ticker.dispose();
 
+    // for scene
+    activeScene?.dispose();
+    activeScene = null;
+
     // for render engine
     renderEngine.dispose();
 
@@ -148,7 +152,11 @@ class M3AppEngine with ChangeNotifier {
     _angle.deleteTexture(_sourceTexture);
     _angle.dispose([_sourceTexture]);
 
-    super.dispose();
+    // reset init flag so initApp() can re-initialize on next entry
+    _didInit = false;
+
+    // Note: intentionally NOT calling super.dispose() (ChangeNotifier)
+    // because this singleton will be reused on re-entry.
   }
 
   Future<void> setScene(M3Scene scene) async {
