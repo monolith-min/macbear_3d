@@ -29,7 +29,7 @@ attribute mediump vec4 inBoneWeight;
 		  
 // skinning mesh part: bone
 uniform mediump int BoneCount;
-uniform highp   mat4 BoneMatrixArray[32];
+uniform highp   mat4 BoneMatrixArray[128];
 //uniform highp   mat3 BoneMatrixArrayIT[8];
 /*
 void ComputeSkinningVertex(out highp vec4 objVert, out mediump vec3 objNormal)

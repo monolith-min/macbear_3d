@@ -11,7 +11,7 @@ layout(location = 5) in mediump vec4 inBoneWeight;
 
 // skinning mesh part: bone
 uniform mediump int BoneCount;
-uniform highp mat4 BoneMatrixArray[32];
+uniform highp mat4 BoneMatrixArray[128];
 
 #ifdef ENABLE_NORMAL
 layout(location = 2) in mediump vec3 inNormal;
