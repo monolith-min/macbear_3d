@@ -131,7 +131,32 @@ class M3AppEngine with ChangeNotifier {
     };
   }
 
-  // dispose app
+  /// Whether the ANGLE/GL context has been initialized (survives page navigations).
+  bool get isInitialized => _didInit;
+
+  /// Lightweight teardown for page navigation: disposes scene and ticker
+  /// but keeps the ANGLE/GL context alive for re-entry.
+  void detach() {
+    debugPrint("--- engine detach (keep GL context) ---");
+    // stop ticker (will be recreated by M3View on re-entry)
+    ticker.stop(canceled: true);
+    ticker.dispose();
+
+    // dispose scene
+    activeScene?.dispose();
+    activeScene = null;
+
+    // stop keyboard
+    keyboard.stop();
+
+    // reset physics
+    physicsEngine.resetWorld();
+
+    // clear touch state
+    touchManager.clearAll();
+  }
+
+  // Full dispose - destroys GL context. Only call on app exit.
   @override
   void dispose() {
     // for keyboard
@@ -152,11 +177,9 @@ class M3AppEngine with ChangeNotifier {
     _angle.deleteTexture(_sourceTexture);
     _angle.dispose([_sourceTexture]);
 
-    // reset init flag so initApp() can re-initialize on next entry
     _didInit = false;
 
-    // Note: intentionally NOT calling super.dispose() (ChangeNotifier)
-    // because this singleton will be reused on re-entry.
+    super.dispose();
   }
 
   Future<void> setScene(M3Scene scene) async {

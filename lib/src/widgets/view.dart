@@ -35,17 +35,33 @@ class _M3ViewState extends State<M3View> with SingleTickerProviderStateMixin, Wi
     final screenH = size.height.toInt();
     debugPrint("=== M3View: initState addPostFrameCallback ($mounted) ($screenW x $screenH) dpr: $dpr ===");
 
-    // ticker to update and render
     final engine = M3AppEngine.instance;
+
+    // Always create a fresh ticker (old one was disposed on detach/dispose)
     engine.ticker = createTicker(engine.updateRender);
 
-    // init AppEngine
-    await engine.initApp(width: screenW, height: screenH, dpr: dpr);
-
-    setState(() {
-      engine.resume();
-      debugPrint("=== setState after initApp ===");
-    });
+    if (engine.isInitialized) {
+      // GL context is still alive from previous visit — just re-attach
+      debugPrint("=== M3View: re-attaching to existing GL context ===");
+      engine.initKeyboard();
+      engine.renderEngine.setViewport(screenW, screenH, dpr);
+      if (engine.onDidInit != null) {
+        await engine.onDidInit!();
+      }
+      if (!context.mounted) return;
+      setState(() {
+        engine.resume();
+        debugPrint("=== setState after re-attach ===");
+      });
+    } else {
+      // First time — full initialization
+      await engine.initApp(width: screenW, height: screenH, dpr: dpr);
+      if (!context.mounted) return;
+      setState(() {
+        engine.resume();
+        debugPrint("=== setState after initApp ===");
+      });
+    }
   }
 
   /// 核心邏輯：在 Android 上不斷檢查直到尺寸就緒
@@ -67,7 +83,8 @@ class _M3ViewState extends State<M3View> with SingleTickerProviderStateMixin, Wi
     _debounceTimer?.cancel(); // Cancel timer if active
     WidgetsBinding.instance.removeObserver(this);
 
-    M3AppEngine.instance.dispose();
+    // Detach only — keep GL context alive for re-entry
+    M3AppEngine.instance.detach();
 
     super.dispose();
   }
