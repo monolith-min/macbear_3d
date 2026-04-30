@@ -26,6 +26,7 @@ class M3Material {
   double roughness = 0.8;
   Vector3 emissive = Vector3.zero(); // self-illumination color (0=none, 1=full)
   M3AlphaMode alphaMode = M3AlphaMode.opaque;
+  bool depthWrite = true; // whether this material writes to the depth buffer
   int renderOrder = 0; // manual override for fine-tuned sorting
 
   // textures
@@ -61,6 +62,7 @@ class M3Material {
     roughness = other.roughness;
     emissive.setFrom(other.emissive);
     alphaMode = other.alphaMode;
+    depthWrite = other.depthWrite;
     renderOrder = other.renderOrder;
     texDiffuse = other.texDiffuse;
     texEmissive = other.texEmissive;

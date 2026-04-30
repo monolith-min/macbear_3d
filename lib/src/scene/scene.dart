@@ -172,12 +172,22 @@ abstract class M3Scene {
       activeProg.setMaterial(mesh.mtr, entity.color);
       activeProg.setSkinning(mesh.skin);
 
+      // per-material depth write control
+      if (!mesh.mtr.depthWrite) {
+        gl.depthMask(false);
+      }
+
       // pre-reflection probe
       if (entity.reflectionProbe != null) {
         _applyReflectionCubemap(activeProg, entity.reflectionProbe!.texCubemap);
       }
 
       mesh.geom.draw(activeProg, bSolid: bSolid);
+
+      // restore depth write
+      if (!mesh.mtr.depthWrite) {
+        gl.depthMask(true);
+      }
 
       // Restore program if it was switched
       if (activeProg != prog) {
